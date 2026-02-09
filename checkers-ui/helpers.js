@@ -1,4 +1,3 @@
-// simple functions
 function range(size, startAt = 0) {
     if (typeof startAt === "string" && startAt.length === 1) return String.fromCharCode(...range(size, startAt.charCodeAt(0))).split(
         ""

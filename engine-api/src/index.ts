@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3002;
 const app = express();
 app.use(express.json());
 
-// TODO: Map them to human form
+// TODO: Map them from human form
 const ALLOWED_PIECES = [0, 1, -1, 3, -3]
 const ALLOWED_MOVES = [-1, 1]
 
