@@ -8,7 +8,9 @@ import {
 import {
     pickAMove
 } from './ai.js';
-import {saveGameToJson, createJsonFile, completeJsonFile, htmlBoardToJson} from './gameData.js'
+import {saveGameToJson, createJsonFile, htmlBoardToJson} from './gameData.js'
+import {generateBoard} from './boardPosition.js'
+import {MAX_GAMES_TO_PLAY, BOARD_SIZE, cols, rows, MOVE_ANIMATION_DURATION_MS} from './config.js'
 
 async function computerMove() {
     // declares variables which values are about to be determined. if it is not between multiple, chained captures - pick a piece and move from all computer pieces, else randomly pick a capture of only this piece which is inbetween captures
@@ -65,14 +67,13 @@ async function endTurn() {
     forbiddenDirectionForQueenCapture = [null, null];
     // if it is end of game, do what you gotta do when game ends
     if (isGameOver()) {
-        const hasWhiteWon = congratsToWinner();
-        saveGameToJson(gameBoardsHistory, hasWhiteWon)
         gamesPlayedCount++;
-        if (gamesPlayedCount < MAX_GAMES_TO_PLAY) {
-            // await sleep(500)
+        const willPlayAgain = gamesPlayedCount < MAX_GAMES_TO_PLAY
+        const hasWhiteWon = congratsToWinner();
+        saveGameToJson(gameBoardsHistory, hasWhiteWon, !willPlayAgain)
+        if (willPlayAgain) {
             resetGame();
         } else {
-            completeJsonFile()
             alert('ALL GAMES PLAYED')
         }
     }
@@ -438,64 +439,6 @@ function isGameOver() {
 }
 
 // generate game components
-function generateBoard(size) {
-    // start from creating black square, creates sections for DOM, adds appropriate class
-    let whiteSquare = false;
-    const main = document.querySelector("main");
-    const grid = document.createElement("section");
-    grid.classList.add("board");
-    // divides grid for given board size
-    grid.style.gridTemplateColumns = `0.2fr repeat(${size}, 1fr`;
-    grid.style.gridTemplateRows = `repeat(${size}, 1fr) 0.2fr`;
-    // sets order of rows and cols depending on board orientation
-    const rowOrder = [...rows].reverse();
-    const colOrder = [...cols];
-    // for every new row, change color of first sqaure, create square with name and append it as first
-    for (let rowName of rowOrder) {
-        whiteSquare = !whiteSquare;
-        const squareWithName = document.createElement("div");
-        squareWithName.classList.add(
-            "grid__square--name-row",
-            "grid__square--name"
-        );
-        squareWithName.innerText = rowName;
-        grid.append(squareWithName);
-        // loop over cols and create board squares with id, classname and classname if its white or black and approprriate event
-        for (let colName of colOrder) {
-            const square = document.createElement("div");
-            const nameOfSquare = `${colName + rowName}`;
-            square.classList.add("grid__square");
-            square.setAttribute("id", nameOfSquare);
-            if (whiteSquare) {
-                square.classList.add("grid__square--white");
-            } else {
-                square.classList.add("grid__square--black");
-            }
-            // append square and change color of squares between cols
-            grid.appendChild(square);
-            whiteSquare = !whiteSquare;
-        }
-    }
-    // create empty element at the corner and all column name squares under the board
-    grid.append(document.createElement("div"));
-    for (let colName of colOrder) {
-        const squareWithName = document.createElement("div");
-        squareWithName.classList.add(
-            "grid__square--name-col",
-            "grid__square--name"
-        );
-        squareWithName.innerText = colName;
-        grid.append(squareWithName);
-    }
-    // append grid to main and main to DOM
-    main.appendChild(grid);
-    document.body.insertBefore(
-        main,
-        document.querySelector(".captured-pieces--bottom")
-    );
-    return grid;
-}
-
 function generateStartingPosition(board) {
     // selects all black squares and chooses order of putting pieces from up to down, gets size of board
     const rowNames = [...board.children]
@@ -601,18 +544,13 @@ async function startGame() {
 }
 
 // globals
-const BOARD_SIZE = 8;
-const cols = range(BOARD_SIZE, "a");
-const rows = range(BOARD_SIZE, 1);
 let turnNumber = 1;
 let isForcedCapture = false;
 let isWhiteToMove = true;
 let queenMovesWithoutCaptureCount = 0;
 let pieceAboutToChainCapture = null;
 let forbiddenDirectionForQueenCapture = [null, null];
-const MOVE_ANIMATION_DURATION_MS = 100;
 let gameBoardsHistory = []
-let gamesPlayedCount = 1;
-const MAX_GAMES_TO_PLAY = 10_000;
+let gamesPlayedCount = 0;
 
 generateTitleWindow();

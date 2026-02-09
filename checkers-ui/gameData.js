@@ -1,12 +1,6 @@
-const API_BASE = 'http://localhost:3001';
+import { chunkArray } from "./helpers.js";
 
-const chunkArray = (array, size) => {
-    const chunked = [];
-    for (let i = 0; i < array.length; i += size) {
-      chunked.push(array.slice(i, i + size));
-    }
-    return chunked;
-  };
+const API_BASE = 'http://localhost:3001';
 
 function htmlElementToJsonPiece(element) {
     const elementChildren = element.children
@@ -22,17 +16,9 @@ function htmlElementToJsonPiece(element) {
 
 function htmlBoardToJson() {
     const board = document.querySelector('.board')
-    const squares = [...board?.children ?? []].filter(element => !element.className.includes('grid__square--name') && element.className.includes('grid__square'))
-    const mappedSquares = chunkArray(squares, 8).reverse().flat()
+    const relevantSquares = [...board?.children ?? []].filter(element => !element.className.includes('grid__square--name') && element.className.includes('grid__square') && !element.className.includes('grid__square--white'))
+    const mappedSquares = chunkArray(relevantSquares, 8).reverse().flat()
     return mappedSquares.map(square => htmlElementToJsonPiece(square))
-}
-
-async function createJsonFile() {
-    await fetch(`${API_BASE}/api/game-history/start`, { method: 'POST' });
-}
-
-function completeJsonFile() {
-    fetch(`${API_BASE}/api/game-history/end`, { method: 'POST' });
 }
 
 function mapResultToJson(hasWhiteWon) {
@@ -45,14 +31,18 @@ function mapResultToJson(hasWhiteWon) {
     return -1
 }
 
-function saveGameToJson(boards, hasWhiteWon) {
+async function createJsonFile() {
+    await fetch(`${API_BASE}/api/game-history/start`, { method: 'POST' });
+}
+
+function saveGameToJson(boards, hasWhiteWon, isLastGame, dropCount = 0) {
     const result = mapResultToJson(hasWhiteWon)
-    const entries = boards.map(board => ({ board, result }))
+    const entries = boards.slice(dropCount).map((board, index) => ({ board, result, move: index + dropCount % 2 ? 1 : -1 }))
     fetch(`${API_BASE}/api/game-history/append`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ entries }),
+        body: JSON.stringify({ entries, isLastGame }),
     });
 }
 
-export { saveGameToJson, createJsonFile, completeJsonFile, htmlBoardToJson }
+export { saveGameToJson, createJsonFile, htmlBoardToJson }

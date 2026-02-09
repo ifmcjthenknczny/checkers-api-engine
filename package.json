@@ -4,9 +4,9 @@
   "description": "Checkers with random play and game history saved to disk",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "serve": "cd app && npx serve"
+    "start": "(cd data-server && node server.js)",
+    "dev": "(cd data-server && node server.js)",
+    "serve": "(cd checkers-ui && npx serve)"
   },
   "dependencies": {
     "express": "^4.21.0"

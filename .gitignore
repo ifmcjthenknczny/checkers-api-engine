@@ -8,3 +8,6 @@ data/**
 data
 node_modules
 node_modules/**
+*.pth
+.venv/**
+.venv

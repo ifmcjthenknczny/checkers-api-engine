@@ -1,6 +1,5 @@
 // simple functions
 function range(size, startAt = 0) {
-    //creates array of incrementing numbers or letters in alphabetic order of given size and starting from given number or letter (0 if not stated), works only for numbers and chars
     if (typeof startAt === "string" && startAt.length === 1) return String.fromCharCode(...range(size, startAt.charCodeAt(0))).split(
         ""
     );
@@ -9,12 +8,10 @@ function range(size, startAt = 0) {
 }
 
 function sleep(ms) {
-    // freezes code execution for given time in milliseconds, used in async functions with await keyword
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function fadeIn(elementSelector, time) {
-    // sets element to invisible, and increments its opacity to 1 in steps dictated by deltaOpacity
     let opacity = 0;
     const element = document.querySelector(elementSelector);
     element.style.opacity = opacity;
@@ -27,18 +24,24 @@ async function fadeIn(elementSelector, time) {
 }
 
 function getSquareColAndRow(square) {
-    // returns square parameter's column and row 
     let [col, ...row] = square.id;
     row = +row.join("");
     return [col, row];
 }
 
 function createDiagonalIterable(startIndex, targetIndex) {
-    // creates range to iterate over for either rows or cols, from the given square in given direction
     return startIndex < targetIndex ?
         range(targetIndex - startIndex, startIndex + 1) :
         range(startIndex - targetIndex, targetIndex).reverse();
 }
 
-export {range, sleep, fadeIn, getSquareColAndRow, createDiagonalIterable}
+const chunkArray = (array, size) => {
+    const chunked = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunked.push(array.slice(i, i + size));
+    }
+    return chunked;
+  };
+
+export {range, sleep, fadeIn, getSquareColAndRow, createDiagonalIterable, chunkArray}
 

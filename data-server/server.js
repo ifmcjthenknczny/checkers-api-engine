@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3001;
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = path.join(__dirname, '../data');
 const GAME_HISTORY_FILE = path.join(DATA_DIR, 'game_history.json');
 
 app.use((_req, res, next) => {
@@ -26,32 +26,20 @@ function ensureDataDir() {
 
 app.post('/api/game-history/start', (_req, res) => {
   ensureDataDir();
-  fs.writeFileSync(GAME_HISTORY_FILE, '[]', 'utf8');
-  res.status(200).json({ ok: true });
+  fs.writeFileSync(GAME_HISTORY_FILE, '[', 'utf8');
+  res.sendStatus(200);
 });
 
 app.post('/api/game-history/append', (req, res) => {
-  const { entries } = req.body || {};
-  if (!Array.isArray(entries)) {
-    return res.status(400).json({ error: 'Expected { entries: [...] }' });
-  }
-  ensureDataDir();
-  let existing = [];
-  if (fs.existsSync(GAME_HISTORY_FILE)) {
-    const raw = fs.readFileSync(GAME_HISTORY_FILE, 'utf8');
-    try {
-      existing = JSON.parse(raw);
-    } catch {
-      existing = [];
-    }
-  }
-  const updated = [...existing, ...entries];
-  fs.writeFileSync(GAME_HISTORY_FILE, JSON.stringify(updated, null, 2), 'utf8');
-  res.status(200).json({ ok: true });
-});
+  const { entries, isLastGame } = req.body || {};
+  const dataToAppend = `${JSON.stringify(entries).slice(1, -1)}${isLastGame ? ']' : ','}`
 
-app.post('/api/game-history/end', (_req, res) => {
-  res.status(200).json({ ok: true });
+  fs.appendFile(GAME_HISTORY_FILE, dataToAppend, 'utf8', (err) => {
+    if (err) {
+      return res.sendStatus(500).json({ error: 'Failed to write data' });
+    }
+    res.sendStatus(200);
+  });
 });
 
 app.listen(PORT, () => {
