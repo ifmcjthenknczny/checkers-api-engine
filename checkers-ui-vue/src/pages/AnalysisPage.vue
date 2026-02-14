@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import CheckersBoard from '@/components/CheckersBoard.vue';
+import Board from '@/components/BoardComponent.vue';
+import PieceSpawner from '@/components/PieceSpawner.vue';
 
 </script>
 
 <template>
-  <CheckersBoard />
+  <Board />
+  <PieceSpawner />
 </template>

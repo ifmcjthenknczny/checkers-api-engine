@@ -9,6 +9,18 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const emit = defineEmits<{dropPiece: [[number, number]]}>()
+const allowDrop = (e: DragEvent) => {
+  if (isWhiteSquare(rowIndex, colIndex)) {
+    return
+  }
+  e.preventDefault()
+}
+
+const drop = () => {
+  emit("dropPiece", props.position)
+}
+
 const [colIndex, rowIndex] = props.position
 </script>
 
@@ -20,6 +32,8 @@ const [colIndex, rowIndex] = props.position
           'grid__square',
           isWhiteSquare(rowIndex, colIndex) ? 'grid__square--white' : 'grid__square--black'
         ]"
+        @dragover="allowDrop"
+        @drop="drop"
       >
       <slot />
     </div>

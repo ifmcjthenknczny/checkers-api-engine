@@ -1,4 +1,4 @@
-import type { BoardPosition, PlayerOnMove } from '@/types'
+import type { BoardPosition, PlayerOnMove, SquareContent } from '@/types'
 
 const STARTING_BOARD_STATE = [
   ...Array(12).fill(-1),
@@ -22,5 +22,14 @@ export const useBoardStore = defineStore('board', () => {
     currentPlayer.value = currentPlayer.value === 'white' ? 'black' : 'white'
   }
 
-  return { board, setBoardState, currentPlayer, switchPlayer }
+  function movePiece(fromIndex: number, toIndex: number) {
+    const piece = board.value[fromIndex]
+    if (!piece) {
+      return
+    }
+    board.value[toIndex] = piece
+    board.value[fromIndex] = 0
+  }
+
+  return { board, setBoardState, currentPlayer, switchPlayer, movePiece }
 })

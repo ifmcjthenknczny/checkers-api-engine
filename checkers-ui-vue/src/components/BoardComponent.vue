@@ -1,3 +1,38 @@
+<script setup lang="ts">
+import { BOARD_SIZE } from '../config';
+import { range, rangeChar } from "../helpers";
+import { useBoardStore } from '@/stores/boardState';
+import CheckersPiece from './PieceComponent.vue';
+import CheckersSquare from './BoardSquare.vue';
+import { isWhiteSquare, getPieceIndex } from '@/boardHelpers';
+import { ref } from "vue"
+
+const cols = rangeChar(BOARD_SIZE, "a");
+const rows = range(BOARD_SIZE, 1).toReversed();
+
+const gridStyles = {
+  display: 'grid',
+  gridTemplateColumns: `0.2fr repeat(${BOARD_SIZE}, 1fr)`,
+  gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr) 0.2fr`
+};
+
+const { board, movePiece } = useBoardStore();
+
+const dragged = ref<number | null>(null)
+
+const onDrop = ([col,row]:[number,number]) => {
+  const from = dragged.value
+  const to = getPieceIndex(row, col)
+
+  if (from === null) {
+    return
+  }
+
+  movePiece(from, to)
+  dragged.value = null
+}
+</script>
+
 <template>
   <section
     class="board"
@@ -9,10 +44,12 @@
         {{ rowName }}
       </div>
 
-      <CheckersSquare v-for="(colName, colIndex) in cols" :position="[colIndex, rowIndex]" :colName="colName" :rowName="rowName" :key="`${colName}${rowName}`">
+      <CheckersSquare v-for="(colName, colIndex) in cols" :position="[colIndex, rowIndex]" :colName="colName" :rowName="rowName" :key="`${colName}${rowName}`" @drop-piece="onDrop">
         <CheckersPiece
           v-if="!isWhiteSquare(rowIndex, colIndex)"
           :piece="board[getPieceIndex(rowIndex, colIndex)]"
+          :index="getPieceIndex(rowIndex, colIndex)"
+          @dragStart="dragged = $event"
         />
       </CheckersSquare>
     </template>
@@ -28,26 +65,6 @@
     </div>
   </section>
 </template>
-
-<script setup lang="ts">
-import { BOARD_SIZE } from '../config';
-import { range, rangeChar } from "../helpers";
-import { useBoardStore } from '@/stores/boardState';
-import CheckersPiece from './CheckersPiece.vue';
-import CheckersSquare from './CheckersSquare.vue';
-import { isWhiteSquare, getPieceIndex } from '@/boardHelpers';
-
-const cols = rangeChar(BOARD_SIZE, "a");
-const rows = range(BOARD_SIZE, 1).toReversed();
-
-const gridStyles = {
-  display: 'grid',
-  gridTemplateColumns: `0.2fr repeat(${BOARD_SIZE}, 1fr)`,
-  gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr) 0.2fr`
-};
-
-const { board } = useBoardStore();
-</script>
 
 <style lang="scss" scoped>
 .board {

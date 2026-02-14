@@ -3,9 +3,10 @@ import type { SquareContent } from '@/types';
 
 interface Props {
   piece?: SquareContent
+  index: number
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const isQueen = (piece?: SquareContent) => {
   return piece && Math.abs(piece) === 3
@@ -21,12 +22,21 @@ const toClassNameList = (piece?: SquareContent) => {
 const toDecorationClassNameList = (piece?: SquareContent) => {
   return isQueen(piece) ? "piece--queen-decoration" : ""
 }
+
+const emit = defineEmits<{
+  dragStart: [number]
+}>()
+
+const dragStart = () => {
+  emit("dragStart", props.index)
+}
 </script>
 <template>
 <div
     v-if="piece !== 0"
     :class="toClassNameList(piece)"
-    :draggable="true"
+    draggable="true"
+    @dragstart="dragStart"
   >
     <div v-if="isQueen(piece)" :class="toDecorationClassNameList(piece)" />
   </div>
