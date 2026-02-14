@@ -18,7 +18,8 @@ const gridStyles = {
   gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr) 0.2fr`,
 }
 
-const { board, movePiece, addPiece } = useBoardStore()
+const boardStore = useBoardStore()
+const { board } = storeToRefs(boardStore)
 const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
 
@@ -29,7 +30,7 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
     if (!piece) {
       return
     }
-    addPiece(piece, to)
+    boardStore.addPiece(piece, to)
   }
 
   if (dragContext.value === 'board') {
@@ -37,7 +38,7 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
     if (from === null) {
       return
     }
-    movePiece(from, to)
+    boardStore.movePiece(from, to)
   }
 
   dragStore.stopDrag()
@@ -61,7 +62,7 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
       >
         <CheckersPiece
           v-if="!isWhiteSquare(rowIndex, colIndex)"
-          :piece="board[getPieceIndex(rowIndex, colIndex)]"
+          :piece="board[getPieceIndex(rowIndex, colIndex)]!"
           :index="getPieceIndex(rowIndex, colIndex)"
           context="board"
         />

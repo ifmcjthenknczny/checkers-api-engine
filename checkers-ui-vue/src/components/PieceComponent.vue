@@ -3,7 +3,7 @@ import type { SquareContent } from '@/types'
 import { useDragStore, type DragContext } from '@/stores/dragStore'
 
 interface Props {
-  piece?: SquareContent
+  piece: SquareContent
   index?: number
   context: DragContext
 }
@@ -12,7 +12,7 @@ const props = defineProps<Props>()
 
 const dragStore = useDragStore()
 const drag = () => {
-  dragStore.startDrag(props.context, props.index)
+  dragStore.startDrag(props.context, props.piece, props.index)
 }
 
 const isQueen = (piece?: SquareContent) => {

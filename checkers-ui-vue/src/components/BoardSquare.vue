@@ -2,6 +2,8 @@
 import { isWhiteSquare } from '@/boardHelpers'
 import type { SquareContent } from '@/types'
 import SquareWrapper from './SquareWrapper.vue'
+import { useDragStore } from '@/stores/dragStore'
+import { storeToRefs } from 'pinia'
 
 interface Props {
   position: [number, number]
@@ -11,29 +13,22 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const dragStore = useDragStore()
+const {activePiece, dragContext} = storeToRefs(dragStore)
+
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 const allowDrop = (e: DragEvent) => {
   if (!isWhiteSquare(rowIndex, colIndex)) {
     e.preventDefault()
   }
-  const piece = e.dataTransfer?.getData('piece')
-
-  if (piece) {
-    emit('dropPiece', [colIndex, rowIndex, +piece as SquareContent])
-    return
-  }
-  e.preventDefault()
 }
 
 const drop = (e: DragEvent) => {
-  if (isWhiteSquare(rowIndex, colIndex)) {
-    return
-  }
+  e.preventDefault()
 
-  const piece = e.dataTransfer?.getData('piece')
-  if (piece) {
-    emit('dropPiece', [colIndex, rowIndex, +piece as SquareContent])
-  } else {
+  if (dragContext.value === 'spawn' && activePiece.value !== null) {
+    emit('dropPiece', [colIndex, rowIndex, activePiece.value])
+  } else if (dragContext.value === 'board') {
     emit('dropPiece', [colIndex, rowIndex])
   }
 }

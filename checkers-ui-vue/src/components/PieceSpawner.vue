@@ -3,6 +3,7 @@ import type { SquareContent } from '@/types'
 import PieceComponent from './PieceComponent.vue'
 import SquareWrapper from './SquareWrapper.vue'
 import PieceTrash from './PieceTrash.vue'
+import RemovePieces from './RemovePieces.vue'
 
 const PIECES: SquareContent[] = [3, -3, 1, -1]
 </script>
@@ -14,6 +15,9 @@ const PIECES: SquareContent[] = [3, -3, 1, -1]
     </SquareWrapper>
     <SquareWrapper color="black">
       <PieceTrash />
+    </SquareWrapper>
+    <SquareWrapper color="white">
+      <RemovePieces />
     </SquareWrapper>
   </div>
 </template>
