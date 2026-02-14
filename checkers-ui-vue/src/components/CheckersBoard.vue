@@ -3,32 +3,24 @@
     class="board"
     :style="gridStyles"
   >
-    <template v-for="(rowName, rowIndex) in rowOrder" :key="'row-' + rowName">
+    <template v-for="(rowName, rowIndex) in rows" :key="'row-' + rowName">
 
       <div class="grid__square--name-row grid__square--name">
         {{ rowName }}
       </div>
 
-      <div
-        v-for="(colName, colIndex) in colOrder"
-        :key="colName + rowName"
-        :id="colName + rowName"
-        :class="[
-          'grid__square',
-          isWhiteSquare(rowIndex, colIndex) ? 'grid__square--white' : 'grid__square--black'
-        ]"
-      >
-          <CheckersPiece
+      <CheckersSquare v-for="(colName, colIndex) in cols" :position="[colIndex, rowIndex]" :colName="colName" :rowName="rowName" :key="`${colName}${rowName}`">
+        <CheckersPiece
           v-if="!isWhiteSquare(rowIndex, colIndex)"
           :piece="board[getPieceIndex(rowIndex, colIndex)]"
         />
-    </div>
+      </CheckersSquare>
     </template>
 
     <div></div>
 
     <div
-      v-for="colName in colOrder"
+      v-for="colName in cols"
       :key="'label-' + colName"
       class="grid__square--name-col grid__square--name"
     >
@@ -38,30 +30,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { BOARD_SIZE } from '../config';
 import { range, rangeChar } from "../helpers";
 import { useBoardStore } from '@/stores/boardState';
 import CheckersPiece from './CheckersPiece.vue';
+import CheckersSquare from './CheckersSquare.vue';
+import { isWhiteSquare, getPieceIndex } from '@/boardHelpers';
 
 const cols = rangeChar(BOARD_SIZE, "a");
-const rows = range(BOARD_SIZE, 1);
+const rows = range(BOARD_SIZE, 1).toReversed();
 
-const rowOrder = computed(() => [...rows].reverse());
-const colOrder = computed(() => [...cols]);
-
-const gridStyles = computed(() => ({
+const gridStyles = {
   display: 'grid',
   gridTemplateColumns: `0.2fr repeat(${BOARD_SIZE}, 1fr)`,
   gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr) 0.2fr`
-}));
-
-const isWhiteSquare = (rowIndex: number, colIndex: number) => {
-  return (rowIndex + colIndex) % 2 === 0;
-};
-
-const getPieceIndex = (rowIndex: number, colIndex: number) => {
-  return Math.floor((rowIndex * BOARD_SIZE + colIndex) / 2);
 };
 
 const { board } = useBoardStore();
@@ -75,39 +57,22 @@ const { board } = useBoardStore();
     height: $boardSizeHorizontal;
 }
 
-.grid__square {
-    aspect-ratio: 1;
-    border: .8px solid $borderColor;
+.grid__square--name {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+      font-family: $secondaryFont;
+      user-select: none;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+      &-col {
+          text-transform: uppercase;
+      }
 
-    &--black {
-        background-color: $blackSquareColor;
-    }
-
-    &--white {
-        background-color: $whiteSquareColor;
-    }
-
-    &--name {
-        text-align: center;
-        font-weight: 700;
-        font-size: 1rem;
-        font-family: $secondaryFont;
-        user-select: none;
-
-        &-col {
-            text-transform: uppercase;
-        }
-
-        &-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    }
+      &-row {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
 }
 
 @media (max-width: 700px) {
