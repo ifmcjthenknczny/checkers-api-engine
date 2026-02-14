@@ -96,6 +96,7 @@ const { board } = useBoardStore();
         font-weight: 700;
         font-size: 1rem;
         font-family: $secondaryFont;
+        user-select: none;
 
         &-col {
             text-transform: uppercase;

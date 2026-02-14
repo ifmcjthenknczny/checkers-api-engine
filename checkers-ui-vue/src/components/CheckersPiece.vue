@@ -31,6 +31,8 @@ const toDecorationClassNameList = (piece?: SquareContent) => {
   </div>
 </template>
 <style lang="scss" scoped>
+@use "sass:color";
+
 .piece {
     width: $pieceSize;
     height: $pieceSize;
@@ -46,15 +48,15 @@ const toDecorationClassNameList = (piece?: SquareContent) => {
 
         & .piece--queen-decoration {
             border-color: white;
-            background-color: mix(darkgrey, black, 50%);
+            background-color: color.mix(darkgrey, black, 50%);
         }
 
         &.piece--can-move {
-            background-color: darken(mix(aqua, violet), 10%);
+            background-color: color.adjust(color.mix(aqua, violet), $lightness: -10%);
         }
 
         & .piece--can-move {
-            background-color: darken(mix(aqua, violet), 10%);
+            background-color: color.adjust(color.mix(aqua, violet), $lightness: -10%);
         }
     }
 
@@ -64,48 +66,48 @@ const toDecorationClassNameList = (piece?: SquareContent) => {
 
         & .piece--queen-decoration {
             border-color: black;
-            background-color: mix(lightgrey, grey, 70%);
+            background-color: color.mix(lightgrey, grey, 70%);
         }
 
         &.piece--can-move {
-            background-color: mix(aqua, violet);
+            background-color: color.mix(aqua, violet);
         }
 
         & .piece--can-move {
-            background-color: darken(mix(aqua, violet), 20%);
+            background-color: color.adjust(color.mix(aqua, violet), $lightness: -10%);
         }
     }
 
     &--queen-decoration {
         border-radius: 50%;
-        width: $pieceSize / 1.5;
-        height: $pieceSize / 1.5;
+        width: calc($pieceSize / 1.5);
+        height: calc($pieceSize / 1.5);
         border: 1.5px solid;
 
         &-won {
             border-radius: 50%;
-            width: $pieceSize / 1.5;
-            height: $pieceSize / 1.5;
+            width: calc($pieceSize / 1.5);
+            height: calc($pieceSize / 1.5);
             border: 1.5px solid;
-            background-color: darken($clickedColor, 25%);
+            background-color: color.adjust($clickedColor, $lightness: -25%);
         }
 
         &-lost {
             border-radius: 50%;
-            width: $pieceSize / 1.5;
-            height: $pieceSize / 1.5;
+            width: calc($pieceSize / 1.5);
+            height: calc($pieceSize / 1.5);
             border: 1.5px solid;
-            background-color: darken($blackSquareColor, 20%);
+            background-color: color.adjust($blackSquareColor, $lightness: -20%);
         }
     }
 
     &--won {
-        background-color: darken($clickedColor, 10%);
+        background-color: color.adjust($clickedColor, $lightness: -10%);
         border-color: black;
     }
 
     &--lost {
-        background-color: darken($blackSquareColor,10%);
+        background-color: color.adjust($blackSquareColor, $lightness: -10%);
         border-color: black;
     }
 }
@@ -113,7 +115,7 @@ const toDecorationClassNameList = (piece?: SquareContent) => {
 .piece-hover:hover .piece--queen-decoration,
 #piece-clicked .piece--queen-decoration,
 .piece-hover:hover .piece--queen-decoration {
-    background-color: darken($clickedColor, 20%);
+    background-color: color.adjust($clickedColor, $lightness: -20%);
     transition: background-color colorTransitionTime;
 }
 

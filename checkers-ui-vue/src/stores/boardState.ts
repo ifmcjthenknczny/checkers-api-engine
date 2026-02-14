@@ -1,9 +1,9 @@
 import type { BoardPosition, PlayerOnMove } from '@/types'
 
 const STARTING_BOARD_STATE = [
-  ...Array(12).fill(1),
-  ...Array(8).fill(0),
   ...Array(12).fill(-1),
+  ...Array(8).fill(0),
+  ...Array(12).fill(1),
 ] as BoardPosition
 
 import { defineStore } from 'pinia'
