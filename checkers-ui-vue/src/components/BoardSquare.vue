@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { isWhiteSquare } from '@/boardHelpers'
 import type { SquareContent } from '@/types'
+import SquareWrapper from './SquareWrapper.vue'
 
 interface Props {
   position: [number, number]
@@ -41,35 +42,13 @@ const [colIndex, rowIndex] = props.position
 </script>
 
 <template>
-  <div
+  <SquareWrapper
+    :color="isWhiteSquare(rowIndex, colIndex) ? 'white' : 'black'"
     :key="colName + rowName"
     :id="colName + rowName"
-    :class="[
-      'grid__square',
-      isWhiteSquare(rowIndex, colIndex) ? 'grid__square--white' : 'grid__square--black',
-    ]"
     @dragover="allowDrop"
     @drop="drop"
   >
     <slot />
-  </div>
+  </SquareWrapper>
 </template>
-
-<style lang="scss" scoped>
-.grid__square {
-  aspect-ratio: 1;
-  border: 0.8px solid $borderColor;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &--black {
-    background-color: $blackSquareColor;
-  }
-
-  &--white {
-    background-color: $whiteSquareColor;
-  }
-}
-</style>

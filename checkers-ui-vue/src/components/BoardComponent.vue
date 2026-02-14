@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { BOARD_SIZE } from '../config'
 import { range, rangeChar } from '../helpers'
-import { useBoardStore } from '@/stores/boardState'
+import { useBoardStore } from '@/stores/boardStore'
 import CheckersPiece from './PieceComponent.vue'
 import CheckersSquare from './BoardSquare.vue'
 import { isWhiteSquare, getPieceIndex } from '@/boardHelpers'
 import type { SquareContent } from '@/types'
-import { useDragStore } from '@/stores/dragState'
+import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
 
 const cols = rangeChar(BOARD_SIZE, 'a')
@@ -63,6 +63,7 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
           v-if="!isWhiteSquare(rowIndex, colIndex)"
           :piece="board[getPieceIndex(rowIndex, colIndex)]"
           :index="getPieceIndex(rowIndex, colIndex)"
+          context="board"
         />
       </CheckersSquare>
     </template>

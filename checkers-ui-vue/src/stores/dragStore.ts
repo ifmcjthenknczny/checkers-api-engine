@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-type DragContext = 'board' | 'spawn'
+export type DragContext = 'board' | 'spawn'
 
 export const useDragStore = defineStore('drag', () => {
   const draggedIndex = ref<number | null>(null)
   const dragContext = ref<DragContext | null>(null)
 
-  const startDrag = (index: number, context: DragContext) => {
-    draggedIndex.value = index
+  const startDrag = (context: DragContext, fromIndex?: number) => {
+    draggedIndex.value = fromIndex ?? null
     dragContext.value = context
   }
   const stopDrag = () => {

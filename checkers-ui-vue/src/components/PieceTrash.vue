@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useBoardStore } from '@/stores/boardState'
-import { useDragStore } from '@/stores/dragState'
+import { useBoardStore } from '@/stores/boardStore'
+import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
 
 const dragStore = useDragStore()

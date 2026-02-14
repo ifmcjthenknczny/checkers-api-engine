@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import type { SquareContent } from '@/types'
-import { useDragStore } from '@/stores/dragState'
+import { useDragStore, type DragContext } from '@/stores/dragStore'
 
 interface Props {
   piece?: SquareContent
-  index: number
+  index?: number
+  context: DragContext
 }
 
 const props = defineProps<Props>()
 
 const dragStore = useDragStore()
 const drag = () => {
-  dragStore.startDrag(props.index, 'board')
+  dragStore.startDrag(props.context, props.index)
 }
 
 const isQueen = (piece?: SquareContent) => {
@@ -38,6 +39,7 @@ const toDecorationClassNameList = (piece?: SquareContent) => {
 @use 'sass:color';
 
 .piece {
+  aspect-ratio: 1;
   width: $pieceSize;
   height: $pieceSize;
   border-radius: 50%;
