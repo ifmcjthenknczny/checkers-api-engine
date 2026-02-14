@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3001;
 const DATA_DIR = path.join(__dirname, '../data');
-const GAME_HISTORY_FILE = path.join(DATA_DIR, 'game_history.json');
+const GAME_HISTORY_FILE = path.join(DATA_DIR, 'game_history_2.json');
 
 app.use((_req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

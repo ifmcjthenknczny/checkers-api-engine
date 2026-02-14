@@ -1,5 +1,6 @@
 import { generateBoard } from "./board.js";
 import { BOARD_SIZE } from "./config.js";
+import { chunkArray } from "./helpers.js";
 import { crownTheQueen } from "./pieces.js";
 
 function jsonPieceToHtml(value) {
@@ -24,13 +25,14 @@ function jsonPieceToHtml(value) {
   return piece;
 }
 
-const filesOddRank = ["b", "d", "f", "h"]; // rank 1,3,5,7
-const filesEvenRank = ["a", "c", "e", "g"]; // rank 2,4,6,8
+const filesEvenRank = ["b", "d", "f", "h"]; // rank 2,4,6,8
+const filesOddRank = ["a", "c", "e", "g"]; // rank 1,3,5,7
 
+// TODO: check if this rendering JSON to HTML is working how, especially indexToSquare function
 const indexToSquare = (index) => {
-  const rank = Math.floor(index / 4) + 1;
-  const fileIndex = index % 4;
-  const files = rank % 2 === 1 ? filesEvenRank : filesOddRank;
+  const rank = Math.floor(index / (BOARD_SIZE / 2)) + 1;
+  const fileIndex = rank % 4;
+  const files = rank % 2 === 1 ? filesOddRank : filesEvenRank;
   return `${files[fileIndex]}${rank}`;
 };
 
@@ -47,12 +49,9 @@ function renderJsonToHtml(boardData) {
       !element.className.includes("grid__square--white"),
   );
 
-  const chunks = [];
-  for (let i = 0; i < boardData.length; i += 8) {
-    chunks.push(boardData.slice(i, i + 8));
-  }
+  const chunkedSquares = chunkArray(relevantSquares, BOARD_SIZE / 2)
 
-  const dataForDom = chunks.reverse().flat();
+  const dataForDom = chunkedSquares.toReversed().flat();
 
   const originalInputSquares = [];
 
@@ -62,12 +61,12 @@ function renderJsonToHtml(boardData) {
 
     originalInputSquares.push(originalSquareName);
 
-    console.log({
-      domIndex: index,
-      originalIndex,
-      originalSquare: originalSquareName,
-      piece: dataForDom[index],
-    });
+    // console.log({
+    //   domIndex: index,
+    //   originalIndex,
+    //   originalSquare: originalSquareName,
+    //   piece: dataForDom[index],
+    // });
 
     square.innerHTML = "";
 
@@ -79,14 +78,6 @@ function renderJsonToHtml(boardData) {
     }
   });
 }
-
 // TODO: add position viewer page (with possibility to move pawns, paste input or translate current position on board to json input (with info who is to move) along with position engine)
-
 generateBoard(BOARD_SIZE);
-// renderJsonToHtml([0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,1,0,0,-3,-1,0,0,0,1,0,0,0,0,-1,-1,0,0])
-renderJsonToHtml([
-  -1, -1, -1, -1, -1, -1, 0, 0, -1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, -3, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 1,
-]);
-
-// najpierw 2, potem 1, potem 4, potem 3... wtf?!?
+renderJsonToHtml([1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1])

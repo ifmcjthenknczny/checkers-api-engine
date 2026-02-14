@@ -5,9 +5,12 @@ import torch.optim as optim
 import numpy as np
 from torch.utils.data import DataLoader, TensorDataset, random_split
 
-INPUT_FILE_PATH = '../data/game_history.json'
-OUTPUT_FILE_PATH = '../models/checkers_engine_cuda_2.onnx'
-EPOCHS = 200
+DATA_DIR = '../data'
+MODELS_DIR = '../models'
+
+INPUT_FILE_PATH = f'{DATA_DIR}/game_history_2.json'
+OUTPUT_FILE_PATH = f'{MODELS_DIR}/checkers_engine_2.onnx'
+MAX_EPOCHS = 200
 BATCH_SIZE = 1024
 LEARNING_RATE = 0.005
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -88,7 +91,7 @@ def train():
 
     print(f"Training on {train_size} examples, validation on {val_size}.")
 
-    for epoch in range(EPOCHS):
+    for epoch in range(MAX_EPOCHS):
         # Training
         model.train()
         train_loss = 0
@@ -117,7 +120,7 @@ def train():
         
         scheduler.step(avg_val_loss)
 
-        print(f"Epoch [{epoch+1}/{EPOCHS}] Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
+        print(f"Epoch [{epoch+1}/{MAX_EPOCHS}] Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss

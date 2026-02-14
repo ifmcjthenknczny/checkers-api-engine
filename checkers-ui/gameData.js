@@ -1,3 +1,4 @@
+import { BOARD_SIZE } from "./config.js";
 import { chunkArray } from "./helpers.js";
 
 const API_BASE = 'http://localhost:3001';
@@ -17,7 +18,9 @@ function htmlElementToJsonPiece(element) {
 function htmlBoardToJson() {
     const board = document.querySelector('.board')
     const relevantSquares = [...board?.children ?? []].filter(element => !element.className.includes('grid__square--name') && element.className.includes('grid__square') && !element.className.includes('grid__square--white'))
-    const mappedSquares = chunkArray(relevantSquares, 8).reverse().flat()
+    // const relevantSquaresNames = relevantSquares.map(sq => sq.id)
+    const mappedSquares = chunkArray(relevantSquares, BOARD_SIZE / 2).toReversed().flat()
+    // const mappedSquaresNames = chunkArray(relevantSquaresNames, BOARD_SIZE).reverse().flat()
     return mappedSquares.map(square => htmlElementToJsonPiece(square))
 }
 
