@@ -2,7 +2,7 @@
 // import { ref } from 'vue'
 import { useBoardStore } from '@/stores/boardStore'
 
-const {removeAllPieces} = useBoardStore()
+const { removeAllPieces } = useBoardStore()
 // const isShaking = ref(false)
 
 const handleArmageddon = () => {
@@ -16,9 +16,7 @@ const handleArmageddon = () => {
 </script>
 
 <template>
-  <button class="armageddon-btn" @click="handleArmageddon">
-    ☄️
-  </button>
+  <button class="armageddon-btn" @click="handleArmageddon">☄️</button>
 </template>
 
 <style lang="scss">

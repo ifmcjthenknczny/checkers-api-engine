@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SquareContent } from '@/types'
 import { useDragStore, type DragContext } from '@/stores/dragStore'
+import { isQueen } from '@/boardHelpers'
 
 interface Props {
   piece: SquareContent
@@ -13,10 +14,6 @@ const props = defineProps<Props>()
 const dragStore = useDragStore()
 const drag = () => {
   dragStore.startDrag(props.context, props.piece, props.index)
-}
-
-const isQueen = (piece?: SquareContent) => {
-  return piece && Math.abs(piece) === 3
 }
 
 const toClassNameList = (piece?: SquareContent) => {

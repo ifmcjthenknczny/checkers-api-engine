@@ -1,11 +1,18 @@
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
 import { loadModel, evaluateBoardRaw } from './model';
+import cors from 'cors'
+import dotenv from 'dotenv'
+
+dotenv.config();
 
 const PORT = process.env.PORT || 3002;
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+    origin: [process.env.NODE_ENV === 'local' && 'http://localhost:5173'].filter(Boolean)
+}))
 
 // TODO: Map them from human form
 const ALLOWED_PIECES = [0, 1, -1, 3, -3]
@@ -36,7 +43,6 @@ app.post('/evaluate', async (req: Request, res: Response) => {
         });
     }
 
-    // const evaluation = await evaluateBoard(result.data.board);
     const evaluation = await evaluateBoardRaw(result.data.board, result.data.move);
 
     res.json({

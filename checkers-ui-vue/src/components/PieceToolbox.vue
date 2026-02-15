@@ -4,6 +4,7 @@ import PieceComponent from './PieceComponent.vue'
 import SquareWrapper from './SquareWrapper.vue'
 import PieceTrash from './PieceTrash.vue'
 import RemovePieces from './RemovePieces.vue'
+import ResetToDefaultButton from './ResetToDefaultButton.vue'
 
 const PIECES: SquareContent[] = [3, -3, 1, -1]
 </script>
@@ -19,13 +20,23 @@ const PIECES: SquareContent[] = [3, -3, 1, -1]
     <SquareWrapper color="white">
       <RemovePieces />
     </SquareWrapper>
+    <SquareWrapper color="black">
+      <ResetToDefaultButton />
+    </SquareWrapper>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .piece-spawner {
-  height: calc($boardSizeVertical / 12);
+  height: 100%;
   display: flex;
-  width: 100%;
+  flex-direction: row;
+  width: calc($boardSizeVertical / 12);
+}
+
+@media (min-width: 700px) {
+  .piece-spawner {
+    flex-direction: column;
+  }
 }
 </style>

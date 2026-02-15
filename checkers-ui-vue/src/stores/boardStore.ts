@@ -12,7 +12,6 @@ const EMPTY_BOARD_STATE = Array(32).fill(0) as BoardPosition
 
 export const useBoardStore = defineStore('board', () => {
   const board = ref<BoardPosition>(STARTING_BOARD_STATE)
-
   const currentPlayer = ref<PlayerOnMove>('white')
 
   function setBoardState(newBoardState: BoardPosition) {
@@ -44,5 +43,20 @@ export const useBoardStore = defineStore('board', () => {
     board.value = [...EMPTY_BOARD_STATE]
   }
 
-  return { board, setBoardState, currentPlayer, switchPlayer, movePiece, addPiece, removePiece, removeAllPieces }
+  function resetToDefault() {
+    console.log(STARTING_BOARD_STATE)
+    board.value = [...STARTING_BOARD_STATE]
+  }
+
+  return {
+    board,
+    setBoardState,
+    currentPlayer,
+    switchPlayer,
+    movePiece,
+    addPiece,
+    removePiece,
+    removeAllPieces,
+    resetToDefault,
+  }
 })

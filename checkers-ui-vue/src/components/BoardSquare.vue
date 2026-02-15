@@ -14,7 +14,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const dragStore = useDragStore()
-const {activePiece, dragContext} = storeToRefs(dragStore)
+const { activePiece, dragContext } = storeToRefs(dragStore)
 
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 const allowDrop = (e: DragEvent) => {
