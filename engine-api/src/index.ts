@@ -10,9 +10,13 @@ const PORT = process.env.PORT || 3002;
 
 const app = express();
 app.use(express.json());
+const LOCAL_ALLOWED_ORIGINS = ['http://localhost:5173', 'http://localhost:3000'];
+
 app.use(cors({
-    origin: [process.env.NODE_ENV === 'local' && 'http://localhost:5173'].filter(Boolean)
-}))
+    origin: process.env.NODE_ENV === 'local' 
+        ? LOCAL_ALLOWED_ORIGINS 
+        : 'prod'
+}));
 
 // TODO: Map them from human form
 const ALLOWED_PIECES = [0, 1, -1, 3, -3]

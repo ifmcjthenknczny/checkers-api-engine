@@ -44,7 +44,6 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function resetToDefault() {
-    console.log(STARTING_BOARD_STATE)
     board.value = [...STARTING_BOARD_STATE]
   }
 

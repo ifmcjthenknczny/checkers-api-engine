@@ -4,7 +4,7 @@ import { range, rangeChar } from '../helpers'
 import { useBoardStore } from '@/stores/boardStore'
 import CheckersPiece from './PieceComponent.vue'
 import CheckersSquare from './BoardSquare.vue'
-import { isWhiteSquare, getPieceIndex } from '@/boardHelpers'
+import { isWhiteSquare, getSquareIndex } from '@/boardHelpers'
 import type { SquareContent } from '@/types'
 import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
@@ -24,7 +24,7 @@ const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
 
 const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
-  const to = getPieceIndex(row, col)
+  const to = getSquareIndex(row, col)
 
   if (dragContext.value === 'spawn') {
     if (!piece) {
@@ -62,8 +62,8 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
       >
         <CheckersPiece
           v-if="!isWhiteSquare(rowIndex, colIndex)"
-          :piece="board[getPieceIndex(rowIndex, colIndex)]!"
-          :index="getPieceIndex(rowIndex, colIndex)"
+          :piece="board[getSquareIndex(rowIndex, colIndex)]!"
+          :index="getSquareIndex(rowIndex, colIndex)"
           context="board"
         />
       </CheckersSquare>

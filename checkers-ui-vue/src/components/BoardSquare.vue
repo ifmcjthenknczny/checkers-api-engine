@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { isWhiteSquare } from '@/boardHelpers'
+import { getSquareIndex, isWhiteSquare } from '@/boardHelpers'
 import type { SquareContent } from '@/types'
 import SquareWrapper from './SquareWrapper.vue'
 import { useDragStore } from '@/stores/dragStore'
@@ -12,28 +12,28 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const [colIndex, rowIndex] = props.position
 
 const dragStore = useDragStore()
-const { activePiece, dragContext } = storeToRefs(dragStore)
+const { activePiece, dragContext, draggedIndex } = storeToRefs(dragStore)
 
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 const allowDrop = (e: DragEvent) => {
-  if (!isWhiteSquare(rowIndex, colIndex)) {
+  if (!isWhiteSquare(rowIndex, colIndex) && draggedIndex.value !== squareIndex) {
     e.preventDefault()
   }
 }
 
+const squareIndex = getSquareIndex(rowIndex, colIndex)
+
 const drop = (e: DragEvent) => {
   e.preventDefault()
-
   if (dragContext.value === 'spawn' && activePiece.value !== null) {
     emit('dropPiece', [colIndex, rowIndex, activePiece.value])
   } else if (dragContext.value === 'board') {
     emit('dropPiece', [colIndex, rowIndex])
   }
 }
-
-const [colIndex, rowIndex] = props.position
 </script>
 
 <template>
