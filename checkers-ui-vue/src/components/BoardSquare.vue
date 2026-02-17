@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { getSquareIndex, isWhiteSquare } from '@/boardHelpers'
+import { getSquareIndex, isWhiteSquare } from '@/helpers/board'
 import type { SquareContent } from '@/types'
 import SquareWrapper from './SquareWrapper.vue'
 import { useDragStore } from '@/stores/dragStore'

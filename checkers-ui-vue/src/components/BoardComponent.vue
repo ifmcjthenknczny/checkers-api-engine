@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { BOARD_SIZE } from '../config'
-import { range, rangeChar } from '../helpers'
+import { range, rangeChar } from '../helpers/utils'
 import { useBoardStore } from '@/stores/boardStore'
 import CheckersPiece from './PieceComponent.vue'
 import CheckersSquare from './BoardSquare.vue'
-import { isWhiteSquare, getSquareIndex } from '@/boardHelpers'
+import { isWhiteSquare, getSquareIndex } from '@/helpers/board'
 import type { SquareContent } from '@/types'
 import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
