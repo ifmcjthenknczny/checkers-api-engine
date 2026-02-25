@@ -8,3 +8,5 @@ export type SquareContent = -3 | -1 | 0 | 1 | 3
 export type BoardPosition = Tuple<SquareContent, 32>
 
 export type PlayerOnMove = 'white' | 'black'
+
+export type PieceColor = 'white' | 'black'

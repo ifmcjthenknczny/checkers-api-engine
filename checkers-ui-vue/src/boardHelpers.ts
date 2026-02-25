@@ -1,5 +1,5 @@
 import { BOARD_SIZE } from './config'
-import type { SquareContent } from './types'
+import type { PieceColor, SquareContent } from './types'
 
 export const isWhiteSquare = (rowIndex: number, colIndex: number) => {
   return (rowIndex + colIndex) % 2 === 0
@@ -11,4 +11,12 @@ export const getSquareIndex = (rowIndex: number, colIndex: number) => {
 
 export const isQueen = (piece?: SquareContent) => {
   return piece && Math.abs(piece) === 3
+}
+
+export const getPieceColor = (piece?: SquareContent): PieceColor | null => {
+  if (!piece) {
+    return null
+  }
+
+  return piece < 0 ? 'black' : 'white'
 }

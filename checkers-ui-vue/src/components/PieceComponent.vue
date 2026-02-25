@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SquareContent } from '@/types'
 import { useDragStore, type DragContext } from '@/stores/dragStore'
-import { isQueen } from '@/boardHelpers'
+import { getPieceColor, isQueen } from '@/boardHelpers'
 
 interface Props {
   piece: SquareContent
@@ -17,10 +17,11 @@ const drag = () => {
 }
 
 const toClassNameList = (piece?: SquareContent) => {
-  if (!piece) {
+  const color = getPieceColor(piece)
+  if (!color) {
     return ''
   }
-  return piece < 0 ? ['piece', 'piece--black'] : ['piece', 'piece--white']
+  return ['piece', `piece--${color}`]
 }
 
 const toDecorationClassNameList = (piece?: SquareContent) => {

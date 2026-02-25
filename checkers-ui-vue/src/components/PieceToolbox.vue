@@ -6,7 +6,7 @@ import PieceTrash from './PieceTrash.vue'
 import RemovePieces from './RemovePieces.vue'
 import ResetToDefaultButton from './ResetToDefaultButton.vue'
 
-const PIECES: SquareContent[] = [-3, 3, -1, 1]
+const TOOLBOX_PIECES: SquareContent[] = [-3, 3, -1, 1]
 </script>
 
 <template>
@@ -25,7 +25,7 @@ const PIECES: SquareContent[] = [-3, 3, -1, 1]
       </SquareWrapper>
     </div>
     <div class="piece-spawner__row piece-spawner__row--bottom">
-      <SquareWrapper :key="piece" v-for="piece in PIECES" :color="piece > 0 ? 'black' : 'white'">
+      <SquareWrapper :key="piece" v-for="piece in TOOLBOX_PIECES" :color="getPieceColor(piece)">
         <PieceComponent :piece="piece" context="spawn" />
       </SquareWrapper>
     </div>

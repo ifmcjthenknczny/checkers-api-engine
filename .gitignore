@@ -15,3 +15,4 @@ dist
 dist/**
 README.md
 .env
+.vscode
