@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SquareContent } from '@/types'
 import { useDragStore, type DragContext } from '@/stores/dragStore'
-import { getPieceColor, isQueen } from '@/boardHelpers'
+import { getPieceColor, isQueen } from '@/helpers/board'
 
 interface Props {
   piece: SquareContent

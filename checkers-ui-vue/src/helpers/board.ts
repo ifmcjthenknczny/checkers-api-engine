@@ -1,5 +1,5 @@
-import { BOARD_SIZE } from './config'
-import type { PieceColor, SquareContent } from './types'
+import { BOARD_SIZE } from '../config'
+import type { PieceColor, SquareContent } from '../types'
 
 export const isWhiteSquare = (rowIndex: number, colIndex: number) => {
   return (rowIndex + colIndex) % 2 === 0

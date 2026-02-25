@@ -10,18 +10,6 @@ export async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export function getSquareColAndRow(square: Element) {
-  const [col, ...row] = square.id
-  const rowNumber = +row.join('')
-  return [col, rowNumber]
-}
-
-export function createDiagonalIterable(startIndex: number, targetIndex: number) {
-  return startIndex < targetIndex
-    ? range(targetIndex - startIndex, startIndex + 1)
-    : range(startIndex - targetIndex, targetIndex).reverse()
-}
-
 export const chunkArray = <T>(array: T[], size: number) => {
   const chunked = []
   for (let i = 0; i < array.length; i += size) {
