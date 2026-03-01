@@ -17,10 +17,12 @@ export type SquareCoords = {
   col: number
 }
 
+export type Direction = -1 | 1
+
 export type Move ={
   fromIndex: number
   toIndex: number
   isPromotion: boolean
-} & ({isCapture: false} | {isCapture: true, captureIndex: number})
+} & ({isCapture: false} | {isCapture: true, captureIndex: number, followingChainedCaptureForbiddenDirection: [Direction, Direction]})
 
 export type GameResult = -1 | 0 | 1
