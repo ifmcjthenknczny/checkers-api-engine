@@ -29,7 +29,7 @@ const toDecorationClassNameList = (piece?: SquareContent) => {
 }
 </script>
 <template>
-  <div v-if="piece !== 0" :class="toClassNameList(piece)" draggable="true" @dragstart="drag">
+  <div v-if="piece !== 0" :class="toClassNameList(piece)" draggable="true" @dragstart="drag" v-on:click="drag">
     <div v-if="isQueen(piece)" :class="toDecorationClassNameList(piece)" />
   </div>
 </template>

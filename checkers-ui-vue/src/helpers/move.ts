@@ -42,7 +42,7 @@ export function findLegalCapturesOfPiece(
         const content = board[idx]
         if (content !== 0) {
           if (foundEnemy) break
-          if (isSameColor(content, friend)) break
+          if (isSameColor(content ?? 0, friend)) break
           foundEnemy = true
         } else if (foundEnemy) {
           targets.push(idx)
@@ -66,7 +66,7 @@ export function findLegalNormalMovesOfPiece(
   }
   const isQueen = isQueenPiece(piece)
   const isWhitePiece = getPieceColor(piece) === 'white'
-  const rowDirs = isQueen ? [true, false] : isWhitePiece ? [true] : [false]
+  const rowDirs = isQueen ? [true, false] : [!isWhitePiece]
   const { row: startRow, col: startCol } = indexToRowCol(pieceIndex)
   const targets: number[] = []
 
@@ -89,6 +89,16 @@ export function findLegalNormalMovesOfPiece(
   return targets
 }
 
+export function findLegalMovesOfPiece(
+  board: BoardPosition,
+  pieceIndex: number,
+  isCapturePossible: boolean,
+): number[] {
+  return isCapturePossible
+      ? findLegalCapturesOfPiece(board, pieceIndex)
+      : findLegalNormalMovesOfPiece(board, pieceIndex)
+}
+
 export function playerHasCapturePossibility(
   board: BoardPosition,
   playerColor: Player,
@@ -106,10 +116,7 @@ export function findAllLegalMoves(
   const pieces = getPiecesOfColor(board, piecesColor)
 
   const moves = pieces.map((piece) => {
-    return isCapturePossible
-      ? findLegalCapturesOfPiece(board, piece.index)
-      : findLegalNormalMovesOfPiece(board, piece.index)
-  })
+    return findLegalMovesOfPiece(board, piece.index, isCapturePossible)})
 
   return moves
 }
@@ -139,7 +146,7 @@ export function findCapturedPieceIndex(
   while (r !== tr || c !== tc) {
     const idx = rowColToIndex(r, c)
     const content = board[idx]
-    if (content !== 0 && ((isWhite && content < 0) || (!isWhite && content > 0)))
+    if (content !== 0 && ((isWhite && (content ?? 0) < 0) || (!isWhite && (content ?? 0) > 0)))
       return idx
     r += dRow
     c += dCol
@@ -156,7 +163,7 @@ export function applyMove(
   const next = [...board] as BoardPosition
   const piece = board[fromIndex]
   next[fromIndex] = 0
-  next[toIndex] = piece
+  next[toIndex] = piece!
   if (captureIndex !== undefined) next[captureIndex] = 0
   return next
 }

@@ -4,10 +4,22 @@ import { range, rangeChar } from '../helpers/utils'
 import { useBoardStore } from '@/stores/boardStore'
 import CheckersPiece from './PieceComponent.vue'
 import CheckersSquare from './BoardSquare.vue'
-import { isWhiteSquare, getSquareIndex } from '@/helpers/board'
+import { isWhiteSquare, getSquareIndex, getPieceColor } from '@/helpers/board'
 import type { SquareContent } from '@/types'
 import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
+import { findLegalMovesOfPiece, playerHasCapturePossibility } from '@/helpers/move'
+import { computed } from 'vue'
+import PossibleMoveMarker from './PossibleMoveMarker.vue'
+
+const props = withDefaults(
+  defineProps<{
+    followGameBehavior?: boolean
+  }>(),
+  {
+    followGameBehavior: true,
+  }
+)
 
 const cols = rangeChar(BOARD_SIZE, 'a')
 const rows = range(BOARD_SIZE, 1).toReversed()
@@ -22,6 +34,19 @@ const boardStore = useBoardStore()
 const { board } = storeToRefs(boardStore)
 const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
+
+console.log({draggedIndex: draggedIndex.value, dragContext: dragContext.value})
+
+const possibleMovesForDraggedPiece = computed(() => {
+  if (!props.followGameBehavior || draggedIndex.value === null || dragContext.value !== 'board') {
+    return []
+  }
+  const draggedPieceColor = getPieceColor(board.value[draggedIndex.value!])
+  if (!draggedPieceColor) {
+    return []
+  }
+  return findLegalMovesOfPiece(board.value, draggedIndex.value!, playerHasCapturePossibility(board.value, draggedPieceColor!))
+})
 
 const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
   const to = getSquareIndex(row, col)
@@ -66,6 +91,7 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
           :index="getSquareIndex(rowIndex, colIndex)"
           context="board"
         />
+        <PossibleMoveMarker v-if="possibleMovesForDraggedPiece.includes(getSquareIndex(rowIndex, colIndex)) && !isWhiteSquare(rowIndex, colIndex)" :key="(getSquareIndex(rowIndex, colIndex))" />
       </CheckersSquare>
     </template>
 

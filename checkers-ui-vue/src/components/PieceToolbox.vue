@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SquareContent } from '@/types'
+import { getPieceColor } from '@/helpers/board'
 import PieceComponent from './PieceComponent.vue'
 import SquareWrapper from './SquareWrapper.vue'
 import PieceTrash from './PieceTrash.vue'
@@ -25,7 +26,7 @@ const TOOLBOX_PIECES: SquareContent[] = [-3, 3, -1, 1]
       </SquareWrapper>
     </div>
     <div class="piece-spawner__row piece-spawner__row--bottom">
-      <SquareWrapper :key="piece" v-for="piece in TOOLBOX_PIECES" :color="getPieceColor(piece)">
+      <SquareWrapper :key="piece" v-for="piece in TOOLBOX_PIECES" :color="getPieceColor(piece)!">
         <PieceComponent :piece="piece" context="spawn" />
       </SquareWrapper>
     </div>
