@@ -15,7 +15,7 @@ import {
   isPlayableSquare,
   getPiecesOfColor,
 } from './board'
-import { shouldPotentiallyPromotePiece } from './promotion'
+import { applyPiecePromotion, shouldPotentiallyPromotePiece } from './promotion'
 
 const DIAGONAL_DIRECTIONS: [Direction, Direction][] = [
   [1, 1],
@@ -191,18 +191,30 @@ export function findAllLegalMoves(
   return moves
 }
 
-export function applyMove(
-  board: BoardPosition,
-  fromIndex: number,
-  toIndex: number,
-  captureIndex?: number,
-): BoardPosition {
-  const next = [...board] as BoardPosition
+export function movePieceFreely(board: BoardPosition, {fromIndex, toIndex}: Move): BoardPosition {
   const piece = board[fromIndex]
-  next[fromIndex] = 0
-  next[toIndex] = piece!
-  if (captureIndex !== undefined) next[captureIndex] = 0
-  return next
+  if (!piece) {
+    return board
+  }
+  const nextBoard: BoardPosition = [...board]
+  nextBoard[fromIndex] = 0
+  nextBoard[toIndex] = piece
+  return nextBoard
+}
+
+export function applyMove(board: BoardPosition, move: Move): BoardPosition {
+  const piece = board[move.fromIndex]
+  if (!piece) {
+    return board
+  }
+  const nextBoard: BoardPosition = movePieceFreely(board, move)
+  if (move.isCapture) {
+    nextBoard[move.captureIndex] = 0
+  }
+  const isDuringChainedCapture = isChainedCapturePossible(nextBoard, move)
+  nextBoard[move.toIndex] =
+    move.isPromotion && !isDuringChainedCapture ? applyPiecePromotion(piece) : piece
+  return nextBoard
 }
 
 export const isChainedCapturePossible = (boardAfterMove: BoardPosition, move: Move) => {
