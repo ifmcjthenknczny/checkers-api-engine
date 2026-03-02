@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, type ComputedRef } from 'vue'
+import { computed, inject, type ComputedRef } from 'vue'
 import { useBoardStore } from '@/stores/boardStore'
 
 const tileColor = inject<ComputedRef<'black' | 'white'> | undefined>('tileColor')
@@ -8,12 +8,16 @@ const { resetToDefault } = useBoardStore()
 const handleReset = () => {
   resetToDefault()
 }
+
+const dynamicClass = computed(() => {
+  return tileColor ? `btn--${tileColor.value}` : ''
+})
 </script>
 
 <template>
   <button
     class="btn"
-    :class="tileColor ? `btn--${tileColor.value}` : ''"
+    :class="dynamicClass"
     @click="handleReset"
     title="Reset do ustawień początkowych"
   >

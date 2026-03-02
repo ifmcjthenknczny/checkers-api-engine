@@ -1,4 +1,6 @@
-import type { BoardPosition, Player, SquareContent } from '@/types'
+import { findLegalCapturesOfPiece, isChainedCapturePossible } from '@/helpers/move'
+import { applyPiecePromotion } from '@/helpers/promotion'
+import type { BoardPosition, Move, Player, SquareContent } from '@/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -22,6 +24,10 @@ export const useBoardStore = defineStore('board', () => {
     currentPlayer.value = currentPlayer.value === 'white' ? 'black' : 'white'
   }
 
+  function setCurrentPlayer(player: Player) {
+    currentPlayer.value = player
+  }
+
   function movePiece(fromIndex: number, toIndex: number) {
     const piece = board.value[fromIndex]
     if (!piece) {
@@ -29,6 +35,21 @@ export const useBoardStore = defineStore('board', () => {
     }
     board.value[toIndex] = piece
     board.value[fromIndex] = 0
+  }
+
+  function applyMove(move: Move) {
+    const piece = board.value[move.fromIndex]
+    if (!piece) {
+      return
+    }
+    movePiece(move.fromIndex, move.toIndex)
+    if (move.isCapture) {
+      board.value[move.captureIndex] = 0
+    }
+    
+    const isDuringChainedCapture = isChainedCapturePossible(board.value, move)
+
+    board.value[move.toIndex] = move.isPromotion && !isDuringChainedCapture ? applyPiecePromotion(piece) : piece
   }
 
   function addPiece(piece: SquareContent, toIndex: number) {
@@ -51,8 +72,10 @@ export const useBoardStore = defineStore('board', () => {
     board,
     setBoardState,
     currentPlayer,
+    setCurrentPlayer,
     switchPlayer,
     movePiece,
+    applyMove,
     addPiece,
     removePiece,
     removeAllPieces,

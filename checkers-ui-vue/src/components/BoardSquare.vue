@@ -28,10 +28,13 @@ const squareIndex = getSquareIndex(rowIndex, colIndex)
 
 const drop = (e: DragEvent) => {
   e.preventDefault()
-  if (dragContext.value === 'spawn' && activePiece.value !== null) {
+  if (!activePiece.value) {
+    return
+  }
+  if (dragContext.value === 'spawn') {
     emit('dropPiece', [colIndex, rowIndex, activePiece.value])
   } else if (dragContext.value === 'board') {
-    emit('dropPiece', [colIndex, rowIndex])
+    emit('dropPiece', [colIndex, rowIndex, activePiece.value])
   }
 }
 </script>

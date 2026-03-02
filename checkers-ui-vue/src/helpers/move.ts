@@ -15,7 +15,7 @@ import {
   isPlayableSquare,
   getPiecesOfColor,
 } from './board'
-import { shouldPromotePiece } from './promotion'
+import { shouldPotentiallyPromotePiece } from './promotion'
 
 const DIAGONAL_DIRECTIONS: [Direction, Direction][] = [
   [1, 1],
@@ -24,7 +24,7 @@ const DIAGONAL_DIRECTIONS: [Direction, Direction][] = [
   [-1, -1],
 ]
 
-function getCaptureDirections(
+function buildCaptureDirections(
   forbiddenDirection: readonly [Direction | null, Direction | null],
 ): [Direction, Direction][] {
   const [forbiddenDCol, forbiddenDRow] = forbiddenDirection
@@ -54,38 +54,38 @@ export function findLegalCapturesOfPiece(
   const { row: startRow, col: startCol } = indexToRowCol(fromIndex);
   const moves: Move[] = [];
 
-  for (const [dCol, dRow] of getCaptureDirections(forbiddenDirection)) {
-    let r = startRow + dRow;
-    let c = startCol + dCol;
+  for (const [dCol, dRow] of buildCaptureDirections(forbiddenDirection)) {
+    let row = startRow + dRow;
+    let col = startCol + dCol;
 
-    while (isInBounds(r, c) && board[rowColToIndex(r, c)] === 0 && isQueen) {
-      r += dRow;
-      c += dCol;
+    while (isInBounds(row, col) && board[rowColToIndex(row, col)] === 0 && isQueen) {
+      row += dRow;
+      col += dCol;
     }
 
-    if (!isInBounds(r, c)) {
+    if (!isInBounds(row, col)) {
       continue;
     }
 
-    const targetIdx = rowColToIndex(r, c);
+    const targetIdx = rowColToIndex(row, col);
     const targetPiece = board[targetIdx];
 
     if (!targetPiece || isSameColor(targetPiece, piece)) {
       continue
     }
 
-    r += dRow;
-    c += dCol;
+    row += dRow;
+    col += dCol;
 
-    while (isInBounds(r, c) && board[rowColToIndex(r, c)] === 0) {
-      const landingIdx = rowColToIndex(r, c);
+    while (isInBounds(row, col) && board[rowColToIndex(row, col)] === 0) {
+      const landingIdx = rowColToIndex(row, col);
       
       moves.push({
         fromIndex,
         toIndex: landingIdx,
         isCapture: true,
         captureIndex: targetIdx,
-        isPromotion: shouldPromotePiece(board, fromIndex, landingIdx),
+        isPromotion: shouldPotentiallyPromotePiece(board, fromIndex, landingIdx),
         followingChainedCaptureForbiddenDirection: [reverseDirection(dCol), reverseDirection(dRow)],
       });
 
@@ -93,15 +93,15 @@ export function findLegalCapturesOfPiece(
         break;
       }
 
-      r += dRow;
-      c += dCol;
+      row += dRow;
+      col += dCol;
     }
   }
 
   return moves;
 }
 
-function getNormalMoveDirections(
+function buildNormalMoveDirections(
   isQueen: boolean,
   pieceColor: PieceColor,
 ): [Direction, Direction][] {
@@ -127,29 +127,29 @@ export function findLegalNormalMovesOfPiece(
   const isQueen = isQueenPiece(piece)
   const pieceColor = getPieceColor(piece)!
   const { row: startRow, col: startCol } = indexToRowCol(pieceIndex)
-  const directions = getNormalMoveDirections(isQueen, pieceColor)
+  const directions = buildNormalMoveDirections(isQueen, pieceColor)
   const moves: Move[] = []
 
   for (const [dCol, dRow] of directions) {
-    let r = startRow + dRow
-    let c = startCol + dCol
+    let row = startRow + dRow
+    let col = startCol + dCol
 
-    while (isInBounds(r, c) && isPlayableSquare(r, c)) {
-      const idx = rowColToIndex(r, c)
-      if (board[idx] !== 0) {
+    while (isInBounds(row, col) && isPlayableSquare(row, col)) {
+      const toIndex = rowColToIndex(row, col)
+      if (board[toIndex] !== 0) {
         break
       }
       moves.push({
         fromIndex: pieceIndex,
-        toIndex: idx,
+        toIndex,
         isCapture: false,
-        isPromotion: shouldPromotePiece(board, pieceIndex, idx),
+        isPromotion: shouldPotentiallyPromotePiece(board, pieceIndex, toIndex),
       })
       if (!isQueen) {
         break
       }
-      r += dRow
-      c += dCol
+      row += dRow
+      col += dCol
     }
   }
   return moves
@@ -205,4 +205,6 @@ export function applyMove(
   return next
 }
 
-
+export const isChainedCapturePossible = (boardAfterMove: BoardPosition, move: Move) => {
+  return move.isCapture && findLegalCapturesOfPiece(boardAfterMove, move.toIndex, move.followingChainedCaptureForbiddenDirection).length > 0
+}
