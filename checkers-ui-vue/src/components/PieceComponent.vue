@@ -2,6 +2,9 @@
 import type { SquareContent } from '@/types'
 import { useDragStore, type DragContext } from '@/stores/dragStore'
 import { getPieceColor, isQueen } from '@/helpers/board'
+import { useGameStore } from '@/stores/gameStore'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 
 interface Props {
   piece: SquareContent
@@ -12,6 +15,8 @@ interface Props {
 const props = defineProps<Props>()
 
 const dragStore = useDragStore()
+const gameStore = useGameStore()
+const { humanPlayerColor } = storeToRefs(gameStore)
 const drag = () => {
   dragStore.startDrag(props.context, props.piece, props.index)
 }
@@ -27,9 +32,15 @@ const toClassNameList = (piece?: SquareContent) => {
 const toDecorationClassNameList = (piece?: SquareContent) => {
   return isQueen(piece) ? 'piece--queen-decoration' : ''
 }
+
+const canBeDragged = computed(() => {
+  return !humanPlayerColor.value || humanPlayerColor.value === getPieceColor(props.piece)
+})
+
+
 </script>
 <template>
-  <div v-if="piece !== 0" :class="toClassNameList(piece)" draggable="true" @dragstart="drag" v-on:click="drag">
+  <div v-if="piece !== 0" :class="toClassNameList(piece)" :draggable="canBeDragged" @dragstart="drag" @click="canBeDragged && drag">
     <div v-if="isQueen(piece)" :class="toDecorationClassNameList(piece)" />
   </div>
 </template>

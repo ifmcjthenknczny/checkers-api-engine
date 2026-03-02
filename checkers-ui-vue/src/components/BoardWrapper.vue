@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useGameStore } from '@/stores/gameStore'
 import BoardComponent from './BoardComponent.vue'
+import GameInfo from './GameInfo.vue'
+import PieceGraveryard from './PieceGraveryard.vue'
 import { ref } from 'vue'
 
 const isBoardFlipped = ref<boolean>(false)
@@ -8,6 +10,7 @@ const isBoardFlipped = ref<boolean>(false)
 const gameStore = useGameStore()
 
 // TODO: ogar button container style i click handler
+// TODO: podświetlić figurę jeśli jest bicie, a user kliknął taką która nie ma bicia
 
 function flipBoard() {
     isBoardFlipped.value = !isBoardFlipped.value

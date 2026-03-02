@@ -6,23 +6,9 @@ import { STARTING_BOARD_STATE, EMPTY_BOARD_STATE } from '@/helpers/board'
 
 export const useBoardStore = defineStore('board', () => {
   const board = ref<BoardPosition>(STARTING_BOARD_STATE)
-  const currentPlayer = ref<Player>('white')
-  const humanPlayerColor = ref<Player | null>(null)
 
   function setBoardState(newBoardState: BoardPosition) {
     board.value = newBoardState
-  }
-
-  function switchPlayer() {
-    currentPlayer.value = currentPlayer.value === 'white' ? 'black' : 'white'
-  }
-
-  function setCurrentPlayer(player: Player) {
-    currentPlayer.value = player
-  }
-
-  function chooseColor(color: Player) {
-    humanPlayerColor.value = color
   }
 
   function movePiece(fromIndex: number, toIndex: number) {
@@ -52,11 +38,6 @@ export const useBoardStore = defineStore('board', () => {
   return {
     board,
     setBoardState,
-    currentPlayer,
-    setCurrentPlayer,
-    switchPlayer,
-    humanPlayerColor,
-    chooseColor,
     movePiece,
     applyMove,
     addPiece,

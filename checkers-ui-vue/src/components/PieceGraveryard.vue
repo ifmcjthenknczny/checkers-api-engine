@@ -42,6 +42,7 @@ const capturedNormalPiecesCount = computed(() => getPiecesOfColor(boardStore.boa
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
   .captured-pieces {
     height: $minipieceSize;
     margin: $minipieceSize;

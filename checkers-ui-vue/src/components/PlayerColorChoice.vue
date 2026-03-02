@@ -1,8 +1,12 @@
 <script lang="ts" setup>
-import { useBoardStore } from '@/stores/boardStore'
+import { useGameStore } from '@/stores/gameStore'
 import ButtonComponent from './ButtonComponent.vue';
 
-const boardStore = useBoardStore()
+const gameStore = useGameStore()
+
+function chooseColor(color: 'white' | 'black') {
+  gameStore.chooseColor(color)
+}
 </script>
 
 <template>
@@ -12,13 +16,13 @@ const boardStore = useBoardStore()
         <ButtonComponent
   color-variant="white"
   button-type="color"
-  @click="boardStore.chooseColor('white')">
+  @click="chooseColor('white')">
     white
   </ButtonComponent>
 <ButtonComponent
   color-variant="black"
   button-type="color"
-  @click="boardStore.chooseColor('black')">
+  @click="chooseColor('black')">
     black
   </ButtonComponent>
     </section>

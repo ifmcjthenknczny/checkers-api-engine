@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { getSquareIndex, isWhiteSquare } from '@/helpers/board'
+import { getPieceColor, getSquareIndex, isWhiteSquare } from '@/helpers/board'
 import type { SquareContent } from '@/types'
 import SquareWrapper from './SquareWrapper.vue'
 import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
+import { useGameStore } from '@/stores/gameStore'
 
 interface Props {
   position: [number, number]
@@ -17,9 +18,17 @@ const [colIndex, rowIndex] = props.position
 const dragStore = useDragStore()
 const { activePiece, dragContext, draggedIndex } = storeToRefs(dragStore)
 
+const gameStore = useGameStore()
+const { humanPlayerColor, currentPlayer } = storeToRefs(gameStore)
+
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 const allowDrop = (e: DragEvent) => {
-  if (!isWhiteSquare(rowIndex, colIndex) && draggedIndex.value !== squareIndex) {
+  const isPlayersPiece = activePiece.value && getPieceColor(activePiece.value) === humanPlayerColor.value || !humanPlayerColor.value
+  const isDifferentSquare = draggedIndex.value !== squareIndex
+  const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
+  const isPlayerTurn = !humanPlayerColor.value || currentPlayer.value === humanPlayerColor.value
+
+  if (isPlayableSquare && isDifferentSquare && isPlayersPiece && isPlayerTurn) {
     e.preventDefault()
   }
 }

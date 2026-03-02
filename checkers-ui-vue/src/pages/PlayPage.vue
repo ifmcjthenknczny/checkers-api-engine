@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BoardWrapper from '@/components/BoardWrapper.vue';
 import PlayerColorChoice from '@/components/PlayerColorChoice.vue';
 import { ref, watch } from 'vue';
 import { useBoardStore } from '@/stores/boardStore';
@@ -21,7 +22,7 @@ function resetGame() {
 }
 
 watch(
-  () => boardStore.humanPlayerColor,
+  () => gameStore.humanPlayerColor,
   (newVal, oldVal) => {
     if (newVal !== null && oldVal === null) {
       startGame()
@@ -33,9 +34,9 @@ watch(
 )
 
 watch(
-  [gamePhase, boardStore.humanPlayerColor],
+  [() => gamePhase.value, () => gameStore.humanPlayerColor],
   () => {
-    if (gamePhase.value === 'game' && boardStore.humanPlayerColor !== boardStore.currentPlayer) {
+    if (gamePhase.value === 'game' && gameStore.humanPlayerColor !== null && gameStore.humanPlayerColor !== gameStore.currentPlayer) {
     //   TODO: komputerowy ruch
     // TODO: animacja ruchu
     }
@@ -48,9 +49,8 @@ watch(
 <template>
     <div class="play-page">
         <PlayerColorChoice v-if="gamePhase === 'color'" />
-        <Transition name="fade-in-out" mode="out-in">
-            <BoardWrapper v-if="gamePhase === 'game'" />
-        </Transition>
+
+        <BoardWrapper v-if="gamePhase === 'game'" />
     </div>
   </template>
 
