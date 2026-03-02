@@ -17,7 +17,7 @@ const props = withDefaults(
     inGameBehavior?: boolean
   }>(),
   {
-    inGameBehavior: true,
+    inGameBehavior: false,
   }
 )
 

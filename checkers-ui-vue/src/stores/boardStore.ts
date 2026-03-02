@@ -2,18 +2,12 @@ import { applyMove as applyMoveToPosition, movePieceFreely } from '@/helpers/mov
 import type { BoardPosition, Move, Player, SquareContent } from '@/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-
-const STARTING_BOARD_STATE = [
-  ...Array(12).fill(-1),
-  ...Array(8).fill(0),
-  ...Array(12).fill(1),
-] as BoardPosition
-
-const EMPTY_BOARD_STATE = Array(32).fill(0) as BoardPosition
+import { STARTING_BOARD_STATE, EMPTY_BOARD_STATE } from '@/helpers/board'
 
 export const useBoardStore = defineStore('board', () => {
   const board = ref<BoardPosition>(STARTING_BOARD_STATE)
   const currentPlayer = ref<Player>('white')
+  const humanPlayerColor = ref<Player | null>(null)
 
   function setBoardState(newBoardState: BoardPosition) {
     board.value = newBoardState
@@ -25,6 +19,10 @@ export const useBoardStore = defineStore('board', () => {
 
   function setCurrentPlayer(player: Player) {
     currentPlayer.value = player
+  }
+
+  function chooseColor(color: Player) {
+    humanPlayerColor.value = color
   }
 
   function movePiece(fromIndex: number, toIndex: number) {
@@ -57,6 +55,8 @@ export const useBoardStore = defineStore('board', () => {
     currentPlayer,
     setCurrentPlayer,
     switchPlayer,
+    humanPlayerColor,
+    chooseColor,
     movePiece,
     applyMove,
     addPiece,
