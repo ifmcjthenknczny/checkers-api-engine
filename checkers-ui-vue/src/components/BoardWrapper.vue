@@ -21,7 +21,6 @@ const { humanPlayerColor } = storeToRefs(gameStore)
 const dropStore = useDragStore()
 
 // TODO: podświetlić figurę jeśli jest bicie, a user kliknął taką która nie ma bicia
-// TODO: automatyczne obrócenie planszy jeśli gracz gra czarnymi
 
 function flipBoard() {
     isBoardFlipped.value = !isBoardFlipped.value

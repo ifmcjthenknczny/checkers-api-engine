@@ -29,9 +29,15 @@ export async function pickBestEngineContinuation(
   const evaluations = await Promise.all(
     resultingBoards.map((board) => evaluateBoard(board, player)),
   )
+  const isMaximizing = player === 'white'
   const bestIndex = evaluations.reduce(
-    (bestIndex, evaluation, index) => (evaluation > evaluations[bestIndex]! ? index : bestIndex),
+    (bestIndex, evaluation, index) =>
+      isMaximizing
+        ? (evaluation > evaluations[bestIndex]! ? index : bestIndex)
+        : (evaluation < evaluations[bestIndex]! ? index : bestIndex),
     0,
   )
+  console.log({evaluation: evaluations[bestIndex]})
+  console.log({evaluations})
   return continuations[bestIndex] ?? []
 }

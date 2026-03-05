@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import { getPieceColor, getSquareIndex, isWhiteSquare } from '@/helpers/board'
-import type { BoardContext, SquareContent } from '@/types'
+import { getPieceColor, getSquareIndex, isQueen, isWhiteSquare } from '@/helpers/board'
+import type { BoardContext, Move, SquareContent } from '@/types'
 import SquareWrapper from './SquareWrapper.vue'
 import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
 import { useGameStore } from '@/stores/gameStore'
 import { playerMove } from '@/helpers/turn'
+import { getLegalMove } from '@/helpers/move'
+import { useBoardStore } from '@/stores/boardStore'
 
 interface Props {
   position: [number, number]
@@ -21,8 +23,11 @@ const [colIndex, rowIndex] = props.position
 const dragStore = useDragStore()
 const { activePiece, dragContext, draggedIndex } = storeToRefs(dragStore)
 
+const boardStore = useBoardStore()
+const { board } = storeToRefs(boardStore)
+
 const gameStore = useGameStore()
-const { humanPlayerColor, currentPlayer } = storeToRefs(gameStore)
+const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak } = storeToRefs(gameStore)
 
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 
@@ -39,17 +44,46 @@ const allowDrop = (e: DragEvent) => {
 
 const squareIndex = props.boardIndex ?? getSquareIndex(rowIndex, colIndex)
 
+// TODO: deduplicate with PlayPage
+function moveCallback(move: Move) {
+  const newBoard = boardStore.applyMove(move)
+  if (move.isPromotion) {
+    const color = getPieceColor(newBoard[move.toIndex])
+    if (color) gameStore.incrementPromotionsCount(color)
+  }
+  if (!move.isCapture && isQueen(newBoard[move.toIndex])) {
+    gameStore.incrementQueenMovesWithoutCaptureStreak()
+  } else {
+    gameStore.resetQueenMovesWithoutCaptureStreak()
+  }
+}
+
+function turnOverCallback() {
+  gameStore.switchPlayer()
+  gameStore.incrementTurn()
+}
+
+function gameOverCallback() {
+  // TODO: if game is over, then highlight pieces that won and show message that game is over
+  gameStore.setGamePhase('gameOver')
+}
+
 const drop = (e: DragEvent) => {
   e.preventDefault()
   if (!activePiece.value) {
     return
+  }
+  if (props.context === 'game') {
+    const move = getLegalMove(board.value, { fromIndex: draggedIndex.value ?? undefined, toIndex: squareIndex })
+    if (move) {
+      playerMove(move, board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {moveCallback, turnOverCallback, gameOverCallback})
+    }
   }
   if (dragContext.value === 'spawn') {
     emit('dropPiece', [colIndex, rowIndex, activePiece.value])
   } else if (dragContext.value === 'board') {
     emit('dropPiece', [colIndex, rowIndex, activePiece.value])
   }
-  // TODO: if context is game, then check if the move is legal and do playerMove
 }
 </script>
 

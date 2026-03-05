@@ -1,30 +1,27 @@
 <script setup lang="ts">
 import BoardWrapper from '@/components/BoardWrapper.vue';
 import PlayerColorChoice from '@/components/PlayerColorChoice.vue';
-import { ref, watch } from 'vue';
+import { watch } from 'vue';
 import { useBoardStore } from '@/stores/boardStore';
 import { useGameStore } from '@/stores/gameStore';
 import { computerTurn } from '@/helpers/turn';
-import type { GamePhase, Move } from '@/types';
-import { isQueen } from '@/helpers/board';
+import type { Move } from '@/types';
+import { getPieceColor, isQueen } from '@/helpers/board';
 import { pickBestEngineContinuation } from '@/helpers/ai';
 import { storeToRefs } from 'pinia';
 
-const gamePhase = ref<GamePhase>('color')
-
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
-const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak } = storeToRefs(gameStore)
+const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak, gamePhase } = storeToRefs(gameStore)
 
 function startGame() {
     boardStore.resetToDefault()
-    gamePhase.value = 'game'
+    gameStore.setGamePhase('game')
 }
 
 function resetGame() {
     boardStore.resetToDefault()
     gameStore.resetToDefault()
-    gamePhase.value = 'color'
 }
 
 watch(
@@ -41,7 +38,10 @@ watch(
 
 function moveCallback(move: Move) {
   const newBoard = boardStore.applyMove(move)
-
+  if (move.isPromotion) {
+    const color = getPieceColor(newBoard[move.toIndex])
+    if (color) gameStore.incrementPromotionsCount(color)
+  }
   if (!move.isCapture && isQueen(newBoard[move.toIndex])) {
     gameStore.incrementQueenMovesWithoutCaptureStreak()
   } else {
@@ -56,11 +56,11 @@ function turnOverCallback() {
 
 function gameOverCallback() {
   // TODO: if game is over, then highlight pieces that won and show message that game is over
-  gamePhase.value = 'gameOver'
+  gameStore.setGamePhase('gameOver')
 }
 
 watch(
-  [() => gamePhase.value, () => humanPlayerColor.value],
+  [() => gamePhase.value, () => currentPlayer.value],
   () => {
     if (gamePhase.value === 'game' && humanPlayerColor.value !== null && humanPlayerColor.value !== currentPlayer.value) {
       computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {

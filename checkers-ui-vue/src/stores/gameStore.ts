@@ -1,8 +1,9 @@
-import type { GameResult, PieceColor, Player } from '@/types'
+import type { GamePhase, GameResult, PieceColor, Player } from '@/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 const DEFAULT_STATE = {
+    gamePhase: 'color' as GamePhase,
     currentPlayer: 'white' as Player,
     humanPlayerColor: null,
     turn: 1,
@@ -12,6 +13,7 @@ const DEFAULT_STATE = {
 }
 
 export const useGameStore = defineStore('game', () => {
+  const gamePhase = ref<GamePhase>('color')
   const currentPlayer = ref<Player>(DEFAULT_STATE.currentPlayer)
   const humanPlayerColor = ref<Player | null>(DEFAULT_STATE.humanPlayerColor)
   const turn = ref<number>(DEFAULT_STATE.turn)
@@ -32,7 +34,10 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function incrementPromotionsCount(color: PieceColor) {
-    promotionsCount.value[color]++
+    promotionsCount.value = {
+      ...promotionsCount.value,
+      [color]: promotionsCount.value[color] + 1,
+    }
   }
 
   function incrementQueenMovesWithoutCaptureStreak() {
@@ -43,7 +48,12 @@ export const useGameStore = defineStore('game', () => {
     queenMovesWithoutCaptureStreak.value = 0
   }
 
+  function setGamePhase(phase: GamePhase) {
+    gamePhase.value = phase
+  }
+
   function resetToDefault() {
+    gamePhase.value = DEFAULT_STATE.gamePhase
     currentPlayer.value = DEFAULT_STATE.currentPlayer
     humanPlayerColor.value = DEFAULT_STATE.humanPlayerColor
     turn.value = DEFAULT_STATE.turn
@@ -70,6 +80,8 @@ export const useGameStore = defineStore('game', () => {
     incrementQueenMovesWithoutCaptureStreak,
     resetQueenMovesWithoutCaptureStreak,
     resetToDefault,
-    gameResult
+    gameResult,
+    gamePhase,
+    setGamePhase
   }
 })

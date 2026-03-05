@@ -223,6 +223,7 @@ export function findAllLegalContinuations(board: BoardPosition, piecesColor: Pie
       continuations.push([move, ...chain])
     }
   }
+  console.log({continuations})
   return continuations
 }
 
@@ -261,4 +262,13 @@ export const findImmediateChainedCaptures = (boardAfterMove: BoardPosition, move
     return []
   }
   return findLegalCapturesOfPiece(boardAfterMove, move.toIndex, move.followingChainedCaptureForbiddenDirection)
+}
+
+export const getLegalMove = (board: BoardPosition, move: Partial<Pick<Move, 'fromIndex' | 'toIndex'>>): Move | null => {
+  if (!move.fromIndex || !move.toIndex) {
+    return null
+  }
+  const moves = findAllLegalMoves(board, getPieceColor(board[move.fromIndex])!)
+  console.log({legalMoves: moves})
+  return moves.find(m => m.fromIndex === move.fromIndex && m.toIndex === move.toIndex) ?? null
 }

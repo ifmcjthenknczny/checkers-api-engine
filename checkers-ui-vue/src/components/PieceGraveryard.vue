@@ -26,19 +26,30 @@ import { useGameStore } from '@/stores/gameStore';
 import { getPiecesOfColor, isQueen, STARTING_BOARD_STATE } from '@/helpers/board';
 import { computed } from 'vue';
 import { useBoardStore } from '@/stores/boardStore';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{
   pieceColor: PieceColor
 }>()
 
 const boardStore = useBoardStore()
+const { board } = storeToRefs(boardStore)
+
 const gameStore = useGameStore()
+const {promotionsCount} = storeToRefs(gameStore)
 
 const startingPiecesCount = getPiecesOfColor(STARTING_BOARD_STATE, props.pieceColor).length
 
-const capturedQueensCount = computed(() => gameStore.promotionsCount[props.pieceColor] - getPiecesOfColor(boardStore.board, props.pieceColor).filter(({piece}) => isQueen(piece)).length)
+const capturedQueensCount = computed(() => {
+  const currentQueens = getPiecesOfColor(board.value, props.pieceColor).filter(({ piece }) => isQueen(piece)).length
+  return Math.max(0, promotionsCount.value[props.pieceColor] - currentQueens)
+})
 
-const capturedNormalPiecesCount = computed(() => getPiecesOfColor(boardStore.board, props.pieceColor).length - startingPiecesCount - capturedQueensCount.value)
+const capturedNormalPiecesCount = computed(() => {
+  const currentPiecesCount = getPiecesOfColor(board.value, props.pieceColor).length
+  const totalCaptured = startingPiecesCount - currentPiecesCount
+  return Math.max(0, totalCaptured - capturedQueensCount.value)
+})
 </script>
 
 <style lang="scss" scoped>
