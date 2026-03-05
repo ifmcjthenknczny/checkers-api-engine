@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import BoardWrapper from '@/components/BoardWrapper.vue'
 import PlayerColorChoice from '@/components/PlayerColorChoice.vue'
-import PageLayout from '@/layouts/PageLayout.vue'
 import { onMounted, watch } from 'vue'
 import { useBoardStore } from '@/stores/boardStore'
 import { useGameStore } from '@/stores/gameStore'
@@ -97,14 +96,12 @@ watch(
 </script>
 
 <template>
-  <PageLayout>
-    <div class="play-page">
-      <div class="play-page__board-col">
-        <PlayerColorChoice v-if="gamePhase === 'color'" />
-        <BoardWrapper v-if="['game', 'gameOver'].includes(gamePhase)" context="game" />
-      </div>
+  <div class="play-page">
+    <div class="play-page__board-col">
+      <PlayerColorChoice v-if="gamePhase === 'color'" />
+      <BoardWrapper v-if="['game', 'gameOver'].includes(gamePhase)" context="game" />
     </div>
-  </PageLayout>
+  </div>
 </template>
 
 <style lang="scss" scoped>

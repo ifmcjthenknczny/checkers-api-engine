@@ -3,6 +3,8 @@ import path from 'node:path'
 
 let session: ort.InferenceSession | null = null
 
+// TODO: minmax depth algorithm for better predictions
+
 export async function loadModel(level = 1, modelsPath: string): Promise<void> {
   try {
     const modelPath = path.isAbsolute(modelsPath)

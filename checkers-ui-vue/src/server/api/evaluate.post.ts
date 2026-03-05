@@ -1,5 +1,7 @@
 import { z } from 'zod'
+import { loadModel, evaluateBoardRaw } from '#server/utils/model'
 
+// TODO: Map them from human form
 const ALLOWED_PIECES = [0, 1, -1, 3, -3]
 const ALLOWED_MOVES = [-1, 1]
 
@@ -17,11 +19,10 @@ const EvalSchema = z.object({
 
 let modelLoaded = false
 
+// TODO: get model level and depth (default is 1) from body
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const modelsPath = config.modelsPath as string
-
-  const { loadModel, evaluateBoardRaw } = await import('#server/utils/model')
 
   if (!modelLoaded) {
     await loadModel(1, modelsPath)
@@ -35,7 +36,10 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       statusMessage: 'Invalid input',
-      data: result.error.format(),
+      data: result.error.issues.map((issue) => ({
+        path: issue.path.join('.'),
+        message: issue.message,
+      })),
     })
   }
 

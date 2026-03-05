@@ -1,7 +1,9 @@
 <template>
-  <main>
-    <NuxtPage />
-  </main>
+  <NuxtLayout>
+    <main>
+      <NuxtPage />
+    </main>
+  </NuxtLayout>
 </template>
 
 <style lang="scss">
@@ -15,7 +17,9 @@ html {
 body {
   display: flex;
   flex-flow: column;
-  background-image: url('/what-the-hex.png');
+  /* Obrazek z public/what-the-hex.png – jeśli dodasz plik, odkomentuj linię poniżej i usuń background-color */
+  /* background-image: url('/what-the-hex.png'); */
+  background-color: #e8e8e8;
   min-height: 100vh;
   overflow: hidden;
 }
