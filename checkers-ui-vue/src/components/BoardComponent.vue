@@ -4,13 +4,34 @@ import { range, rangeChar } from '../helpers/utils'
 import { useBoardStore } from '@/stores/boardStore'
 import CheckersPiece from './PieceComponent.vue'
 import CheckersSquare from './BoardSquare.vue'
-import { isWhiteSquare, getSquareIndex } from '@/helpers/board'
-import type { SquareContent } from '@/types'
+import { isWhiteSquare, getSquareIndex, getPieceColor } from '@/helpers/board'
+import type { BoardContext, Move, SquareContent } from '@/types'
 import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
+import { findLegalMovesOfPiece, playerHasCapturePossibility } from '@/helpers/move'
+import { computed } from 'vue'
+import PossibleMoveMarker from './PossibleMoveMarker.vue'
+import { useGameStore } from '@/stores/gameStore'
 
-const cols = rangeChar(BOARD_SIZE, 'a')
-const rows = range(BOARD_SIZE, 1).toReversed()
+const props = withDefaults(
+  defineProps<{
+    isBoardFlipped?: boolean
+    context: BoardContext
+  }>(),
+  {
+    isBoardFlipped: false,
+  }
+)
+
+const cols = computed(() => props.isBoardFlipped ? rangeChar(BOARD_SIZE, 'a').toReversed() : rangeChar(BOARD_SIZE, 'a'))
+
+const rows = computed(() => props.isBoardFlipped ? range(BOARD_SIZE, 1) : range(BOARD_SIZE, 1).toReversed())
+
+const getDisplaySquareIndex = (rowIndex: number, colIndex: number) => {
+  const boardRow = props.isBoardFlipped ? BOARD_SIZE - 1 - rowIndex : rowIndex
+  const boardCol = props.isBoardFlipped ? BOARD_SIZE - 1 - colIndex : colIndex
+  return getSquareIndex(boardRow, boardCol)
+}
 
 const gridStyles = {
   display: 'grid',
@@ -22,26 +43,64 @@ const boardStore = useBoardStore()
 const { board } = storeToRefs(boardStore)
 const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
+const gameStore = useGameStore()
+const { currentPlayer, humanPlayerColor } = storeToRefs(gameStore)
+
+const possibleMovesForDraggedPieceMap = computed(() => {
+  if (props.context === 'analysis' || draggedIndex.value === null || dragContext.value !== 'board') {
+    return []
+  }
+  const draggedPieceColor = getPieceColor(board.value[draggedIndex.value!])
+  if (!draggedPieceColor) {
+    return []
+  }
+  const legalMovesOfPiece = findLegalMovesOfPiece(board.value, draggedIndex.value!, playerHasCapturePossibility(board.value, draggedPieceColor!))
+  return legalMovesOfPiece.reduce((acc, move) => {
+    acc[move.toIndex] = move
+    return acc
+  }, {} as Record<number, Move>)
+})
 
 const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
-  const to = getSquareIndex(row, col)
+  const toIndex = getDisplaySquareIndex(row, col)
+  // const pieceColor = getPieceColor(piece)
 
-  if (dragContext.value === 'spawn') {
+  // if (pieceColor === boardStore.currentPlayer) {
+  //   boardStore.switchPlayer()
+  // }
+
+  if (dragContext.value === 'spawn' && props.context === 'analysis') {
     if (!piece) {
       return
     }
-    boardStore.addPiece(piece, to)
+    boardStore.addPiece(piece, toIndex)
   }
 
   if (dragContext.value === 'board') {
-    const from = draggedIndex.value
-    if (from === null) {
+    const fromIndex = draggedIndex.value
+    if (fromIndex === null) {
       return
     }
-    boardStore.movePiece(from, to)
+    if (props.context === 'game') {
+      if (!possibleMovesForDraggedPieceMap.value[toIndex]) {
+        return
+      }
+      boardStore.applyMove(possibleMovesForDraggedPieceMap.value[toIndex])
+      return
+    }
+    boardStore.movePiece(fromIndex, toIndex)
   }
 
   dragStore.stopDrag()
+}
+
+function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
+  const belongsToDraggedPiece = Object.keys(possibleMovesForDraggedPieceMap.value).some(toIndex => +toIndex === getDisplaySquareIndex(rowIndex, colIndex))
+  const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
+  const isPlayersTurn = currentPlayer.value === humanPlayerColor.value
+  const isPlayersPiece = getPieceColor(board.value[getDisplaySquareIndex(rowIndex, colIndex)]) === humanPlayerColor.value
+
+  return belongsToDraggedPiece && isPlayableSquare && isPlayersTurn && isPlayersPiece
 }
 </script>
 
@@ -55,21 +114,24 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
       <CheckersSquare
         v-for="(colName, colIndex) in cols"
         :position="[colIndex, rowIndex]"
+        :board-index="getDisplaySquareIndex(rowIndex, colIndex)"
         :colName="colName"
         :rowName="rowName"
         :key="`${colName}${rowName}`"
         @drop-piece="drop"
+        :context="context"
       >
         <CheckersPiece
           v-if="!isWhiteSquare(rowIndex, colIndex)"
-          :piece="board[getSquareIndex(rowIndex, colIndex)]!"
-          :index="getSquareIndex(rowIndex, colIndex)"
+          :piece="board[getDisplaySquareIndex(rowIndex, colIndex)]!"
+          :index="getDisplaySquareIndex(rowIndex, colIndex)"
           context="board"
         />
+        <PossibleMoveMarker v-if="shouldShowPossibleMoveMarker(rowIndex, colIndex)" :key="getDisplaySquareIndex(rowIndex, colIndex)" />
       </CheckersSquare>
     </template>
 
-    <div></div>
+    <div />
 
     <div
       v-for="colName in cols"
@@ -107,7 +169,7 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: $breakpoint) {
   .board {
     width: $boardSizeVertical;
     height: $boardSizeVertical;

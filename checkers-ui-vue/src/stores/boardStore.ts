@@ -1,34 +1,24 @@
-import type { BoardPosition, Player, SquareContent } from '@/types'
+import { applyMove as applyMoveToPosition, movePieceFreely } from '@/helpers/move'
+import type { BoardPosition, Move, Player, SquareContent } from '@/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-
-const STARTING_BOARD_STATE = [
-  ...Array(12).fill(-1),
-  ...Array(8).fill(0),
-  ...Array(12).fill(1),
-] as BoardPosition
-
-const EMPTY_BOARD_STATE = Array(32).fill(0) as BoardPosition
+import { STARTING_BOARD_STATE, EMPTY_BOARD_STATE } from '@/helpers/board'
 
 export const useBoardStore = defineStore('board', () => {
   const board = ref<BoardPosition>(STARTING_BOARD_STATE)
-  const currentPlayer = ref<Player>('white')
 
   function setBoardState(newBoardState: BoardPosition) {
     board.value = newBoardState
   }
 
-  function switchPlayer() {
-    currentPlayer.value = currentPlayer.value === 'white' ? 'black' : 'white'
+  function movePiece(fromIndex: number, toIndex: number) {
+    board.value = movePieceFreely(board.value, { fromIndex, toIndex } as Move)
+    return board.value
   }
 
-  function movePiece(fromIndex: number, toIndex: number) {
-    const piece = board.value[fromIndex]
-    if (!piece) {
-      return
-    }
-    board.value[toIndex] = piece
-    board.value[fromIndex] = 0
+  function applyMove(move: Move) {
+    board.value = applyMoveToPosition(board.value, move)
+    return board.value
   }
 
   function addPiece(piece: SquareContent, toIndex: number) {
@@ -50,9 +40,8 @@ export const useBoardStore = defineStore('board', () => {
   return {
     board,
     setBoardState,
-    currentPlayer,
-    switchPlayer,
     movePiece,
+    applyMove,
     addPiece,
     removePiece,
     removeAllPieces,

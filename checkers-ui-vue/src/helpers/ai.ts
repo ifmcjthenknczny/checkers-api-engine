@@ -1,15 +1,43 @@
-// TODO: weź mi wyabstrahuj to tak by paramsem był player i board XD
+import type { BoardPosition, Move, Player } from '../types'
+import { evaluateBoard } from './engine'
+import { applyMove, findAllLegalContinuations, findAllLegalMoves } from './move'
 
-export function pickAMove(
-    legalMoves: Record<number, number[]>,
-  ): { fromIndex: number; toIndex: number } | null {
-    const keys = Object.keys(legalMoves).map(Number)
-    if (keys.length === 0) return null
-    const fromIndex = keys[Math.floor(Math.random() * keys.length)]
-    const targets = legalMoves[fromIndex]
-    const toIndex =
-      targets.length === 1
-        ? targets[0]
-        : targets[Math.floor(Math.random() * targets.length)]
-    return { fromIndex, toIndex }
+export function pickARandomMove(
+  player: Player,
+  board: BoardPosition,
+): Move | null {
+  const legalMoves = findAllLegalMoves(board, player)
+  if (legalMoves.length === 0) {
+    return null
   }
+  return legalMoves[Math.floor(Math.random() * legalMoves.length)]!
+}
+
+export async function pickBestEngineContinuation(
+  board: BoardPosition,
+  player: Player,
+): Promise<Move[]> {
+  const continuations = findAllLegalContinuations(board, player)
+
+  const resultingBoards = continuations.map((continuationMoves) =>
+    continuationMoves.reduce(
+      (currentBoard, move) => applyMove(currentBoard, move),
+      [...board] as BoardPosition,
+    ),
+  )
+
+  const evaluations = await Promise.all(
+    resultingBoards.map((board) => evaluateBoard(board, player)),
+  )
+  const isMaximizing = player === 'white'
+  const bestIndex = evaluations.reduce(
+    (bestIndex, evaluation, index) =>
+      isMaximizing
+        ? (evaluation > evaluations[bestIndex]! ? index : bestIndex)
+        : (evaluation < evaluations[bestIndex]! ? index : bestIndex),
+    0,
+  )
+  console.log({evaluation: evaluations[bestIndex]})
+  console.log({evaluations})
+  return continuations[bestIndex] ?? []
+}

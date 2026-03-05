@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SquareContent } from '@/types'
+import { getPieceColor } from '@/helpers/board'
 import PieceComponent from './PieceComponent.vue'
 import SquareWrapper from './SquareWrapper.vue'
 import PieceTrash from './PieceTrash.vue'
@@ -25,7 +26,7 @@ const TOOLBOX_PIECES: SquareContent[] = [-3, 3, -1, 1]
       </SquareWrapper>
     </div>
     <div class="piece-spawner__row piece-spawner__row--bottom">
-      <SquareWrapper :key="piece" v-for="piece in TOOLBOX_PIECES" :color="getPieceColor(piece)">
+      <SquareWrapper :key="piece" v-for="piece in TOOLBOX_PIECES" :color="getPieceColor(piece)!">
         <PieceComponent :piece="piece" context="spawn" />
       </SquareWrapper>
     </div>
@@ -62,11 +63,11 @@ $cell-desktop: calc($boardSizeHorizontal / 8);
   flex-shrink: 0;
 }
 
-@media (min-width: 900px) {
+@media (min-width: $breakpoint) {
   .piece-spawner {
-    flex-direction: column;
-    align-items: center;
-    gap: $cell-desktop;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
   }
 
   .piece-spawner__row {
@@ -77,6 +78,15 @@ $cell-desktop: calc($boardSizeHorizontal / 8);
       width: $cell-desktop;
       height: $cell-desktop;
     }
+  }
+
+  .piece-spawner__row--top {
+    flex-shrink: 0;
+  }
+
+  .piece-spawner__row--bottom {
+    flex-wrap: wrap;
+    max-width: calc(2 * $cell-desktop + 4px);
   }
 
   .piece-spawner__trash-cell {

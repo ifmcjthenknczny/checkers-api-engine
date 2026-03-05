@@ -5,6 +5,8 @@
 </template>
 
 <style lang="scss">
+@import url('https://fonts.googleapis.com/css2?family=Cousine:ital,wght@0,400;0,700;1,400&display=swap');
+
 html {
   font-family: $globalFont;
   font-size: clamp(10px, $nameSquareSizeVertical, 20px);
@@ -28,7 +30,7 @@ main {
   min-height: 0;
 }
 
-@media (min-width: 700px) {
+@media (min-width: $breakpoint) {
   html {
     font-size: 20px;
   }

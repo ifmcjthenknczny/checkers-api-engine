@@ -1,6 +1,14 @@
 import { BOARD_SIZE } from '../config'
 import type { BoardPosition, Piece, PieceColor, SquareCoords, SquareContent } from '../types'
 
+export const STARTING_BOARD_STATE = [
+  ...Array(12).fill(-1),
+  ...Array(8).fill(0),
+  ...Array(12).fill(1),
+] as BoardPosition
+
+export const EMPTY_BOARD_STATE = Array(32).fill(0) as BoardPosition
+
 export const isWhiteSquare = (rowIndex: number, colIndex: number): boolean =>
   (rowIndex + colIndex) % 2 === 0
 
@@ -20,7 +28,7 @@ export const rowColToIndex = (row: number, col: number): number =>
   row * (BOARD_SIZE / 2) + (row % 2 === 0 ? (col - 1) / 2 : col / 2)
 
 export const isQueen = (piece?: SquareContent): piece is -3 | 3 => {
-  return piece && Math.abs(piece) === 3
+  return !!piece && Math.abs(piece) === 3
 }
 
 export const getPieceColor = (piece?: SquareContent): PieceColor | null => {

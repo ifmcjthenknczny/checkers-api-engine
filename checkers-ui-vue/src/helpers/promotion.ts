@@ -1,26 +1,24 @@
-import { BoardPosition, SquareContent } from "@/types"
+import type { BoardPosition, Piece, SquareContent } from "@/types"
 import { isQueen, getPieceColor, indexToRowCol } from "./board"
 import { BOARD_SIZE } from "@/config"
 
-export function shouldPromotePiece(
+export function shouldPotentiallyPromotePiece(
     board: BoardPosition,
+    fromIndex: number,
     toIndex: number,
-    piece: SquareContent,
   ): boolean {
-    if (isQueen(piece)) {
+    // the exception to this is when the piece is during a chained capture
+    const piece = board[fromIndex]
+    if (!piece || isQueen(piece)) {
         return false
     }
     const { row } = indexToRowCol(toIndex)
-    const isWhitePiece = getPieceColor(piece) === 'white'
+    const pieceColor = getPieceColor(piece)
     return (
-      (isWhitePiece && row === BOARD_SIZE - 1) || (!isWhitePiece && row === 0)
+      (pieceColor === 'white' && row === 0) || (pieceColor === 'black' && row === BOARD_SIZE - 1)
     )
   }
   
-  export function applyPromotion(board: BoardPosition, atIndex: number): BoardPosition {
-    const next = [...board] as BoardPosition
-    const p = next[atIndex]
-    if (p === 1) next[atIndex] = 3
-    else if (p === -1) next[atIndex] = -3
-    return next
+  export function applyPiecePromotion(piece: Piece): Piece {
+    return piece > 0 ? 3 : -3
   }
