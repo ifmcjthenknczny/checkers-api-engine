@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const navItems = [
-  { name: 'play', path: '/', label: 'Play' },
+  { name: 'play', path: '/play', label: 'Play' },
   { name: 'analysis', path: '/analysis', label: 'Analyse' },
 ] as const
 </script>

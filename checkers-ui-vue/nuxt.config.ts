@@ -8,7 +8,6 @@ export default defineNuxtConfig({
   srcDir: 'src/',
   compatibilityDate: '2025-03-05',
 
-  // Server w src/server (przy srcDir trasy API muszą być w tym samym drzewie)
   dir: {
     server: 'src/server',
   },
@@ -48,7 +47,6 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    // Upewnij się, że serwer Node (dla onnxruntime-node) jest używany
     preset: 'node-server',
   },
 })

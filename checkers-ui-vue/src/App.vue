@@ -17,9 +17,7 @@ html {
 body {
   display: flex;
   flex-flow: column;
-  /* Obrazek z public/what-the-hex.png – jeśli dodasz plik, odkomentuj linię poniżej i usuń background-color */
-  /* background-image: url('/what-the-hex.png'); */
-  background-color: #e8e8e8;
+  background-image: url('../public/what-the-hex.png');
   min-height: 100vh;
   overflow: hidden;
 }
