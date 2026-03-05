@@ -23,7 +23,7 @@ const drop = () => {
     class="trash"
     @dragover="allow"
     @drop="drop"
-    title="Drop piece to remove"
+    title="Drop piece here to remove it from the board"
   >
     <svg class="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="3 6 5 6 21 6" />

@@ -65,9 +65,9 @@ $cell-desktop: calc($boardSizeHorizontal / 8);
 
 @media (min-width: 900px) {
   .piece-spawner {
-    flex-direction: column;
-    align-items: center;
-    gap: $cell-desktop;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
   }
 
   .piece-spawner__row {
@@ -78,6 +78,15 @@ $cell-desktop: calc($boardSizeHorizontal / 8);
       width: $cell-desktop;
       height: $cell-desktop;
     }
+  }
+
+  .piece-spawner__row--top {
+    flex-shrink: 0;
+  }
+
+  .piece-spawner__row--bottom {
+    flex-wrap: wrap;
+    max-width: calc(2 * $cell-desktop + 4px);
   }
 
   .piece-spawner__trash-cell {

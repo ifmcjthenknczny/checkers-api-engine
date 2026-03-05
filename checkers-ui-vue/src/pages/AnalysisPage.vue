@@ -12,8 +12,12 @@ import PageLayout from '@/layouts/PageLayout.vue'
         <Board context="analysis" />
       </div>
       <aside class="analysis-page__side">
-        <EvaluationContainer />
-        <PieceToolbox />
+        <div class="analysis-page__analysis-col">
+          <EvaluationContainer />
+        </div>
+        <div class="analysis-page__toolbox-col">
+          <PieceToolbox />
+        </div>
       </aside>
     </div>
   </PageLayout>
@@ -56,11 +60,26 @@ import PageLayout from '@/layouts/PageLayout.vue'
     min-width: 0;
   }
 
-  .analysis-page__side {
+.analysis-page__side {
+  flex-shrink: 0;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.5rem;
+  width: auto;
+  }
+
+  .analysis-page__analysis-col {
+    display: flex;
     flex-shrink: 0;
     flex-direction: column;
-    align-items: flex-end;
-    width: auto;
+    align-items: stretch;
+  }
+
+  .analysis-page__toolbox-col {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>
