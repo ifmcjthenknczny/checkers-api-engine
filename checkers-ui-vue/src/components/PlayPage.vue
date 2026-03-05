@@ -3,29 +3,31 @@ import BoardWrapper from '@/components/BoardWrapper.vue'
 import PlayerColorChoice from '@/components/PlayerColorChoice.vue'
 import PageLayout from '@/layouts/PageLayout.vue'
 import { onMounted, watch } from 'vue'
-import { useBoardStore } from '@/stores/boardStore';
-import { useGameStore } from '@/stores/gameStore';
-import { computerTurn } from '@/helpers/turn';
-import type { Move } from '@/types';
-import { getPieceColor, isQueen } from '@/helpers/board';
-import { pickBestEngineContinuation } from '@/helpers/ai';
-import { storeToRefs } from 'pinia';
-import { sleep } from '@/helpers/utils';
-import { determineGameResult } from '@/helpers/gameOver';
+import { useBoardStore } from '@/stores/boardStore'
+import { useGameStore } from '@/stores/gameStore'
+import { computerTurn } from '@/helpers/turn'
+import type { Move } from '@/types'
+import { getPieceColor, isQueen } from '@/helpers/board'
+import { pickBestEngineContinuation } from '@/helpers/ai'
+import { storeToRefs } from 'pinia'
+import { sleep } from '@/helpers/utils'
+import { determineGameResult } from '@/helpers/gameOver'
 
 const boardStore = useBoardStore()
-const {board} = storeToRefs(boardStore)
+const { board } = storeToRefs(boardStore)
 const gameStore = useGameStore()
-const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak, gamePhase } = storeToRefs(gameStore)
+const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak, gamePhase } =
+  storeToRefs(gameStore)
+const runtimeConfig = useRuntimeConfig()
 
 function startGame() {
-    boardStore.resetToDefault()
-    gameStore.setGamePhase('game')
+  boardStore.resetToDefault()
+  gameStore.setGamePhase('game')
 }
 
 function resetGame() {
-    boardStore.resetToDefault()
-    gameStore.resetToDefault()
+  boardStore.resetToDefault()
+  gameStore.resetToDefault()
 }
 
 onMounted(() => {
@@ -41,7 +43,7 @@ watch(
     if (newVal === null && oldVal !== null) {
       resetGame()
     }
-  }
+  },
 )
 
 // TODO: deduplicate with BoardSquare.vue
@@ -66,38 +68,43 @@ function turnOverCallback() {
 }
 
 function gameOverCallback() {
-  gameStore.setGameResult(determineGameResult(board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value))
+  gameStore.setGameResult(
+    determineGameResult(board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value),
+  )
   gameStore.setGamePhase('gameOver')
 }
 
 watch(
   [() => gamePhase.value, () => currentPlayer.value],
   async () => {
-    if (gamePhase.value === 'game' && humanPlayerColor.value !== null && humanPlayerColor.value !== currentPlayer.value) {
+    if (
+      gamePhase.value === 'game' &&
+      humanPlayerColor.value !== null &&
+      humanPlayerColor.value !== currentPlayer.value
+    ) {
       await sleep(500)
       computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
         gameOverCallback,
         moveCallback,
         turnOverCallback,
-        movePickingStrategy: pickBestEngineContinuation,
+        movePickingStrategy: (b, p) =>
+          pickBestEngineContinuation(b, p, runtimeConfig.public.engineApiUrl as string),
       })
-    // TODO: animacja ruchu
     }
   },
   { immediate: true },
 )
-
 </script>
 
 <template>
-    <PageLayout>
-        <div class="play-page">
-            <div class="play-page__board-col">
-                <PlayerColorChoice v-if="gamePhase === 'color'" />
-                <BoardWrapper v-if="['game', 'gameOver'].includes(gamePhase)" context="game" />
-            </div>
-        </div>
-    </PageLayout>
+  <PageLayout>
+    <div class="play-page">
+      <div class="play-page__board-col">
+        <PlayerColorChoice v-if="gamePhase === 'color'" />
+        <BoardWrapper v-if="['game', 'gameOver'].includes(gamePhase)" context="game" />
+      </div>
+    </div>
+  </PageLayout>
 </template>
 
 <style lang="scss" scoped>

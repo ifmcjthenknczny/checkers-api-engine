@@ -1,6 +1,6 @@
 <template>
   <main>
-    <RouterView />
+    <NuxtPage />
   </main>
 </template>
 
@@ -15,7 +15,7 @@ html {
 body {
   display: flex;
   flex-flow: column;
-  background-image: url('/src/assets/what-the-hex.png');
+  background-image: url('/what-the-hex.png');
   min-height: 100vh;
   overflow: hidden;
 }

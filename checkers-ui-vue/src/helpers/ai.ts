@@ -16,6 +16,7 @@ export function pickARandomMove(
 export async function pickBestEngineContinuation(
   board: BoardPosition,
   player: Player,
+  engineBaseUrl?: string,
 ): Promise<Move[]> {
   const continuations = findAllLegalContinuations(board, player)
 
@@ -27,7 +28,7 @@ export async function pickBestEngineContinuation(
   )
 
   const evaluations = await Promise.all(
-    resultingBoards.map((board) => evaluateBoard(board, player)),
+    resultingBoards.map((b) => evaluateBoard(b, player, engineBaseUrl)),
   )
   const isMaximizing = player === 'white'
   const bestIndex = evaluations.reduce(

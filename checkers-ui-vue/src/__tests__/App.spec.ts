@@ -4,8 +4,12 @@ import { mount } from '@vue/test-utils'
 import App from '../App.vue'
 
 describe('App', () => {
-  it('mounts renders properly', () => {
-    const wrapper = mount(App)
-    expect(wrapper.text()).toContain('You did it!')
+  it('mounts and renders main with NuxtPage', () => {
+    const wrapper = mount(App, {
+      global: {
+        stubs: { NuxtPage: true },
+      },
+    })
+    expect(wrapper.find('main').exists()).toBe(true)
   })
 })

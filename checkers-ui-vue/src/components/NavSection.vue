@@ -1,25 +1,23 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
-
 const navItems = [
-    { name: 'play', path: '/', label: 'Play' },
-    { name: 'analysis', path: '/analysis', label: 'Analyse' },
+  { name: 'play', path: '/', label: 'Play' },
+  { name: 'analysis', path: '/analysis', label: 'Analyse' },
 ] as const
 </script>
 
 <template>
-    <nav class="nav-section" aria-label="Główna nawigacja">
-        <RouterLink
-            v-for="item in navItems"
-            :key="item.name"
-            :to="item.path"
-            class="nav-section__link"
-            active-class="nav-section__link--active"
-            exact-active-class="nav-section__link--exact"
-        >
-            {{ item.label }}
-        </RouterLink>
-    </nav>
+  <nav class="nav-section" aria-label="Główna nawigacja">
+    <NuxtLink
+      v-for="item in navItems"
+      :key="item.name"
+      :to="item.path"
+      class="nav-section__link"
+      active-class="nav-section__link--active"
+      exact-active-class="nav-section__link--exact"
+    >
+      {{ item.label }}
+    </NuxtLink>
+  </nav>
 </template>
 
 <style lang="scss" scoped>

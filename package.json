@@ -6,6 +6,8 @@
     "start:data-server": "(cd data-server && node server.js)",
     "dev:data-server": "(cd data-server && node server.js)",
     "start:checkers-ui": "(cd checkers-ui && npx serve)",
+    "dev:ui": "cd checkers-ui-vue && npm run dev",
+    "build:ui": "cd checkers-ui-vue && npm run build",
     "start:engine-api": "(cd engine-api && node dist/index.js)",
     "build:engine-api": "(cd engine-api && tsc)",
     "dev:engine-api": "(cd engine-api && ts-node-dev --respawn src/index.ts)"

@@ -60,12 +60,12 @@ import PageLayout from '@/layouts/PageLayout.vue'
     min-width: 0;
   }
 
-.analysis-page__side {
-  flex-shrink: 0;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 1.5rem;
-  width: auto;
+  .analysis-page__side {
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    width: auto;
   }
 
   .analysis-page__analysis-col {
