@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import BoardWrapper from '@/components/BoardWrapper.vue';
-import PlayerColorChoice from '@/components/PlayerColorChoice.vue';
-import { watch } from 'vue';
+import BoardWrapper from '@/components/BoardWrapper.vue'
+import PlayerColorChoice from '@/components/PlayerColorChoice.vue'
+import PageLayout from '@/layouts/PageLayout.vue'
+import { watch } from 'vue'
 import { useBoardStore } from '@/stores/boardStore';
 import { useGameStore } from '@/stores/gameStore';
 import { computerTurn } from '@/helpers/turn';
@@ -9,8 +10,11 @@ import type { Move } from '@/types';
 import { getPieceColor, isQueen } from '@/helpers/board';
 import { pickBestEngineContinuation } from '@/helpers/ai';
 import { storeToRefs } from 'pinia';
+import { sleep } from '@/helpers/utils';
+import { determineGameResult } from '@/helpers/gameOver';
 
 const boardStore = useBoardStore()
+const {board} = storeToRefs(boardStore)
 const gameStore = useGameStore()
 const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak, gamePhase } = storeToRefs(gameStore)
 
@@ -56,13 +60,15 @@ function turnOverCallback() {
 
 function gameOverCallback() {
   // TODO: if game is over, then highlight pieces that won and show message that game is over
+  gameStore.setGameResult(determineGameResult(board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value))
   gameStore.setGamePhase('gameOver')
 }
 
 watch(
   [() => gamePhase.value, () => currentPlayer.value],
-  () => {
+  async () => {
     if (gamePhase.value === 'game' && humanPlayerColor.value !== null && humanPlayerColor.value !== currentPlayer.value) {
+      await sleep(500)
       computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
         gameOverCallback,
         moveCallback,
@@ -78,12 +84,14 @@ watch(
 </script>
 
 <template>
-    <div class="play-page">
-        <PlayerColorChoice v-if="gamePhase === 'color'" />
+    <PageLayout>
+        <div class="play-page">
+            <PlayerColorChoice v-if="gamePhase === 'color'" />
 
-        <BoardWrapper v-if="['game', 'gameOver'].includes(gamePhase)" context="game" />
-    </div>
-  </template>
+            <BoardWrapper v-if="['game', 'gameOver'].includes(gamePhase)" context="game" />
+        </div>
+    </PageLayout>
+</template>
 
 <style lang="scss" scoped>
 @use 'sass:color';

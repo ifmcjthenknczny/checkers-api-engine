@@ -2,9 +2,11 @@
 import Board from '@/components/BoardComponent.vue'
 import EvaluationContainer from '@/components/EvaluationContainer.vue'
 import PieceToolbox from '@/components/PieceToolbox.vue'
+import PageLayout from '@/layouts/PageLayout.vue'
 </script>
 
 <template>
+  <PageLayout>
   <div class="analysis-page">
     <Board context="analysis" />
     <aside class="analysis-page__side">
@@ -12,6 +14,7 @@ import PieceToolbox from '@/components/PieceToolbox.vue'
       <PieceToolbox />
     </aside>
   </div>
+  </PageLayout>
 </template>
 
 <style lang="scss" scoped>

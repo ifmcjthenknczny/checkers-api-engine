@@ -8,6 +8,7 @@ import { useGameStore } from '@/stores/gameStore'
 import { playerMove } from '@/helpers/turn'
 import { getLegalMove } from '@/helpers/move'
 import { useBoardStore } from '@/stores/boardStore'
+import { determineGameResult } from '@/helpers/gameOver'
 
 interface Props {
   position: [number, number]
@@ -66,6 +67,7 @@ function turnOverCallback() {
 function gameOverCallback() {
   // TODO: if game is over, then highlight pieces that won and show message that game is over
   gameStore.setGamePhase('gameOver')
+  gameStore.setGameResult(determineGameResult(board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value))
 }
 
 const drop = (e: DragEvent) => {

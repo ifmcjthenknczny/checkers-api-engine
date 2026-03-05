@@ -66,6 +66,10 @@ export const useGameStore = defineStore('game', () => {
     turn.value++
   }
 
+  function setGameResult(result: GameResult | null) {
+    gameResult.value = result
+  }
+
   return {
     currentPlayer,
     setCurrentPlayer,
@@ -81,6 +85,7 @@ export const useGameStore = defineStore('game', () => {
     resetQueenMovesWithoutCaptureStreak,
     resetToDefault,
     gameResult,
+    setGameResult,
     gamePhase,
     setGamePhase
   }

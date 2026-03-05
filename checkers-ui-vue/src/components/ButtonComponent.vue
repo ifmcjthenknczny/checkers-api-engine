@@ -24,6 +24,8 @@ const emit = defineEmits<{
 </template>
 <style lang="scss" scoped>
 @use 'sass:color';
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;0,550;0,650;0,700;0,900;1,400&display=swap');
+
 .button {
   font-family: 'Source Sans Pro', sans-serif;
   font-size: 1rem;

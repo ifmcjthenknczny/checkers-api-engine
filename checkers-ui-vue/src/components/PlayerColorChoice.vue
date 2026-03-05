@@ -29,3 +29,35 @@ function chooseColor(color: 'white' | 'black') {
   </ButtonContainer>
 </div>
 </template>
+
+<style lang="scss" scoped>
+@use 'sass:color';
+    .question {
+    text-transform: uppercase;
+    font-weight: 650;
+    font-size: 2.8rem;
+    align-self: center;
+    text-align: center;
+    font-family: $secondaryFont;
+    transition: $colorTransitionTime;
+    color: color.mix(darkgray, black, 20%);
+
+    // &--hover {
+    //     &-white {
+    //         color: white;
+    //         -webkit-text-stroke: 1.5px black;
+    //     }
+
+    //     &-black {
+    //         color: black;
+    //         -webkit-text-stroke: 1.5px black;
+    //     }
+    // }
+  }
+
+  @media (max-width: 700px) {
+    .question {
+      font-size: 3rem;
+    }
+  }
+</style>
