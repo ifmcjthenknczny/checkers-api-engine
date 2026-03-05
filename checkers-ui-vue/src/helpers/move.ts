@@ -223,7 +223,6 @@ export function findAllLegalContinuations(board: BoardPosition, piecesColor: Pie
       continuations.push([move, ...chain])
     }
   }
-  console.log({continuations})
   return continuations
 }
 
@@ -248,13 +247,14 @@ export function applyMove(board: BoardPosition, move: Move): BoardPosition {
     nextBoard[move.captureIndex] = 0
   }
   const isDuringChainedCapture = isChainedCapturePossible(nextBoard, move)
-  nextBoard[move.toIndex] =
-    move.isPromotion && !isDuringChainedCapture ? applyPiecePromotion(piece) : piece
+  const movedPiece = move.isPromotion && !isDuringChainedCapture ? applyPiecePromotion(piece) : piece
+  nextBoard[move.toIndex] = movedPiece
   return nextBoard
 }
 
 export const isChainedCapturePossible = (boardAfterMove: BoardPosition, move: Move) => {
-  return findImmediateChainedCaptures(boardAfterMove, move).length > 0
+  const immediateChainedCaptures = findImmediateChainedCaptures(boardAfterMove, move)
+  return immediateChainedCaptures.length > 0
 }
 
 export const findImmediateChainedCaptures = (boardAfterMove: BoardPosition, move: Move): Move[] => {
@@ -265,10 +265,9 @@ export const findImmediateChainedCaptures = (boardAfterMove: BoardPosition, move
 }
 
 export const getLegalMove = (board: BoardPosition, move: Partial<Pick<Move, 'fromIndex' | 'toIndex'>>): Move | null => {
-  if (!move.fromIndex || !move.toIndex) {
+  if (move.fromIndex == null || move.toIndex == null) {
     return null
   }
-  const moves = findAllLegalMoves(board, getPieceColor(board[move.fromIndex])!)
-  console.log({legalMoves: moves})
-  return moves.find(m => m.fromIndex === move.fromIndex && m.toIndex === move.toIndex) ?? null
+  const legalMoves = findAllLegalMoves(board, getPieceColor(board[move.fromIndex])!)
+  return legalMoves.find(legalMove => legalMove.fromIndex === move.fromIndex && legalMove.toIndex === move.toIndex) ?? null
 }

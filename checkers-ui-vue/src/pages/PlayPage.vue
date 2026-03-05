@@ -2,7 +2,7 @@
 import BoardWrapper from '@/components/BoardWrapper.vue'
 import PlayerColorChoice from '@/components/PlayerColorChoice.vue'
 import PageLayout from '@/layouts/PageLayout.vue'
-import { watch } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useBoardStore } from '@/stores/boardStore';
 import { useGameStore } from '@/stores/gameStore';
 import { computerTurn } from '@/helpers/turn';
@@ -27,6 +27,10 @@ function resetGame() {
     boardStore.resetToDefault()
     gameStore.resetToDefault()
 }
+
+onMounted(() => {
+  gameStore.resetToDefault()
+})
 
 watch(
   () => humanPlayerColor.value,
