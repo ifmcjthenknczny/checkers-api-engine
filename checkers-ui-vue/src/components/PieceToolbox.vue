@@ -63,7 +63,7 @@ $cell-desktop: calc($boardSizeHorizontal / 8);
   flex-shrink: 0;
 }
 
-@media (min-width: 900px) {
+@media (min-width: $breakpoint) {
   .piece-spawner {
     flex-direction: row;
     align-items: flex-start;

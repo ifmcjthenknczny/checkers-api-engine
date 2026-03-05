@@ -47,7 +47,7 @@ import PageLayout from '@/layouts/PageLayout.vue'
   width: 100%;
 }
 
-@media (min-width: 900px) {
+@media (min-width: $breakpoint) {
   .analysis-page {
     flex: 1;
     flex-direction: row;

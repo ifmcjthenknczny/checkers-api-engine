@@ -62,7 +62,7 @@ import NavSection from '@/components/NavSection.vue'
     box-sizing: border-box;
 }
 
-@media (min-width: 900px) {
+@media (min-width: $breakpoint) {
     .page-layout {
         flex-direction: row;
         align-items: flex-start;

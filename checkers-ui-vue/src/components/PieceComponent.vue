@@ -144,7 +144,7 @@ const canBeDragged = computed(() => {
   transition: background-color $colorTransitionTime;
 }
 
-@media (max-width: 700px) {
+@media (max-width: $breakpoint) {
   .piece {
     border-width: 1.7px;
 

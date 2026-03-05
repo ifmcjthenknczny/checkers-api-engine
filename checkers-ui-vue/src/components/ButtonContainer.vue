@@ -26,7 +26,7 @@ defineProps<{
     }
   }
 
-  @media (max-width: 700px) {
+  @media (max-width: $breakpoint) {
     .button-container--game {
       width: $boardSizeVertical;
     }

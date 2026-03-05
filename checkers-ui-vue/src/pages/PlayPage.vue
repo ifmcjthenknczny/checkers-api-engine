@@ -44,17 +44,20 @@ watch(
   }
 )
 
+// TODO: deduplicate with BoardSquare.vue
 function moveCallback(move: Move) {
   const newBoard = boardStore.applyMove(move)
   if (move.isPromotion) {
     const color = getPieceColor(newBoard[move.toIndex])
-    if (color) gameStore.incrementPromotionsCount(color)
+    if (color) {
+      gameStore.incrementPromotionsCount(color)
+    }
   }
   if (!move.isCapture && isQueen(newBoard[move.toIndex])) {
     gameStore.incrementQueenMovesWithoutCaptureStreak()
-  } else {
-    gameStore.resetQueenMovesWithoutCaptureStreak()
-  }
+    return
+  } 
+  gameStore.resetQueenMovesWithoutCaptureStreak()
 }
 
 function turnOverCallback() {
@@ -63,7 +66,6 @@ function turnOverCallback() {
 }
 
 function gameOverCallback() {
-  // TODO: if game is over, then highlight pieces that won and show message that game is over
   gameStore.setGameResult(determineGameResult(board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value))
   gameStore.setGamePhase('gameOver')
 }
@@ -118,7 +120,7 @@ watch(
   flex-shrink: 0;
 }
 
-@media (min-width: 900px) {
+@media (min-width: $breakpoint) {
   .play-page {
     flex: 1;
   }
@@ -130,7 +132,7 @@ watch(
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: $breakpoint) {
   .play-page__board-col {
     .legal-move {
       border-width: 1.2px;

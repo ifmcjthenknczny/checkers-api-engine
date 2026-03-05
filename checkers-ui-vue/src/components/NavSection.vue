@@ -34,7 +34,7 @@ const navItems = [
     font-size: 1rem;
 }
 
-@media (min-width: 900px) {
+@media (min-width: $breakpoint) {
     .nav-section {
         justify-content: flex-start;
     }

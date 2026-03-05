@@ -50,13 +50,15 @@ function moveCallback(move: Move) {
   const newBoard = boardStore.applyMove(move)
   if (move.isPromotion) {
     const color = getPieceColor(newBoard[move.toIndex])
-    if (color) gameStore.incrementPromotionsCount(color)
+    if (color) {
+      gameStore.incrementPromotionsCount(color)
+    }
   }
   if (!move.isCapture && isQueen(newBoard[move.toIndex])) {
     gameStore.incrementQueenMovesWithoutCaptureStreak()
-  } else {
-    gameStore.resetQueenMovesWithoutCaptureStreak()
+    return
   }
+  gameStore.resetQueenMovesWithoutCaptureStreak()
 }
 
 function turnOverCallback() {
@@ -65,7 +67,7 @@ function turnOverCallback() {
 }
 
 function gameOverCallback() {
-  // TODO: if game is over, then highlight pieces that won and show message that game is over
+  // TODO: if game is over, then highlight pieces that won
   gameStore.setGamePhase('gameOver')
   gameStore.setGameResult(determineGameResult(board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value))
 }
@@ -81,9 +83,7 @@ const drop = (e: DragEvent) => {
       playerMove(move, board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {moveCallback, turnOverCallback, gameOverCallback})
     }
   }
-  if (dragContext.value === 'spawn') {
-    emit('dropPiece', [colIndex, rowIndex, activePiece.value])
-  } else if (dragContext.value === 'board') {
+  if (dragContext.value) {
     emit('dropPiece', [colIndex, rowIndex, activePiece.value])
   }
 }

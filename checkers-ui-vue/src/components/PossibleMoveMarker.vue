@@ -12,7 +12,7 @@
     border: 1.5px solid black;
 }
 
-@media (max-width: 700px) {
+@media (max-width: $breakpoint) {
     .legal-move {
         border-width: 1.2px;
     }

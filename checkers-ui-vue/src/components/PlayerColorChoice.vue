@@ -55,7 +55,7 @@ function chooseColor(color: 'white' | 'black') {
     // }
   }
 
-  @media (max-width: 700px) {
+  @media (max-width: $breakpoint) {
     .question {
       font-size: 3rem;
     }

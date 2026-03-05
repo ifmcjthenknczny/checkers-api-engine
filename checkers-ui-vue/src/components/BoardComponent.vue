@@ -11,6 +11,7 @@ import { storeToRefs } from 'pinia'
 import { findLegalMovesOfPiece, playerHasCapturePossibility } from '@/helpers/move'
 import { computed } from 'vue'
 import PossibleMoveMarker from './PossibleMoveMarker.vue'
+import { useGameStore } from '@/stores/gameStore'
 
 const props = withDefaults(
   defineProps<{
@@ -42,6 +43,8 @@ const boardStore = useBoardStore()
 const { board } = storeToRefs(boardStore)
 const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
+const gameStore = useGameStore()
+const { currentPlayer, humanPlayerColor } = storeToRefs(gameStore)
 
 const possibleMovesForDraggedPieceMap = computed(() => {
   if (props.context === 'analysis' || draggedIndex.value === null || dragContext.value !== 'board') {
@@ -83,12 +86,21 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
         return
       }
       boardStore.applyMove(possibleMovesForDraggedPieceMap.value[toIndex])
-    } else {
-      boardStore.movePiece(fromIndex, toIndex)
+      return
     }
+    boardStore.movePiece(fromIndex, toIndex)
   }
 
   dragStore.stopDrag()
+}
+
+function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
+  const belongsToDraggedPiece = Object.keys(possibleMovesForDraggedPieceMap.value).some(toIndex => +toIndex === getDisplaySquareIndex(rowIndex, colIndex))
+  const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
+  const isPlayersTurn = currentPlayer.value === humanPlayerColor.value
+  const isPlayersPiece = getPieceColor(board.value[getDisplaySquareIndex(rowIndex, colIndex)]) === humanPlayerColor.value
+
+  return belongsToDraggedPiece && isPlayableSquare && isPlayersTurn && isPlayersPiece
 }
 </script>
 
@@ -115,7 +127,7 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
           :index="getDisplaySquareIndex(rowIndex, colIndex)"
           context="board"
         />
-        <PossibleMoveMarker v-if="Object.keys(possibleMovesForDraggedPieceMap).some(toIndex => +toIndex === getDisplaySquareIndex(rowIndex, colIndex)) && !isWhiteSquare(rowIndex, colIndex)" :key="getDisplaySquareIndex(rowIndex, colIndex)" />
+        <PossibleMoveMarker v-if="shouldShowPossibleMoveMarker(rowIndex, colIndex)" :key="getDisplaySquareIndex(rowIndex, colIndex)" />
       </CheckersSquare>
     </template>
 
@@ -157,7 +169,7 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: $breakpoint) {
   .board {
     width: $boardSizeVertical;
     height: $boardSizeVertical;

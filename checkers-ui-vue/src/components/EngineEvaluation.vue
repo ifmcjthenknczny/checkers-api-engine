@@ -114,7 +114,7 @@ const barStyles = computed(() => {
   }
 }
 
-@media (min-width: 600px) {
+@media (min-width: $breakpoint) {
   .engine-eval {
     flex-direction: column;
     gap: 8px;

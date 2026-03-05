@@ -30,7 +30,7 @@ main {
   min-height: 0;
 }
 
-@media (min-width: 700px) {
+@media (min-width: $breakpoint) {
   html {
     font-size: 20px;
   }

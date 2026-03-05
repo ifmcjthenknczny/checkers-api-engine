@@ -23,7 +23,9 @@ import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
 const gameStore = useGameStore()
-const { currentPlayer, turn, gameResult } = storeToRefs(gameStore)
+const { currentPlayer, movesCount, gameResult } = storeToRefs(gameStore)
+
+const turn = computed(() => Math.floor(movesCount.value / 2) + 1)
 
 const gameResultText = computed(() => {
     if (!gameResult.value && currentPlayer.value === 'white') {
@@ -87,7 +89,7 @@ const gameResultParts = computed(() => {
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width: $breakpoint) {
     .game-info {
       width: $boardSizeVertical;
       font-size: 1.4rem;

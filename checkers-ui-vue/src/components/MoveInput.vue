@@ -111,7 +111,7 @@ const label = computed(() => (currentPlayer.value === 'white' ? 'White to move' 
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: $breakpoint) {
   .game-info {
     font-size: 1rem;
   }

@@ -75,7 +75,7 @@ const emit = defineEmits<{
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: $breakpoint) {
   .button {
     &--color {
       width: 30vw;

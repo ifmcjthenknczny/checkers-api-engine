@@ -6,7 +6,7 @@ const DEFAULT_STATE = {
     gamePhase: 'color' as GamePhase,
     currentPlayer: 'white' as Player,
     humanPlayerColor: null,
-    turn: 1,
+    movesCount: 0,
     promotionsCount: { white: 0, black: 0 },
     queenMovesWithoutCaptureStreak: 0,
     gameResult: null,
@@ -16,7 +16,7 @@ export const useGameStore = defineStore('game', () => {
   const gamePhase = ref<GamePhase>('color')
   const currentPlayer = ref<Player>(DEFAULT_STATE.currentPlayer)
   const humanPlayerColor = ref<Player | null>(DEFAULT_STATE.humanPlayerColor)
-  const turn = ref<number>(DEFAULT_STATE.turn)
+  const movesCount = ref<number>(DEFAULT_STATE.movesCount)
   const promotionsCount = ref<Record<PieceColor, number>>(DEFAULT_STATE.promotionsCount)
   const queenMovesWithoutCaptureStreak = ref<number>(0)
   const gameResult = ref<GameResult | null>(null)
@@ -56,14 +56,14 @@ export const useGameStore = defineStore('game', () => {
     gamePhase.value = DEFAULT_STATE.gamePhase
     currentPlayer.value = DEFAULT_STATE.currentPlayer
     humanPlayerColor.value = DEFAULT_STATE.humanPlayerColor
-    turn.value = DEFAULT_STATE.turn
+    movesCount.value = DEFAULT_STATE.movesCount
     promotionsCount.value = DEFAULT_STATE.promotionsCount
     queenMovesWithoutCaptureStreak.value = DEFAULT_STATE.queenMovesWithoutCaptureStreak
     gameResult.value = DEFAULT_STATE.gameResult
   }
 
-  function incrementTurn() {
-    turn.value++
+  function incrementMovesCount() {
+    movesCount.value++
   }
 
   function setGameResult(result: GameResult | null) {
@@ -76,8 +76,8 @@ export const useGameStore = defineStore('game', () => {
     switchPlayer,
     humanPlayerColor,
     chooseColor,
-    turn,
-    incrementTurn,
+    movesCount,
+    incrementTurn: incrementMovesCount,
     promotionsCount,
     queenMovesWithoutCaptureStreak,
     incrementPromotionsCount,
