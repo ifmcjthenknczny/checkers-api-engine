@@ -11,7 +11,8 @@
     display: flex;
     flex-flow: column;
     justify-content: center;
-    width: 0.85 * $boardSizeHorizontal;
+    width: auto;
+    flex-shrink: 0;
 }
 </style>
 

@@ -7,13 +7,15 @@ import PageLayout from '@/layouts/PageLayout.vue'
 
 <template>
   <PageLayout>
-  <div class="analysis-page">
-    <Board context="analysis" />
-    <aside class="analysis-page__side">
-      <EvaluationContainer />
-      <PieceToolbox />
-    </aside>
-  </div>
+    <div class="analysis-page">
+      <div class="analysis-page__board-col">
+        <Board context="analysis" />
+      </div>
+      <aside class="analysis-page__side">
+        <EvaluationContainer />
+        <PieceToolbox />
+      </aside>
+    </div>
   </PageLayout>
 </template>
 
@@ -22,12 +24,15 @@ import PageLayout from '@/layouts/PageLayout.vue'
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 1rem;
-  min-height: 100%;
+  gap: inherit;
   width: 100%;
   box-sizing: border-box;
+}
+
+.analysis-page__board-col {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
 }
 
 .analysis-page__side {
@@ -40,15 +45,22 @@ import PageLayout from '@/layouts/PageLayout.vue'
 
 @media (min-width: 900px) {
   .analysis-page {
+    flex: 1;
     flex-direction: row;
-    gap: 2rem;
-    padding: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .analysis-page__board-col {
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
   }
 
   .analysis-page__side {
-    flex-direction: row;
-    align-items: center;
-    gap: 2rem;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-end;
+    width: auto;
   }
 }
 </style>

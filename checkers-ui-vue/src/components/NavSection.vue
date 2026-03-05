@@ -26,12 +26,18 @@ const navItems = [
 .nav-section {
     display: flex;
     flex-flow: row wrap;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     gap: 1rem 1.5rem;
-    width: 0.85 * $boardSizeHorizontal;
+    width: auto;
     font-family: $secondaryFont;
     font-size: 1rem;
+}
+
+@media (min-width: 900px) {
+    .nav-section {
+        justify-content: flex-start;
+    }
 }
 
 .nav-section__link {
@@ -52,12 +58,6 @@ const navItems = [
     &--exact {
         background-color: rgba(0, 0, 0, 0.08);
         text-decoration: underline;
-    }
-}
-
-@media (max-width: 700px) {
-    .nav-section {
-        width: 0.85 * $boardSizeVertical;
     }
 }
 </style>

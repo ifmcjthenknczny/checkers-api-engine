@@ -86,9 +86,10 @@ watch(
 <template>
     <PageLayout>
         <div class="play-page">
-            <PlayerColorChoice v-if="gamePhase === 'color'" />
-
-            <BoardWrapper v-if="['game', 'gameOver'].includes(gamePhase)" context="game" />
+            <div class="play-page__board-col">
+                <PlayerColorChoice v-if="gamePhase === 'color'" />
+                <BoardWrapper v-if="['game', 'gameOver'].includes(gamePhase)" context="game" />
+            </div>
         </div>
     </PageLayout>
 </template>
@@ -100,12 +101,33 @@ watch(
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.play-page__board-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
-  padding: 1rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 900px) {
+  .play-page {
+    flex: 1;
+  }
+
+  .play-page__board-col {
+    flex: 1;
+    justify-content: flex-start;
+    width: 100%;
+  }
 }
 
 @media (max-width: 700px) {
-  .play-page {
+  .play-page__board-col {
     .legal-move {
       border-width: 1.2px;
     }
