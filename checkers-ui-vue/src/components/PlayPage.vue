@@ -86,8 +86,7 @@ watch(
         gameOverCallback,
         moveCallback,
         turnOverCallback,
-        movePickingStrategy: (b, p) =>
-          pickBestEngineContinuation(b, p, runtimeConfig.public.engineApiUrl as string),
+        movePickingStrategy: pickBestEngineContinuation,
       })
     }
   },

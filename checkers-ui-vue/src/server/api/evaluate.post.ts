@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { loadModel, evaluateBoardRaw } from '#server/utils/model'
+import { type ModelLevel, MODEL_LEVELS } from '~/types'
 
 // TODO: Map them from human form
 const ALLOWED_PIECES = [0, 1, -1, 3, -3]
@@ -17,16 +18,25 @@ const EvalSchema = z.object({
   }),
 })
 
-let modelLoaded = false
+const ModelLevelSchema = z.enum(MODEL_LEVELS.map(level => level.toString()), {
+  message: `Model level is invalid. Must be one of: ${MODEL_LEVELS.join(', ')}`,
+})
 
-// TODO: get model level and depth (default is 1) from body
+let modelLevelLoaded: ModelLevel | null = null
+
+export const DEFAULT_MODEL_LEVEL = 1
+
+// TODO: get model depth (default is 1) from body
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const modelsPath = config.modelsPath as string
+  const modelsPath = config.modelsPath
+  const modelLevelParam = getRouterParam(event, 'modelLevel')
+  // TODO: validate model level
+  const modelLevel = ModelLevelSchema.safeParse(modelLevelParam).data ? +modelLevelParam! as ModelLevel : DEFAULT_MODEL_LEVEL
 
-  if (!modelLoaded) {
-    await loadModel(1, modelsPath)
-    modelLoaded = true
+  if (modelLevelLoaded !== modelLevel) {
+    await loadModel(modelLevel, modelsPath)
+    modelLevelLoaded = modelLevel
   }
 
   const body = await readBody(event)

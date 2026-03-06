@@ -6,7 +6,7 @@ const navItems = [
 </script>
 
 <template>
-  <nav class="nav-section" aria-label="Główna nawigacja">
+  <nav class="nav-section" aria-label="Main navigation">
     <NuxtLink
       v-for="item in navItems"
       :key="item.name"

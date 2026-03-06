@@ -1,24 +1,20 @@
-import type { BoardPosition, Player } from '@/types'
+import type { BoardPosition, ModelLevel, Player } from '@/types'
 
 type EvaluationResponse = {
   status: 'success'
   evaluation: number
 }
 
-/**
- * @param baseUrl - Base URL silnika (np. z useRuntimeConfig().public.engineApiUrl). Pusty = /api (Nuxt same-origin).
- * W Vite bez Nuxt można ustawić VITE_BASE_ENGINE_API_URL.
- */
 export const evaluateBoard = async (
   board: BoardPosition,
   playerToMove: Player,
-  baseUrl?: string,
+  modelLevel: ModelLevel = 1
 ): Promise<number> => {
-  const base =
-    baseUrl ??
-    (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_BASE_ENGINE_API_URL) ??
+  const baseUrl =
+  useRuntimeConfig().public.engineApiUrl ??
+    (typeof import.meta !== 'undefined' && (import.meta as any).env?.NUXT_PUBLIC_ENGINE_API_URL) ??
     ''
-  const url = base ? `${base.replace(/\/$/, '')}/evaluate` : '/api/evaluate'
+  const url = baseUrl ? `${baseUrl.replace(/\/$/, '')}/evaluate/${modelLevel}` : `/api/evaluate/${modelLevel}`
 
   const response = await fetch(url, {
     method: 'POST',

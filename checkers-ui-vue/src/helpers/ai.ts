@@ -2,6 +2,8 @@ import type { BoardPosition, Move, Player } from '../types'
 import { evaluateBoard } from './engine'
 import { applyMove, findAllLegalContinuations, findAllLegalMoves } from './move'
 
+export type BoardEvaluator = (board: BoardPosition, player: Player) => Promise<number>
+
 export function pickARandomMove(
   player: Player,
   board: BoardPosition,
@@ -13,10 +15,10 @@ export function pickARandomMove(
   return legalMoves[Math.floor(Math.random() * legalMoves.length)]!
 }
 
-export async function pickBestEngineContinuation(
+export async function pickBestContinuation(
   board: BoardPosition,
   player: Player,
-  engineBaseUrl?: string,
+  evaluate: BoardEvaluator,
 ): Promise<Move[]> {
   const continuations = findAllLegalContinuations(board, player)
 
@@ -28,7 +30,7 @@ export async function pickBestEngineContinuation(
   )
 
   const evaluations = await Promise.all(
-    resultingBoards.map((b) => evaluateBoard(b, player, engineBaseUrl)),
+    resultingBoards.map((board) => evaluate(board, player)),
   )
   const isMaximizing = player === 'white'
   const bestIndex = evaluations.reduce(
@@ -41,4 +43,11 @@ export async function pickBestEngineContinuation(
   console.log({evaluation: evaluations[bestIndex]})
   console.log({evaluations})
   return continuations[bestIndex] ?? []
+}
+
+export async function pickBestEngineContinuation(
+  board: BoardPosition,
+  player: Player,
+): Promise<Move[]> {
+  return pickBestContinuation(board, player, evaluateBoard)
 }

@@ -10,7 +10,6 @@ const boardStore = useBoardStore()
 const { board } = storeToRefs(boardStore)
 const gameStore = useGameStore()
 const { currentPlayer } = storeToRefs(gameStore)
-const runtimeConfig = useRuntimeConfig()
 
 const evaluation = ref<number | null>(null)
 const isLoading = ref(false)
@@ -21,7 +20,6 @@ const fetchEvaluation = async () => {
     evaluation.value = await evaluateBoard(
       board.value,
       currentPlayer.value,
-      runtimeConfig.public.engineApiUrl as string,
     )
   } catch (error) {
     console.error('Engine error:', error)
