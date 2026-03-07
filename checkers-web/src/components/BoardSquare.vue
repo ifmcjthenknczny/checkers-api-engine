@@ -28,11 +28,12 @@ const boardStore = useBoardStore()
 const { board } = storeToRefs(boardStore)
 
 const gameStore = useGameStore()
-const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak } = storeToRefs(gameStore)
+const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak, isAnimating } = storeToRefs(gameStore)
 
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 
 const allowDrop = (e: DragEvent) => {
+  if (isAnimating.value) return
   const isPlayersPiece = activePiece.value && getPieceColor(activePiece.value) === humanPlayerColor.value
   const isDifferentSquare = draggedIndex.value !== squareIndex
   const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
@@ -48,6 +49,7 @@ const { moveCallback, turnOverCallback, gameOverCallback } = useGameCallbacks()
 
 const drop = (e: DragEvent) => {
   e.preventDefault()
+  if (isAnimating.value) return
   if (!activePiece.value) {
     return
   }

@@ -6,6 +6,7 @@ type Callbacks = {
     gameOverCallback: () => void
     moveCallback: (move: Move) => void
     turnOverCallback: () => void
+    beforeMoveCallback?: (move: Move) => Promise<void>
 }
 
 function applySingleMoveAndPossiblyEndTurn(
@@ -44,9 +45,10 @@ export const computerTurn = async (board: BoardPosition, computerColor: Player, 
         callbacks.gameOverCallback()
         return
     }
-    const { movePickingStrategy, ...turnCallbacks } = callbacks
+    const { movePickingStrategy, beforeMoveCallback, ...turnCallbacks } = callbacks
     let currentBoard: BoardPosition = [...board]
     for (const move of await movePickingStrategy(board, computerColor)) {
+        await beforeMoveCallback?.(move)
         const { newBoard, turnOver } = applySingleMoveAndPossiblyEndTurn(currentBoard, move, turnCallbacks)
         currentBoard = [...newBoard]
         if (turnOver) {

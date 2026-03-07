@@ -16,7 +16,7 @@ const props = defineProps<Props>()
 
 const dragStore = useDragStore()
 const gameStore = useGameStore()
-const { humanPlayerColor } = storeToRefs(gameStore)
+const { humanPlayerColor, isAnimating } = storeToRefs(gameStore)
 const drag = () => {
   dragStore.startDrag(props.context, props.piece, props.index)
 }
@@ -34,6 +34,9 @@ const toDecorationClassNameList = (piece?: SquareContent) => {
 }
 
 const canBeDragged = computed(() => {
+  if (isAnimating.value) {
+    return false
+  }
   if (props.context === 'spawn') {
     return true
   }

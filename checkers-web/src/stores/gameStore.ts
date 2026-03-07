@@ -1,4 +1,4 @@
-import type { GamePhase, GameResult, PieceColor, Player } from '@/types'
+import type { GamePhase, GameResult, Move, PieceColor, Player } from '@/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -10,6 +10,8 @@ const DEFAULT_STATE = {
     promotionsCount: { white: 0, black: 0 },
     queenMovesWithoutCaptureStreak: 0,
     gameResult: null,
+    isAnimating: false,
+    animatingMove: null as Move | null,
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -20,6 +22,25 @@ export const useGameStore = defineStore('game', () => {
   const promotionsCount = ref<Record<PieceColor, number>>(DEFAULT_STATE.promotionsCount)
   const queenMovesWithoutCaptureStreak = ref<number>(0)
   const gameResult = ref<GameResult | null>(null)
+  const isAnimating = ref<boolean>(DEFAULT_STATE.isAnimating)
+  const animatingMove = ref<Move | null>(DEFAULT_STATE.animatingMove)
+  let moveAnimationResolver: (() => void) | null = null
+
+  function setAnimating(value: boolean) {
+    isAnimating.value = value
+  }
+
+  function setAnimatingMove(move: Move | null, onAnimationEnd?: () => void) {
+    animatingMove.value = move
+    moveAnimationResolver = move ? onAnimationEnd ?? null : null
+  }
+
+  function resolveMoveAnimation() {
+    if (moveAnimationResolver) {
+      moveAnimationResolver()
+      moveAnimationResolver = null
+    }
+  }
 
   function switchPlayer() {
     currentPlayer.value = currentPlayer.value === 'white' ? 'black' : 'white'
@@ -60,6 +81,8 @@ export const useGameStore = defineStore('game', () => {
     promotionsCount.value = DEFAULT_STATE.promotionsCount
     queenMovesWithoutCaptureStreak.value = DEFAULT_STATE.queenMovesWithoutCaptureStreak
     gameResult.value = DEFAULT_STATE.gameResult
+    isAnimating.value = DEFAULT_STATE.isAnimating
+    animatingMove.value = DEFAULT_STATE.animatingMove
   }
 
   function incrementMovesCount() {
@@ -87,6 +110,11 @@ export const useGameStore = defineStore('game', () => {
     gameResult,
     setGameResult,
     gamePhase,
-    setGamePhase
+    setGamePhase,
+    isAnimating,
+    animatingMove,
+    setAnimating,
+    setAnimatingMove,
+    resolveMoveAnimation,
   }
 })

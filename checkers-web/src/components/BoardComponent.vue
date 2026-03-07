@@ -4,12 +4,12 @@ import { range, rangeChar } from '../helpers/utils'
 import { useBoardStore } from '@/stores/boardStore'
 import CheckersPiece from './PieceComponent.vue'
 import CheckersSquare from './BoardSquare.vue'
-import { isWhiteSquare, getSquareIndex, getPieceColor } from '@/helpers/board'
+import { isWhiteSquare, getSquareIndex, getPieceColor, indexToRowCol } from '@/helpers/board'
 import type { BoardContext, Move, SquareContent } from '@/types'
 import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
 import { findLegalMovesOfPiece, playerHasCapturePossibility } from '@/helpers/move'
-import { computed } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import PossibleMoveMarker from './PossibleMoveMarker.vue'
 import { useGameStore } from '@/stores/gameStore'
 
@@ -44,7 +44,49 @@ const { board } = storeToRefs(boardStore)
 const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
 const gameStore = useGameStore()
-const { currentPlayer, humanPlayerColor } = storeToRefs(gameStore)
+const { currentPlayer, humanPlayerColor, animatingMove, isAnimating } = storeToRefs(gameStore)
+
+const movingPiecePhase = ref<'from' | 'to'>('from')
+
+watch(animatingMove, (move) => {
+  if (move) {
+    movingPiecePhase.value = 'from'
+    nextTick(() => {
+      requestAnimationFrame(() => {
+        movingPiecePhase.value = 'to'
+      })
+    })
+  }
+})
+
+function indexToDisplayRowCol(index: number) {
+  const { row: boardRow, col: boardCol } = indexToRowCol(index)
+  /* Zgodnie z getDisplaySquareIndex: gdy !isBoardFlipped, rowIndex 0 = góra = board row 0 */
+  const displayRow = props.isBoardFlipped ? BOARD_SIZE - 1 - boardRow : boardRow
+  const displayCol = props.isBoardFlipped ? BOARD_SIZE - 1 - boardCol : boardCol
+  return { displayRow, displayCol }
+}
+
+const movingPieceStyle = computed(() => {
+  const move = animatingMove.value
+  if (!move) return {}
+  const from = indexToDisplayRowCol(move.fromIndex)
+  const to = indexToDisplayRowCol(move.toIndex)
+  /* Grid: 0.2fr + 8×1fr = 8.2 (kolumny), 8×1fr + 0.2fr = 8.2 (wiersze) – środek pola (col,row) w % */
+  const fromLeft = (0.2 + from.displayCol + 0.5) / 8.2 * 100
+  const fromTop = (from.displayRow + 0.5) / 8.2 * 100
+  const toLeft = (0.2 + to.displayCol + 0.5) / 8.2 * 100
+  const toTop = (to.displayRow + 0.5) / 8.2 * 100
+  const isTo = movingPiecePhase.value === 'to'
+  return {
+    '--from-left': `${fromLeft}%`,
+    '--from-top': `${fromTop}%`,
+    '--to-left': `${toLeft}%`,
+    '--to-top': `${toTop}%`,
+    left: isTo ? `${toLeft}%` : `${fromLeft}%`,
+    top: isTo ? `${toTop}%` : `${fromTop}%`,
+  }
+})
 
 const possibleMovesForDraggedPieceMap = computed(() => {
   if (props.context === 'analysis' || draggedIndex.value === null || dragContext.value !== 'board') {
@@ -77,6 +119,7 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
   }
 
   if (dragContext.value === 'board') {
+    if (isAnimating.value) return
     const fromIndex = draggedIndex.value
     if (fromIndex === null) {
       return
@@ -94,6 +137,10 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
   dragStore.stopDrag()
 }
 
+function onMoveTransitionEnd() {
+  gameStore.resolveMoveAnimation()
+}
+
 function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   const displaySquareIndex = getDisplaySquareIndex(rowIndex, colIndex)
   const belongsToDraggedPiece = Object.keys(possibleMovesForDraggedPieceMap.value).some(toIndex => +toIndex === displaySquareIndex)
@@ -105,7 +152,7 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
 </script>
 
 <template>
-  <section class="board" :style="gridStyles">
+  <section class="board board--with-overlay" :style="gridStyles">
     <template v-for="(rowName, rowIndex) in rows" :key="'row-' + rowName">
       <div class="grid__square--name-row grid__square--name">
         {{ rowName }}
@@ -122,7 +169,7 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
         :context="context"
       >
         <CheckersPiece
-          v-if="!isWhiteSquare(rowIndex, colIndex)"
+          v-if="!isWhiteSquare(rowIndex, colIndex) && !(animatingMove && getDisplaySquareIndex(rowIndex, colIndex) === animatingMove.fromIndex)"
           :piece="board[getDisplaySquareIndex(rowIndex, colIndex)]!"
           :index="getDisplaySquareIndex(rowIndex, colIndex)"
           context="board"
@@ -140,6 +187,19 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
     >
       {{ colName }}
     </div>
+
+    <div v-if="animatingMove" class="board__move-overlay" aria-hidden="true">
+      <div
+        class="board__moving-piece"
+        :style="movingPieceStyle"
+        @transitionend="onMoveTransitionEnd"
+      >
+        <CheckersPiece
+          :piece="board[animatingMove.fromIndex]!"
+          context="board"
+        />
+      </div>
+    </div>
   </section>
 </template>
 
@@ -149,6 +209,32 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   grid-auto-flow: row;
   width: $boardSizeHorizontal;
   height: $boardSizeHorizontal;
+  position: relative;
+
+  &--with-overlay {
+    isolation: isolate;
+  }
+
+  &__move-overlay {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  &__moving-piece {
+    position: absolute;
+    /* Rozmiar jednego pola (1fr w gridzie 8.2) – dopasowany do siatki */
+    width: calc($boardSizeHorizontal / 8.2);
+    height: calc($boardSizeHorizontal / 8.2);
+    transform: translate(-50%, -50%);
+    transition: left 0.45s ease-out, top 0.45s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .grid__square--name {
@@ -173,6 +259,11 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   .board {
     width: $boardSizeVertical;
     height: $boardSizeVertical;
+  }
+
+  .board__moving-piece {
+    width: calc($boardSizeVertical / 8.2);
+    height: calc($boardSizeVertical / 8.2);
   }
 }
 </style>

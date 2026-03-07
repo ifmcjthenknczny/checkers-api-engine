@@ -9,6 +9,7 @@ import { pickBestEngineContinuation } from '@/helpers/ai'
 import { storeToRefs } from 'pinia'
 import { sleep } from '@/helpers/utils'
 import { useGameCallbacks } from '@/hooks/useGameCallbacks'
+import type { Move } from '@/types'
 
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
@@ -50,13 +51,26 @@ watch(
       humanPlayerColor.value !== null &&
       humanPlayerColor.value !== currentPlayer.value
     ) {
-      await sleep(500)
-      computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
-        gameOverCallback,
-        moveCallback,
-        turnOverCallback,
-        movePickingStrategy: pickBestEngineContinuation,
-      })
+      await sleep(100)
+      gameStore.setAnimating(true)
+      try {
+        await computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
+          gameOverCallback,
+          moveCallback,
+          turnOverCallback,
+          movePickingStrategy: pickBestEngineContinuation,
+          beforeMoveCallback: async (move: Move) => {
+            await new Promise<void>((resolve) => {
+              gameStore.setAnimatingMove(move, () => {
+                gameStore.setAnimatingMove(null)
+                resolve()
+              })
+            })
+          },
+        })
+      } finally {
+        gameStore.setAnimating(false)
+      }
     }
   },
   { immediate: true },
