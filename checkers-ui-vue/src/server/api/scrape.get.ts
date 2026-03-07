@@ -6,22 +6,18 @@ const MAX_GAMES = 100_000
 
 const QuerySchema = z.object({
   games: z.coerce.number().int().min(1).max(MAX_GAMES).default(1_000),
+
   modelLevel: z.coerce.number().refine((n) => ([0, ...MODEL_LEVELS] as readonly number[]).includes(n), { message: `modelLevel must be one of: ${MODEL_LEVELS.join(', ')}` }),
+
   random: z.coerce.number().min(0, 'random must be ≥ 0').max(1, 'random must be ≤ 1'),
 })
 
 export default defineEventHandler((event) => {
-  const config = useRuntimeConfig()
-
-  if (!config.scrapeSecret) {
-    throw createError({ statusCode: 500, statusMessage: 'NUXT_SCRAPE_SECRET is not configured' })
+  if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'local') {
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
   const query = getQuery(event)
-
-  if (query.secret !== config.scrapeSecret) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
 
   const parsed = QuerySchema.safeParse(query)
   if (!parsed.success) {

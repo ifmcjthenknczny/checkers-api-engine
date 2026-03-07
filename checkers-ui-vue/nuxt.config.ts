@@ -37,7 +37,6 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     modelsPath: process.env.NUXT_MODELS_PATH || 'models',
-    scrapeSecret: process.env.NUXT_SCRAPE_SECRET || '',
     public: {
       engineApiUrl: process.env.NUXT_PUBLIC_ENGINE_API_URL || '',
     },

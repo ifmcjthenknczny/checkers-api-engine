@@ -13,6 +13,9 @@ export default defineTask({
     description: 'Play self-play games and save training data',
   },
   async run({ payload }) {
+    if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'local') {
+      throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+    }
     const { games, modelLevel, random } = payload as Payload
     const outputFile = await playGames(games, modelLevel, random)
     return { result: { outputFile } }
