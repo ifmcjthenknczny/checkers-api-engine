@@ -14,13 +14,20 @@
     width: auto;
     flex-shrink: 0;
 }
+
+.logo-section__link {
+    text-decoration: none;
+    color: inherit;
+}
 </style>
 
 <template>
-    <div class="logo-section">
-        <section class="game-title">
-            Warcaby
-        </section>
-    </div>
+    <NuxtLink to="/" class="logo-section__link">
+        <div class="logo-section">
+            <section class="game-title">
+                Warcaby
+            </section>
+        </div>
+    </NuxtLink>
 </template>
 

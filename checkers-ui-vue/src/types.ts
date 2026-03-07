@@ -30,3 +30,9 @@ export type GameResult = Player | 'draw'
 export type GamePhase = 'color' | 'game' | 'gameOver'
 
 export type BoardContext = 'game' | 'analysis'
+
+export const MODEL_LEVELS = [1, 2] as const
+
+export type ModelLevel = typeof MODEL_LEVELS[number]
+
+export type ScrapeModelLevel = 0 | ModelLevel

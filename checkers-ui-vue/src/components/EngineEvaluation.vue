@@ -17,7 +17,10 @@ const isLoading = ref(false)
 const fetchEvaluation = async () => {
   isLoading.value = true
   try {
-    evaluation.value = await evaluateBoard(board.value, currentPlayer.value)
+    evaluation.value = await evaluateBoard(
+      board.value,
+      currentPlayer.value,
+    )
   } catch (error) {
     console.error('Engine error:', error)
   } finally {

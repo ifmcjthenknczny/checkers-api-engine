@@ -1,21 +1,30 @@
-import type { BoardPosition, Player } from "@/types"
+import type { BoardPosition, ModelLevel, Player } from '@/types'
 
 type EvaluationResponse = {
-    status: 'success'
-    evaluation: number
-  }
+  status: 'success'
+  evaluation: number
+}
 
-export const evaluateBoard = async (board: BoardPosition, playerToMove: Player): Promise<number> => {
-    const response = await fetch(`${import.meta.env.VITE_BASE_ENGINE_API_URL}/evaluate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        // wrongly trained model expects reversed board, to be fixed in next model generation
-        board: board.toReversed(),
-        move: playerToMove === 'white' ? 1 : -1,
-      }),
-    })
+export const evaluateBoard = async (
+  board: BoardPosition,
+  playerToMove: Player,
+  modelLevel: ModelLevel = 2
+): Promise<number> => {
+  const baseUrl =
+  useRuntimeConfig().public.engineApiUrl ??
+    (typeof import.meta !== 'undefined' && (import.meta as any).env?.NUXT_PUBLIC_ENGINE_API_URL) ??
+    ''
+  const url = baseUrl ? `${baseUrl.replace(/\/$/, '')}/evaluate/${modelLevel}` : `/api/evaluate/${modelLevel}`
 
-    const data: EvaluationResponse = await response.json()
-    return data.evaluation || 0
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      board,
+      move: playerToMove === 'white' ? 1 : -1,
+    }),
+  })
+
+  const data: EvaluationResponse = await response.json()
+  return data.evaluation ?? 0
 }

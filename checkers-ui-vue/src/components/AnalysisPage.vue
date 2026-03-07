@@ -2,25 +2,22 @@
 import Board from '@/components/BoardComponent.vue'
 import EvaluationContainer from '@/components/EvaluationContainer.vue'
 import PieceToolbox from '@/components/PieceToolbox.vue'
-import PageLayout from '@/layouts/PageLayout.vue'
 </script>
 
 <template>
-  <PageLayout>
-    <div class="analysis-page">
-      <div class="analysis-page__board-col">
-        <Board context="analysis" />
-      </div>
-      <aside class="analysis-page__side">
-        <div class="analysis-page__analysis-col">
-          <EvaluationContainer />
-        </div>
-        <div class="analysis-page__toolbox-col">
-          <PieceToolbox />
-        </div>
-      </aside>
+  <div class="analysis-page">
+    <div class="analysis-page__board-col">
+      <Board context="analysis" />
     </div>
-  </PageLayout>
+    <aside class="analysis-page__side">
+      <div class="analysis-page__analysis-col">
+        <EvaluationContainer />
+      </div>
+      <div class="analysis-page__toolbox-col">
+        <PieceToolbox />
+      </div>
+    </aside>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -60,12 +57,12 @@ import PageLayout from '@/layouts/PageLayout.vue'
     min-width: 0;
   }
 
-.analysis-page__side {
-  flex-shrink: 0;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 1.5rem;
-  width: auto;
+  .analysis-page__side {
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    width: auto;
   }
 
   .analysis-page__analysis-col {

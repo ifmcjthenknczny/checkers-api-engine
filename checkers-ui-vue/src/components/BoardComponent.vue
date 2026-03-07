@@ -95,12 +95,12 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
 }
 
 function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
-  const belongsToDraggedPiece = Object.keys(possibleMovesForDraggedPieceMap.value).some(toIndex => +toIndex === getDisplaySquareIndex(rowIndex, colIndex))
+  const displaySquareIndex = getDisplaySquareIndex(rowIndex, colIndex)
+  const belongsToDraggedPiece = Object.keys(possibleMovesForDraggedPieceMap.value).some(toIndex => +toIndex === displaySquareIndex)
   const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
   const isPlayersTurn = currentPlayer.value === humanPlayerColor.value
-  const isPlayersPiece = getPieceColor(board.value[getDisplaySquareIndex(rowIndex, colIndex)]) === humanPlayerColor.value
 
-  return belongsToDraggedPiece && isPlayableSquare && isPlayersTurn && isPlayersPiece
+  return belongsToDraggedPiece && isPlayableSquare && isPlayersTurn
 }
 </script>
 
