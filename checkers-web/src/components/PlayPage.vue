@@ -11,6 +11,9 @@ import { sleep } from '@/helpers/utils'
 import { useGameCallbacks } from '@/hooks/useGameCallbacks'
 import type { Move } from '@/types'
 
+/** Czas dłuższy niż CSS transition (0.45s), żeby animacja zdążyła się skończyć przed zastosowaniem ruchu */
+const MOVE_ANIMATION_MS = 500
+
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
 const { moveCallback, turnOverCallback, gameOverCallback } = useGameCallbacks()
@@ -60,12 +63,9 @@ watch(
           turnOverCallback,
           movePickingStrategy: pickBestEngineContinuation,
           beforeMoveCallback: async (move: Move) => {
-            await new Promise<void>((resolve) => {
-              gameStore.setAnimatingMove(move, () => {
-                gameStore.setAnimatingMove(null)
-                resolve()
-              })
-            })
+            gameStore.setAnimatingMove(move)
+            await sleep(MOVE_ANIMATION_MS)
+            gameStore.setAnimatingMove(null)
           },
         })
       } finally {

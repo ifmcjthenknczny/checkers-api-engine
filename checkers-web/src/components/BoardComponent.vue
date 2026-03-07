@@ -137,10 +137,6 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
   dragStore.stopDrag()
 }
 
-function onMoveTransitionEnd() {
-  gameStore.resolveMoveAnimation()
-}
-
 function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   const displaySquareIndex = getDisplaySquareIndex(rowIndex, colIndex)
   const belongsToDraggedPiece = Object.keys(possibleMovesForDraggedPieceMap.value).some(toIndex => +toIndex === displaySquareIndex)
@@ -192,7 +188,6 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
       <div
         class="board__moving-piece"
         :style="movingPieceStyle"
-        @transitionend="onMoveTransitionEnd"
       >
         <CheckersPiece
           :piece="board[animatingMove.fromIndex]!"

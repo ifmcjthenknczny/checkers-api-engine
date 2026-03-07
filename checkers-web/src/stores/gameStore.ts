@@ -24,22 +24,13 @@ export const useGameStore = defineStore('game', () => {
   const gameResult = ref<GameResult | null>(null)
   const isAnimating = ref<boolean>(DEFAULT_STATE.isAnimating)
   const animatingMove = ref<Move | null>(DEFAULT_STATE.animatingMove)
-  let moveAnimationResolver: (() => void) | null = null
 
   function setAnimating(value: boolean) {
     isAnimating.value = value
   }
 
-  function setAnimatingMove(move: Move | null, onAnimationEnd?: () => void) {
+  function setAnimatingMove(move: Move | null) {
     animatingMove.value = move
-    moveAnimationResolver = move ? onAnimationEnd ?? null : null
-  }
-
-  function resolveMoveAnimation() {
-    if (moveAnimationResolver) {
-      moveAnimationResolver()
-      moveAnimationResolver = null
-    }
   }
 
   function switchPlayer() {
@@ -115,6 +106,5 @@ export const useGameStore = defineStore('game', () => {
     animatingMove,
     setAnimating,
     setAnimatingMove,
-    resolveMoveAnimation,
   }
 })
