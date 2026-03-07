@@ -24,7 +24,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://npm.pkg.github.com'
           cache: 'yarn'
-          cache-dependency-path: './yarn.lock'
+          cache-dependency-path: 'checkers-ui-vue/yarn.lock'
 
       - name: Install deps
         run: yarn install --frozen-lockfile
@@ -49,8 +49,11 @@ jobs:
         with:
           version: "latest"
 
+      - name: Install Python 3.13
+        run: uv python install 3.13
+
       - name: Install packages
-        run: uv sync
+        run: uv sync --python 3.13
 
       - name: Lint
         run: uv run black . --check
