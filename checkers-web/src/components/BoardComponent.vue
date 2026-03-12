@@ -12,6 +12,7 @@ import { findLegalMovesOfPiece, playerHasCapturePossibility } from '@/helpers/mo
 import { computed, ref, watch, nextTick } from 'vue'
 import PossibleMoveMarker from './PossibleMoveMarker.vue'
 import { useGameStore } from '@/stores/gameStore'
+import { useAnimationStore } from '~/stores/animationStore'
 
 const props = withDefaults(
   defineProps<{
@@ -44,7 +45,9 @@ const { board } = storeToRefs(boardStore)
 const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
 const gameStore = useGameStore()
-const { currentPlayer, humanPlayerColor, animatingMove, isAnimating } = storeToRefs(gameStore)
+const { currentPlayer, humanPlayerColor } = storeToRefs(gameStore)
+const animationStore = useAnimationStore()
+const { animatingMove, isAnimating } = storeToRefs(animationStore)
 
 const movingPiecePhase = ref<'from' | 'to'>('from')
 const movingPieceContent = ref<SquareContent | null>(null)
@@ -224,7 +227,6 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
 
   &__moving-piece {
     position: absolute;
-    /* Rozmiar jednego pola (1fr w gridzie 8.2) – dopasowany do siatki */
     width: calc($boardSizeHorizontal / 8.2);
     height: calc($boardSizeHorizontal / 8.2);
     transform: translate(-50%, -50%);

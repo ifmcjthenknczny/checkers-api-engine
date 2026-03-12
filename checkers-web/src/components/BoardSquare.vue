@@ -9,6 +9,7 @@ import { playerMove } from '@/helpers/turn'
 import { getLegalMove } from '@/helpers/move'
 import { useBoardStore } from '@/stores/boardStore'
 import { useGameCallbacks } from '@/hooks/useGameCallbacks'
+import { useAnimationStore } from '~/stores/animationStore'
 
 interface Props {
   position: [number, number]
@@ -28,7 +29,10 @@ const boardStore = useBoardStore()
 const { board } = storeToRefs(boardStore)
 
 const gameStore = useGameStore()
-const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak, isAnimating } = storeToRefs(gameStore)
+const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak } = storeToRefs(gameStore)
+const animationStore = useAnimationStore()
+const { isAnimating } = storeToRefs(animationStore)
+
 
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 

@@ -10,8 +10,6 @@ const DEFAULT_STATE = {
     promotionsCount: { white: 0, black: 0 },
     queenMovesWithoutCaptureStreak: 0,
     gameResult: null,
-    isAnimating: false,
-    animatingMove: null as Move | null,
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -22,16 +20,6 @@ export const useGameStore = defineStore('game', () => {
   const promotionsCount = ref<Record<PieceColor, number>>(DEFAULT_STATE.promotionsCount)
   const queenMovesWithoutCaptureStreak = ref<number>(0)
   const gameResult = ref<GameResult | null>(null)
-  const isAnimating = ref<boolean>(DEFAULT_STATE.isAnimating)
-  const animatingMove = ref<Move | null>(DEFAULT_STATE.animatingMove)
-
-  function setAnimating(value: boolean) {
-    isAnimating.value = value
-  }
-
-  function setAnimatingMove(move: Move | null) {
-    animatingMove.value = move
-  }
 
   function switchPlayer() {
     currentPlayer.value = currentPlayer.value === 'white' ? 'black' : 'white'
@@ -72,8 +60,6 @@ export const useGameStore = defineStore('game', () => {
     promotionsCount.value = DEFAULT_STATE.promotionsCount
     queenMovesWithoutCaptureStreak.value = DEFAULT_STATE.queenMovesWithoutCaptureStreak
     gameResult.value = DEFAULT_STATE.gameResult
-    isAnimating.value = DEFAULT_STATE.isAnimating
-    animatingMove.value = DEFAULT_STATE.animatingMove
   }
 
   function incrementMovesCount() {
@@ -91,7 +77,7 @@ export const useGameStore = defineStore('game', () => {
     humanPlayerColor,
     chooseColor,
     movesCount,
-    incrementTurn: incrementMovesCount,
+    incrementMovesCount,
     promotionsCount,
     queenMovesWithoutCaptureStreak,
     incrementPromotionsCount,
@@ -102,9 +88,5 @@ export const useGameStore = defineStore('game', () => {
     setGameResult,
     gamePhase,
     setGamePhase,
-    isAnimating,
-    animatingMove,
-    setAnimating,
-    setAnimatingMove,
   }
 })

@@ -29,7 +29,7 @@ export function useGameCallbacks() {
 
   function turnOverCallback() {
     gameStore.switchPlayer()
-    gameStore.incrementTurn()
+    gameStore.incrementMovesCount()
   }
 
   function gameOverCallback() {

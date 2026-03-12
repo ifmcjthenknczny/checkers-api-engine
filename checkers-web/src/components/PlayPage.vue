@@ -10,11 +10,13 @@ import { storeToRefs } from 'pinia'
 import { sleep } from '@/helpers/utils'
 import { useGameCallbacks } from '@/hooks/useGameCallbacks'
 import type { Move } from '@/types'
+import { useAnimationStore } from '~/stores/animationStore'
 
 const MOVE_ANIMATION_MS = 500
 
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
+const {setAnimating, setAnimatingMove} = useAnimationStore()
 const { moveCallback, turnOverCallback, gameOverCallback } = useGameCallbacks()
 const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak, gamePhase } =
   storeToRefs(gameStore)
@@ -54,7 +56,7 @@ watch(
       humanPlayerColor.value !== currentPlayer.value
     ) {
       await sleep(100)
-      gameStore.setAnimating(true)
+      setAnimating(true)
       try {
         await computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
           gameOverCallback,
@@ -62,15 +64,15 @@ watch(
           turnOverCallback,
           movePickingStrategy: pickBestEngineContinuation,
           beforeMoveCallback: async (move: Move) => {
-            gameStore.setAnimatingMove(move)
+            setAnimatingMove(move)
             await sleep(MOVE_ANIMATION_MS)
           },
           afterMoveCallback: () => {
-            gameStore.setAnimatingMove(null)
+            setAnimatingMove(null)
           },
         })
       } finally {
-        gameStore.setAnimating(false)
+        setAnimating(false)
       }
     }
   },

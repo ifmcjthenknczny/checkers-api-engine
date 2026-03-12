@@ -17,8 +17,9 @@ function applySingleMoveAndPossiblyEndTurn(
 ): { newBoard: BoardPosition; turnOver: boolean } {
     const { moveCallback, turnOverCallback } = callbacks
     const newBoard = applyMove(board, move)
-    moveCallback(move)
     const isTurnOver = !isChainedCapturePossible(newBoard, move)
+    moveCallback(move)
+
     if (isTurnOver) {
         turnOverCallback()
     }
