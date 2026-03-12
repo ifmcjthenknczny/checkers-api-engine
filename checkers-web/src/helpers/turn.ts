@@ -16,14 +16,13 @@ function applySingleMoveAndPossiblyEndTurn(
     callbacks: Callbacks,
 ): { newBoard: BoardPosition; turnOver: boolean } {
     const { moveCallback, turnOverCallback } = callbacks
-    const newBoard = applyMove(board, move)
-    const isTurnOver = !isChainedCapturePossible(newBoard, move)
+    const { boardAfter, hasTurnEnded } = applyMove(board, move)
     moveCallback(move)
 
-    if (isTurnOver) {
+    if (hasTurnEnded) {
         turnOverCallback()
     }
-    return { newBoard, turnOver: isTurnOver }
+    return { newBoard: boardAfter, turnOver: hasTurnEnded }
 }
 
 export const playerMove = (move: Move | null, board: BoardPosition, playerColor: Player, queenMovesWithoutCaptureCount: number, callbacks: Callbacks) => {

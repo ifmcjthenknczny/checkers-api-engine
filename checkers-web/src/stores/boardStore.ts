@@ -17,8 +17,9 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function applyMove(move: Move) {
-    board.value = applyMoveToPosition(board.value, move)
-    return board.value
+    const {boardAfter, hasTurnEnded} = applyMoveToPosition(board.value, move)
+    board.value = [...boardAfter]
+    return { boardAfter: board.value, hasTurnEnded }
   }
 
   function addPiece(piece: SquareContent, toIndex: number) {

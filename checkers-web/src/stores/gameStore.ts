@@ -1,4 +1,4 @@
-import type { GamePhase, GameResult, Move, PieceColor, Player } from '@/types'
+import type { GamePhase, GameResult, PieceColor, Player } from '@/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

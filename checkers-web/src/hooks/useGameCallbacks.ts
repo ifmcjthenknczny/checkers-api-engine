@@ -13,8 +13,9 @@ export function useGameCallbacks() {
   const {board} = storeToRefs(boardStore)
 
   function moveCallback(move: Move) {
-    const newBoard = boardStore.applyMove(move)
-    if (move.isPromotion) {
+    const {boardAfter: newBoard, hasTurnEnded} = boardStore.applyMove(move)
+    const shouldPromotePiece = move.isPotentialPromotion && hasTurnEnded
+    if (shouldPromotePiece) {
       const color = getPieceColor(newBoard[move.toIndex])
       if (color) {
         gameStore.incrementPromotionsCount(color)

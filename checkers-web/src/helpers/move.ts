@@ -85,7 +85,7 @@ export function findLegalCapturesOfPiece(
         toIndex: landingIdx,
         isCapture: true,
         captureIndex: targetIdx,
-        isPromotion: shouldPotentiallyPromotePiece(board, fromIndex, landingIdx),
+        isPotentialPromotion: shouldPotentiallyPromotePiece(board, fromIndex, landingIdx),
         followingChainedCaptureForbiddenDirection: [reverseDirection(dCol), reverseDirection(dRow)],
       });
 
@@ -143,7 +143,7 @@ export function findLegalNormalMovesOfPiece(
         fromIndex: pieceIndex,
         toIndex,
         isCapture: false,
-        isPromotion: shouldPotentiallyPromotePiece(board, pieceIndex, toIndex),
+        isPotentialPromotion: shouldPotentiallyPromotePiece(board, pieceIndex, toIndex),
       })
       if (!isQueen) {
         break
@@ -200,8 +200,12 @@ function buildCaptureChains(board: BoardPosition, lastMove: Move): Move[][] {
 
   const chains: Move[][] = []
   for (const capture of nextCaptures) {
-    const nextBoard = applyMove([...board], capture)
-    for (const subChain of buildCaptureChains(nextBoard, capture)) {
+    const { boardAfter, hasTurnEnded } = applyMove([...board], capture)
+    if (hasTurnEnded) {
+      chains.push([capture])
+      continue
+    }
+    for (const subChain of buildCaptureChains(boardAfter, capture)) {
       chains.push([capture, ...subChain])
     }
   }
@@ -218,8 +222,8 @@ export function findAllLegalContinuations(board: BoardPosition, piecesColor: Pie
       continue
     }
 
-    const nextBoard = applyMove([...board], move)
-    for (const chain of buildCaptureChains(nextBoard, move)) {
+    const { boardAfter } = applyMove([...board], move)
+    for (const chain of buildCaptureChains(boardAfter, move)) {
       continuations.push([move, ...chain])
     }
   }
@@ -237,19 +241,20 @@ export function movePieceFreely(board: BoardPosition, {fromIndex, toIndex}: Move
   return nextBoard
 }
 
-export function applyMove(board: BoardPosition, move: Move): BoardPosition {
+export function applyMove(board: BoardPosition, move: Move): { boardAfter: BoardPosition, hasTurnEnded: boolean } {
   const piece = board[move.fromIndex]
   if (!piece) {
-    return board
+    return { boardAfter: board, hasTurnEnded: true }
   }
-  const nextBoard: BoardPosition = movePieceFreely(board, move)
+  const boardAfter: BoardPosition = movePieceFreely(board, move)
   if (move.isCapture) {
-    nextBoard[move.captureIndex] = 0
+    boardAfter[move.captureIndex] = 0
   }
-  const isDuringChainedCapture = isChainedCapturePossible(nextBoard, move)
-  const movedPiece = move.isPromotion && !isDuringChainedCapture ? applyPiecePromotion(piece) : piece
-  nextBoard[move.toIndex] = movedPiece
-  return nextBoard
+  const isDuringChainedCapture = isChainedCapturePossible(boardAfter, move)
+  const hasTurnEnded = !isDuringChainedCapture
+  const movedPiece = move.isPotentialPromotion && hasTurnEnded ? applyPiecePromotion(piece) : piece
+  boardAfter[move.toIndex] = movedPiece
+  return { boardAfter, hasTurnEnded }
 }
 
 export const isChainedCapturePossible = (boardAfterMove: BoardPosition, move: Move) => {
