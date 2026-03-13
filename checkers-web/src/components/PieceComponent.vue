@@ -5,11 +5,13 @@ import { getPieceColor, isQueen } from '@/helpers/board'
 import { useGameStore } from '@/stores/gameStore'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
+import { useAnimationStore } from '~/stores/animationStore'
 
 interface Props {
   piece: SquareContent
   index?: number
   context: DragContext
+  flashRed?: boolean
 }
 
 const props = defineProps<Props>()
@@ -17,6 +19,9 @@ const props = defineProps<Props>()
 const dragStore = useDragStore()
 const gameStore = useGameStore()
 const { humanPlayerColor } = storeToRefs(gameStore)
+const animationStore = useAnimationStore()
+const { isAnimating } = storeToRefs(animationStore)
+
 const drag = () => {
   dragStore.startDrag(props.context, props.piece, props.index)
 }
@@ -34,6 +39,10 @@ const toDecorationClassNameList = (piece?: SquareContent) => {
 }
 
 const canBeDragged = computed(() => {
+  // TODO: Handle properly click on piece when it can be dragged
+  if (isAnimating.value) {
+    return false
+  }
   if (props.context === 'spawn') {
     return true
   }
@@ -42,8 +51,7 @@ const canBeDragged = computed(() => {
 </script>
 
 <template>
-  <!-- TODO: Handle properly click on piece when it can be dragged -->
-  <div v-if="piece !== 0" :class="toClassNameList(piece)" :draggable="canBeDragged" @dragstart="drag">
+  <div v-if="piece !== 0" :class="[toClassNameList(piece), { 'piece--flash-red': flashRed }]" :draggable="canBeDragged" @dragstart="drag">
     <div v-if="isQueen(piece)" :class="toDecorationClassNameList(piece)" />
   </div>
 </template>
@@ -142,6 +150,15 @@ const canBeDragged = computed(() => {
 .piece-hover:active {
   background-color: $clickedColor;
   transition: background-color $colorTransitionTime;
+}
+
+@keyframes flash-red {
+  0%, 100% { box-shadow: inset 0 0 0 0 rgba(200, 0, 0, 0); }
+  30%, 70% { box-shadow: inset 0 0 0 100px rgba(180, 0, 0, 0.82); }
+}
+
+.piece--flash-red {
+  animation: flash-red 0.55s ease-in-out;
 }
 
 @media (max-width: $breakpoint) {

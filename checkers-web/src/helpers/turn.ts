@@ -1,11 +1,13 @@
-import type { BoardPosition, Move, Player } from "@/types"
-import { applyMove, isChainedCapturePossible } from "./move"
+import type { BoardPosition, GameResult, Move, Player } from "@/types"
+import { applyMove } from "./move"
 import { determineGameResult } from "./gameOver"
 
 type Callbacks = {
-    gameOverCallback: () => void
+    gameOverCallback: (result: GameResult) => void
     moveCallback: (move: Move) => void
     turnOverCallback: () => void
+    beforeMoveCallback?: (move: Move) => Promise<void>
+    afterMoveCallback?: () => void
 }
 
 function applySingleMoveAndPossiblyEndTurn(
@@ -14,22 +16,22 @@ function applySingleMoveAndPossiblyEndTurn(
     callbacks: Callbacks,
 ): { newBoard: BoardPosition; turnOver: boolean } {
     const { moveCallback, turnOverCallback } = callbacks
-    const newBoard = applyMove(board, move)
+    const { boardAfter, hasTurnEnded } = applyMove(board, move)
     moveCallback(move)
-    const isTurnOver = !isChainedCapturePossible(newBoard, move)
-    if (isTurnOver) {
+
+    if (hasTurnEnded) {
         turnOverCallback()
     }
-    return { newBoard, turnOver: isTurnOver }
+    return { newBoard: boardAfter, turnOver: hasTurnEnded }
 }
 
 export const playerMove = (move: Move | null, board: BoardPosition, playerColor: Player, queenMovesWithoutCaptureCount: number, callbacks: Callbacks) => {
     if (move === null) {
         return
     }
-    const isGameOver = determineGameResult(board, playerColor, queenMovesWithoutCaptureCount)
-    if (isGameOver) {
-        callbacks.gameOverCallback()
+    const gameResult = determineGameResult(board, playerColor, queenMovesWithoutCaptureCount)
+    if (gameResult) {
+        callbacks.gameOverCallback(gameResult)
         return
     }
     const { newBoard } = applySingleMoveAndPossiblyEndTurn(board, move, callbacks)
@@ -39,15 +41,17 @@ export const playerMove = (move: Move | null, board: BoardPosition, playerColor:
 export const computerTurn = async (board: BoardPosition, computerColor: Player, queenMovesWithoutCaptureCount: number, callbacks: Callbacks & {
     movePickingStrategy: (board: BoardPosition, playerColor: Player) => Promise<Move[]>,
 }) => {
-    const isGameOver = determineGameResult(board, computerColor, queenMovesWithoutCaptureCount)
-    if (isGameOver) {
-        callbacks.gameOverCallback()
+    const gameResult = determineGameResult(board, computerColor, queenMovesWithoutCaptureCount)
+    if (gameResult) {
+        callbacks.gameOverCallback(gameResult)
         return
     }
-    const { movePickingStrategy, ...turnCallbacks } = callbacks
+    const { movePickingStrategy, beforeMoveCallback, afterMoveCallback, ...turnCallbacks } = callbacks
     let currentBoard: BoardPosition = [...board]
     for (const move of await movePickingStrategy(board, computerColor)) {
+        await beforeMoveCallback?.(move)
         const { newBoard, turnOver } = applySingleMoveAndPossiblyEndTurn(currentBoard, move, turnCallbacks)
+        afterMoveCallback?.()
         currentBoard = [...newBoard]
         if (turnOver) {
             return currentBoard

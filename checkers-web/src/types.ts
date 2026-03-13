@@ -19,10 +19,10 @@ export type SquareCoords = {
 
 export type Direction = -1 | 1
 
-export type Move ={
+export type Move = {
   fromIndex: number
   toIndex: number
-  isPromotion: boolean
+  isPotentialPromotion: boolean
 } & ({isCapture: false} | {isCapture: true, captureIndex: number, followingChainedCaptureForbiddenDirection: [Direction, Direction]})
 
 export type GameResult = Player | 'draw'

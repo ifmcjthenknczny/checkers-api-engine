@@ -18,6 +18,8 @@ defineProps<{
     &--question {
       font-family: $secondaryFont;
       justify-content: space-between;
+      height: 100%;
+      margin-bottom: 16px;
     }
 
     &--game {

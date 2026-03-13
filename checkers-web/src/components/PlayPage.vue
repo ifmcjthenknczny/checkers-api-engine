@@ -9,9 +9,15 @@ import { pickBestEngineContinuation } from '@/helpers/ai'
 import { storeToRefs } from 'pinia'
 import { sleep } from '@/helpers/utils'
 import { useGameCallbacks } from '@/hooks/useGameCallbacks'
+import { determineGameResult } from '@/helpers/gameOver'
+import type { Move } from '@/types'
+import { useAnimationStore } from '~/stores/animationStore'
+
+const MOVE_ANIMATION_MS = 500
 
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
+const {setAnimating, setAnimatingMove} = useAnimationStore()
 const { moveCallback, turnOverCallback, gameOverCallback } = useGameCallbacks()
 const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak, gamePhase } =
   storeToRefs(gameStore)
@@ -50,16 +56,44 @@ watch(
       humanPlayerColor.value !== null &&
       humanPlayerColor.value !== currentPlayer.value
     ) {
-      await sleep(500)
-      computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
-        gameOverCallback,
-        moveCallback,
-        turnOverCallback,
-        movePickingStrategy: pickBestEngineContinuation,
-      })
+      await sleep(100)
+      setAnimating(true)
+      try {
+        await computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
+          gameOverCallback,
+          moveCallback,
+          turnOverCallback,
+          movePickingStrategy: pickBestEngineContinuation,
+          beforeMoveCallback: async (move: Move) => {
+            setAnimatingMove(move)
+            await sleep(MOVE_ANIMATION_MS)
+          },
+          afterMoveCallback: () => {
+            setAnimatingMove(null)
+          },
+        })
+      } finally {
+        setAnimating(false)
+      }
     }
   },
   { immediate: true },
+)
+
+watch(
+  [() => gamePhase.value, () => currentPlayer.value],
+  () => {
+    if (
+      gamePhase.value === 'game' &&
+      humanPlayerColor.value !== null &&
+      humanPlayerColor.value === currentPlayer.value
+    ) {
+      const result = determineGameResult(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value)
+      if (result) {
+        gameOverCallback(result)
+      }
+    }
+  },
 )
 </script>
 

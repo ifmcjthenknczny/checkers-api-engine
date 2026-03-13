@@ -4,14 +4,15 @@ import { range, rangeChar } from '../helpers/utils'
 import { useBoardStore } from '@/stores/boardStore'
 import CheckersPiece from './PieceComponent.vue'
 import CheckersSquare from './BoardSquare.vue'
-import { isWhiteSquare, getSquareIndex, getPieceColor } from '@/helpers/board'
+import { isWhiteSquare, getSquareIndex, getPieceColor, indexToRowCol } from '@/helpers/board'
 import type { BoardContext, Move, SquareContent } from '@/types'
 import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
-import { findLegalMovesOfPiece, playerHasCapturePossibility } from '@/helpers/move'
-import { computed } from 'vue'
+import { findLegalMovesOfPiece, playerHasCapturePossibility, findAllLegalMoves } from '@/helpers/move'
+import { computed, ref, watch, nextTick } from 'vue'
 import PossibleMoveMarker from './PossibleMoveMarker.vue'
 import { useGameStore } from '@/stores/gameStore'
+import { useAnimationStore } from '~/stores/animationStore'
 
 const props = withDefaults(
   defineProps<{
@@ -45,6 +46,55 @@ const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
 const gameStore = useGameStore()
 const { currentPlayer, humanPlayerColor } = storeToRefs(gameStore)
+const animationStore = useAnimationStore()
+const { animatingMove, isAnimating } = storeToRefs(animationStore)
+
+const flashRedIndices = ref<Set<number>>(new Set())
+let flashRedTimeout: ReturnType<typeof setTimeout> | null = null
+
+const movingPiecePhase = ref<'from' | 'to'>('from')
+const movingPieceContent = ref<SquareContent | null>(null)
+const movingPieceRef = ref<HTMLElement | null>(null)
+
+watch(animatingMove, (move) => {
+  if (move) {
+    movingPieceContent.value = board.value[move.fromIndex]
+    movingPiecePhase.value = 'from'
+    nextTick(() => {
+      movingPieceRef.value?.getBoundingClientRect()
+      movingPiecePhase.value = 'to'
+    })
+  } else {
+    movingPieceContent.value = null
+  }
+})
+
+function indexToDisplayRowCol(index: number) {
+  const { row: boardRow, col: boardCol } = indexToRowCol(index)
+  const displayRow = props.isBoardFlipped ? BOARD_SIZE - 1 - boardRow : boardRow
+  const displayCol = props.isBoardFlipped ? BOARD_SIZE - 1 - boardCol : boardCol
+  return { displayRow, displayCol }
+}
+
+const movingPieceStyle = computed(() => {
+  const move = animatingMove.value
+  if (!move) return {}
+  const from = indexToDisplayRowCol(move.fromIndex)
+  const to = indexToDisplayRowCol(move.toIndex)
+  const fromLeft = (0.2 + from.displayCol + 0.5) / 8.2 * 100
+  const fromTop = (from.displayRow + 0.5) / 8.2 * 100
+  const toLeft = (0.2 + to.displayCol + 0.5) / 8.2 * 100
+  const toTop = (to.displayRow + 0.5) / 8.2 * 100
+  const isTo = movingPiecePhase.value === 'to'
+  return {
+    '--from-left': `${fromLeft}%`,
+    '--from-top': `${fromTop}%`,
+    '--to-left': `${toLeft}%`,
+    '--to-top': `${toTop}%`,
+    left: isTo ? `${toLeft}%` : `${fromLeft}%`,
+    top: isTo ? `${toTop}%` : `${fromTop}%`,
+  }
+})
 
 const possibleMovesForDraggedPieceMap = computed(() => {
   if (props.context === 'analysis' || draggedIndex.value === null || dragContext.value !== 'board') {
@@ -77,12 +127,23 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
   }
 
   if (dragContext.value === 'board') {
+    if (isAnimating.value) return
     const fromIndex = draggedIndex.value
     if (fromIndex === null) {
       return
     }
     if (props.context === 'game') {
       if (!possibleMovesForDraggedPieceMap.value[toIndex]) {
+        if (
+          Object.keys(possibleMovesForDraggedPieceMap.value).length === 0 &&
+          humanPlayerColor.value !== null &&
+          currentPlayer.value === humanPlayerColor.value
+        ) {
+          if (flashRedTimeout) clearTimeout(flashRedTimeout)
+          const color = getPieceColor(board.value[fromIndex])!
+          flashRedIndices.value = new Set(findAllLegalMoves(board.value, color).map(m => m.fromIndex))
+          flashRedTimeout = setTimeout(() => { flashRedIndices.value = new Set() }, 600)
+        }
         return
       }
       boardStore.applyMove(possibleMovesForDraggedPieceMap.value[toIndex])
@@ -105,7 +166,7 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
 </script>
 
 <template>
-  <section class="board" :style="gridStyles">
+  <section class="board board--with-overlay" :style="gridStyles">
     <template v-for="(rowName, rowIndex) in rows" :key="'row-' + rowName">
       <div class="grid__square--name-row grid__square--name">
         {{ rowName }}
@@ -122,9 +183,10 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
         :context="context"
       >
         <CheckersPiece
-          v-if="!isWhiteSquare(rowIndex, colIndex)"
+          v-if="!isWhiteSquare(rowIndex, colIndex) && !(animatingMove && getDisplaySquareIndex(rowIndex, colIndex) === animatingMove.fromIndex)"
           :piece="board[getDisplaySquareIndex(rowIndex, colIndex)]!"
           :index="getDisplaySquareIndex(rowIndex, colIndex)"
+          :flash-red="flashRedIndices.has(getDisplaySquareIndex(rowIndex, colIndex))"
           context="board"
         />
         <PossibleMoveMarker v-if="shouldShowPossibleMoveMarker(rowIndex, colIndex)" :key="getDisplaySquareIndex(rowIndex, colIndex)" />
@@ -140,6 +202,19 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
     >
       {{ colName }}
     </div>
+
+    <div v-if="animatingMove && movingPieceContent" class="board__move-overlay" aria-hidden="true">
+      <div
+        ref="movingPieceRef"
+        class="board__moving-piece"
+        :style="movingPieceStyle"
+      >
+        <CheckersPiece
+          :piece="movingPieceContent"
+          context="board"
+        />
+      </div>
+    </div>
   </section>
 </template>
 
@@ -149,6 +224,31 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   grid-auto-flow: row;
   width: $boardSizeHorizontal;
   height: $boardSizeHorizontal;
+  position: relative;
+
+  &--with-overlay {
+    isolation: isolate;
+  }
+
+  &__move-overlay {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  &__moving-piece {
+    position: absolute;
+    width: calc($boardSizeHorizontal / 8.2);
+    height: calc($boardSizeHorizontal / 8.2);
+    transform: translate(-50%, -50%);
+    transition: left 0.45s ease-out, top 0.45s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .grid__square--name {
@@ -173,6 +273,11 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   .board {
     width: $boardSizeVertical;
     height: $boardSizeVertical;
+  }
+
+  .board__moving-piece {
+    width: calc($boardSizeVertical / 8.2);
+    height: calc($boardSizeVertical / 8.2);
   }
 }
 </style>

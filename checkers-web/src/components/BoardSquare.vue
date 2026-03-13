@@ -9,6 +9,7 @@ import { playerMove } from '@/helpers/turn'
 import { getLegalMove } from '@/helpers/move'
 import { useBoardStore } from '@/stores/boardStore'
 import { useGameCallbacks } from '@/hooks/useGameCallbacks'
+import { useAnimationStore } from '~/stores/animationStore'
 
 interface Props {
   position: [number, number]
@@ -29,10 +30,14 @@ const { board } = storeToRefs(boardStore)
 
 const gameStore = useGameStore()
 const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak } = storeToRefs(gameStore)
+const animationStore = useAnimationStore()
+const { isAnimating } = storeToRefs(animationStore)
+
 
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 
 const allowDrop = (e: DragEvent) => {
+  if (isAnimating.value) return
   const isPlayersPiece = activePiece.value && getPieceColor(activePiece.value) === humanPlayerColor.value
   const isDifferentSquare = draggedIndex.value !== squareIndex
   const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
@@ -48,6 +53,7 @@ const { moveCallback, turnOverCallback, gameOverCallback } = useGameCallbacks()
 
 const drop = (e: DragEvent) => {
   e.preventDefault()
+  if (isAnimating.value) return
   if (!activePiece.value) {
     return
   }

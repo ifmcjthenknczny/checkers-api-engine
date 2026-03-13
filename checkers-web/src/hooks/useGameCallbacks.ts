@@ -1,20 +1,17 @@
 import { useBoardStore } from '@/stores/boardStore'
 import { useGameStore } from '@/stores/gameStore'
-import { storeToRefs } from 'pinia'
 import { getPieceColor, isQueen } from '@/helpers/board'
-import { determineGameResult } from '@/helpers/gameOver'
-import type { Move } from '@/types'
+import type { GameResult, Move } from '@/types'
 
 
 export function useGameCallbacks() {
   const boardStore = useBoardStore()
   const gameStore = useGameStore()
-  const { currentPlayer, queenMovesWithoutCaptureStreak } = storeToRefs(gameStore)
-  const {board} = storeToRefs(boardStore)
 
   function moveCallback(move: Move) {
-    const newBoard = boardStore.applyMove(move)
-    if (move.isPromotion) {
+    const {boardAfter: newBoard, hasTurnEnded} = boardStore.applyMove(move)
+    const shouldPromotePiece = move.isPotentialPromotion && hasTurnEnded
+    if (shouldPromotePiece) {
       const color = getPieceColor(newBoard[move.toIndex])
       if (color) {
         gameStore.incrementPromotionsCount(color)
@@ -29,12 +26,12 @@ export function useGameCallbacks() {
 
   function turnOverCallback() {
     gameStore.switchPlayer()
-    gameStore.incrementTurn()
+    gameStore.incrementMovesCount()
   }
 
-  function gameOverCallback() {
+  function gameOverCallback(gameResult: GameResult) {
     gameStore.setGameResult(
-      determineGameResult(board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value),
+      gameResult
     )
     gameStore.setGamePhase('gameOver')
   }

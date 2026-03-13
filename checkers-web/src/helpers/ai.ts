@@ -22,7 +22,7 @@ export async function pickBestContinuation(
 
   const resultingBoards = continuations.map((continuationMoves) =>
     continuationMoves.reduce(
-      (currentBoard, move) => applyMove(currentBoard, move),
+      (currentBoard, move) => applyMove(currentBoard, move).boardAfter,
       [...board] as BoardPosition,
     ),
   )

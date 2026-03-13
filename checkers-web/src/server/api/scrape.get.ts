@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { type ModelLevel, type ScrapeModelLevel, MODEL_LEVELS } from '~/types'
+import { type ScrapeModelLevel, MODEL_LEVELS } from '~/types'
 import { playGames } from '#server/utils/scrape'
 
 const MAX_GAMES = 100_000

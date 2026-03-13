@@ -86,7 +86,7 @@ export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: 
     }
 
     for (const move of moves) {
-      board = applyMove(board, move)
+      board = applyMove(board, move).boardAfter
       if (!move.isCapture && isQueen(board[move.toIndex])) {
         queenMovesWithoutCaptureStreak++
       } else {

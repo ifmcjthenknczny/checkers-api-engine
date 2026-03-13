@@ -77,7 +77,7 @@ export const useGameStore = defineStore('game', () => {
     humanPlayerColor,
     chooseColor,
     movesCount,
-    incrementTurn: incrementMovesCount,
+    incrementMovesCount,
     promotionsCount,
     queenMovesWithoutCaptureStreak,
     incrementPromotionsCount,
@@ -87,6 +87,6 @@ export const useGameStore = defineStore('game', () => {
     gameResult,
     setGameResult,
     gamePhase,
-    setGamePhase
+    setGamePhase,
   }
 })

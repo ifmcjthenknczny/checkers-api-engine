@@ -1,5 +1,5 @@
 import { applyMove as applyMoveToPosition, movePieceFreely } from '@/helpers/move'
-import type { BoardPosition, Move, Player, SquareContent } from '@/types'
+import type { BoardPosition, Move, SquareContent } from '@/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { STARTING_BOARD_STATE, EMPTY_BOARD_STATE } from '@/helpers/board'
@@ -17,8 +17,9 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function applyMove(move: Move) {
-    board.value = applyMoveToPosition(board.value, move)
-    return board.value
+    const {boardAfter, hasTurnEnded} = applyMoveToPosition(board.value, move)
+    board.value = [...boardAfter]
+    return { boardAfter: board.value, hasTurnEnded }
   }
 
   function addPiece(piece: SquareContent, toIndex: number) {
