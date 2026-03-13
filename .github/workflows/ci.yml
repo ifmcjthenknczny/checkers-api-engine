@@ -6,7 +6,7 @@ permissions:
   contents: read
 
 env:
-  NODE_VERSION: "22.13.0"
+  NODE_VERSION: "24.14.0"
 
 jobs:
   checkers-web:
@@ -16,18 +16,20 @@ jobs:
       run:
         working-directory: ./checkers-web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: 'https://npm.pkg.github.com'
           cache: 'yarn'
           cache-dependency-path: 'checkers-web/yarn.lock'
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install deps
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Lint code
         run: yarn lint
