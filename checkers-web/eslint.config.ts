@@ -35,5 +35,13 @@ export default defineConfigWithVueTs(
     },
   },
 
+  {
+    files: ['**/*.{vue,ts,mts,tsx}'],
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn'],
+    },
+  },
+
   skipFormatting,
 )

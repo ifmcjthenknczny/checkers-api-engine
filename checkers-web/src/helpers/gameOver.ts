@@ -1,4 +1,4 @@
-import type { BoardPosition, GameResult, PieceColor, Player } from "@/types"
+import type { BoardPosition, GameResult, Player } from "@/types"
 import { findAllLegalMoves } from "./move"
 
 const QUEEN_MOVES_WITHOUT_CAPTURE_COUNT_DRAW_THRESHOLD: number = 30

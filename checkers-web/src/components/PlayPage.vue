@@ -9,6 +9,7 @@ import { pickBestEngineContinuation } from '@/helpers/ai'
 import { storeToRefs } from 'pinia'
 import { sleep } from '@/helpers/utils'
 import { useGameCallbacks } from '@/hooks/useGameCallbacks'
+import { determineGameResult } from '@/helpers/gameOver'
 import type { Move } from '@/types'
 import { useAnimationStore } from '~/stores/animationStore'
 
@@ -77,6 +78,22 @@ watch(
     }
   },
   { immediate: true },
+)
+
+watch(
+  [() => gamePhase.value, () => currentPlayer.value],
+  () => {
+    if (
+      gamePhase.value === 'game' &&
+      humanPlayerColor.value !== null &&
+      humanPlayerColor.value === currentPlayer.value
+    ) {
+      const result = determineGameResult(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value)
+      if (result) {
+        gameOverCallback(result)
+      }
+    }
+  },
 )
 </script>
 

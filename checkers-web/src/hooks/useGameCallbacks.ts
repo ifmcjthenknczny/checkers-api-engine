@@ -1,16 +1,12 @@
 import { useBoardStore } from '@/stores/boardStore'
 import { useGameStore } from '@/stores/gameStore'
-import { storeToRefs } from 'pinia'
 import { getPieceColor, isQueen } from '@/helpers/board'
-import { determineGameResult } from '@/helpers/gameOver'
 import type { GameResult, Move } from '@/types'
 
 
 export function useGameCallbacks() {
   const boardStore = useBoardStore()
   const gameStore = useGameStore()
-  const { currentPlayer, queenMovesWithoutCaptureStreak } = storeToRefs(gameStore)
-  const {board} = storeToRefs(boardStore)
 
   function moveCallback(move: Move) {
     const {boardAfter: newBoard, hasTurnEnded} = boardStore.applyMove(move)

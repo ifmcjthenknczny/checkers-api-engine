@@ -1,4 +1,4 @@
-import type { BoardPosition, Piece, SquareContent } from "@/types"
+import type { BoardPosition, Piece } from "@/types"
 import { isQueen, getPieceColor, indexToRowCol } from "./board"
 import { BOARD_SIZE } from "@/config"
 
