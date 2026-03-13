@@ -3,12 +3,17 @@ type Tuple<T, N extends number, R extends T[] = []> = R['length'] extends N
   : Tuple<T, N, [T, ...R]>
 
 // TODO: make it human readable (white pawn, black pawn, white queen, black queen)
-export type SquareContent = -3 | -1 | 0 | 1 | 3
+
+export const ALLOWED_SQUARE_CONTENT = [0, 1, -1, 3, -3] as const
+
+export type SquareContent = typeof ALLOWED_SQUARE_CONTENT[number]
 
 export type BoardPosition = Tuple<SquareContent, 32>
 
-export type PieceColor = 'white' | 'black'
-export type Player = 'white' | 'black'
+export const COLORS = ['white', 'black'] as const
+
+export type PieceColor = typeof COLORS[number]
+export type Player = typeof COLORS[number]
 
 export type Piece = Exclude<SquareContent, 0>
 

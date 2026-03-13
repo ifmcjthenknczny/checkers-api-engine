@@ -14,14 +14,14 @@ export const evaluateBoard = async (
   useRuntimeConfig().public.engineApiUrl ??
     (typeof import.meta !== 'undefined' && import.meta.env?.NUXT_PUBLIC_ENGINE_API_URL) ??
     ''
-  const url = baseUrl ? `${baseUrl.replace(/\/$/, '')}/evaluate/${modelLevel}` : `/api/evaluate/${modelLevel}`
+  const url = baseUrl ? `${baseUrl.replace(/\/$/, '')}/engine/eval/${modelLevel}` : `/api/engine/eval/${modelLevel}`
 
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       board,
-      move: playerToMove === 'white' ? 1 : -1,
+      move: playerToMove,
     }),
   })
 
