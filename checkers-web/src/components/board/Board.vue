@@ -155,8 +155,12 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   const belongsToDraggedPiece = Object.keys(possibleMovesForDraggedPieceMap.value).some(toIndex => +toIndex === displaySquareIndex)
   const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
   const isPlayersTurn = currentPlayer.value === humanPlayerColor.value
+  const isPlayersPiece =
+    humanPlayerColor.value !== null &&
+    draggedIndex.value !== null &&
+    getPieceColor(board.value[draggedIndex.value]) === humanPlayerColor.value
 
-  return belongsToDraggedPiece && isPlayableSquare && isPlayersTurn
+  return belongsToDraggedPiece && isPlayableSquare && isPlayersTurn && isPlayersPiece
 }
 </script>
 
