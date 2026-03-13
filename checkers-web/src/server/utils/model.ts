@@ -3,6 +3,8 @@ import { z } from 'zod'
 import path from 'node:path'
 import { type ModelLevel, MODEL_LEVELS, type Player, type BoardPosition } from '~/types'
 
+type PlayerToMove = -1 | 1
+
 let session: ort.InferenceSession | null = null
 
 // TODO: minmax depth algorithm for better predictions
@@ -19,6 +21,10 @@ export async function loadModel(level: ModelLevel, modelsPath: string): Promise<
   }
 }
 
+function toPlayerToMove(player: Player): PlayerToMove {
+  return player === 'white' ? 1 : -1
+}
+
 export async function evaluateBoardRaw(board: BoardPosition, move: Player): Promise<number> {
   try {
     if (!session) {
@@ -26,7 +32,7 @@ export async function evaluateBoardRaw(board: BoardPosition, move: Player): Prom
     }
     const combinedData = new Float32Array(33)
     combinedData.set(board)
-    combinedData[32] = move === 'white' ? 1 : -1
+    combinedData[32] = toPlayerToMove(move)
     const tensor = new ort.Tensor('float32', combinedData, [1, 33])
     const feeds = { [session.inputNames[0]]: tensor }
     const results = await session.run(feeds)

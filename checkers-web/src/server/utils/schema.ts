@@ -1,14 +1,13 @@
 import { z } from 'zod'
 import type { H3Event } from 'h3'
-import { COLORS } from '~/types'
+import { COLORS, ALLOWED_SQUARE_CONTENT } from '~/types'
 
-const ALLOWED_PIECES = [0, 1, -1, 3, -3] as const
 
 export const BodyRequestSchema = z.object({
   board: z
     .array(z.number().int())
     .length(32, 'Array must have exactly 32 elements')
-    .refine((arr) => arr.every((val) => ALLOWED_PIECES.includes(val as typeof ALLOWED_PIECES[number])), {
+    .refine((arr) => arr.every((val) => ALLOWED_SQUARE_CONTENT.includes(val as typeof ALLOWED_SQUARE_CONTENT[number])), {
       message: 'Allowed values are: 0 (empty), 1/-1 (pawns), 3/-3 (queens)',
     }),
   move: z.enum(COLORS),

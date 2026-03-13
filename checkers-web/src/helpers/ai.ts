@@ -1,7 +1,8 @@
-import type { BoardPosition, ModelLevel, Move, Player } from '../types'
-import { MODEL_LEVELS } from '../types'
+import { MODEL_LEVELS, type BoardPosition, type ModelLevel, type Move, type Player } from '../types'
 import { findAllLegalContinuations } from './move'
 import { chooseRandomly } from './utils'
+
+const DEFAULT_MODEL_LEVEL: ModelLevel = MODEL_LEVELS.at(-1)!
 
 export function pickRandomContinuation(
   board: BoardPosition,
@@ -18,7 +19,7 @@ type ContinuationResponse = {
 export async function pickBestEngineContinuation(
   board: BoardPosition,
   player: Player,
-  modelLevel: ModelLevel = MODEL_LEVELS.at(-1)!,
+  modelLevel: ModelLevel = DEFAULT_MODEL_LEVEL,
 ): Promise<Move[]> {
   const baseUrl =
     useRuntimeConfig().public.engineApiUrl ??

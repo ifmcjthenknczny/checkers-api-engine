@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   )
 
   const evaluations = await Promise.all(
-    resultingBoards.map((b) => evaluateBoardRaw(b, playerColor)),
+    resultingBoards.map((board) => evaluateBoardRaw(board, playerColor)),
   )
 
   const isMaximizing = playerColor === 'white'
