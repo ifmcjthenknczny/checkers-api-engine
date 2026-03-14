@@ -49,6 +49,18 @@ function shouldSaveMove(moveNumber: number): boolean {
   return min + (max - min) * sigmoid > Math.random();
 }
 
+const shouldRandomizeMove = (randomCoefficient: number, moveNumber: number): boolean => {
+  const turnFlatpoint = 5;
+  const turn = Math.floor(moveNumber / 2);
+  if (turn > turnFlatpoint) {
+    return randomCoefficient > Math.random();
+  }
+  const slope = (1 - randomCoefficient) / turnFlatpoint;
+  const probability = -slope * turn + 1;
+
+  return probability > Math.random();
+};
+
 export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: number, depth: number = 0): Promise<GameData> {
   const config = useRuntimeConfig()
   if (modelLevel) {
@@ -69,8 +81,7 @@ export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: 
     }
 
     let moves: Move[]
-    const shouldRandomizeMove = Math.random() < randomCoefficient
-    if (!modelLevel || shouldRandomizeMove) {
+    if (!modelLevel || shouldRandomizeMove(randomCoefficient, moveNumber)) {
       moves = pickRandomContinuation(board, currentPlayer)
     } else {
       moves = await pickBestEngineContinuation(board, currentPlayer, undefined, depth)
