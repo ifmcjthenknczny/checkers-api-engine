@@ -13,7 +13,7 @@ export default defineTask({
     description: 'Play self-play games and save training data',
   },
   async run({ payload }) {
-    if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'local') {
+    if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'development') {
       throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
     }
     const { games, modelLevel, random } = payload as Payload

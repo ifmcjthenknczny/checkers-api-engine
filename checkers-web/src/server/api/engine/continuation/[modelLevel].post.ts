@@ -1,7 +1,11 @@
-import { evaluateBoardRaw, ensureModelLoaded, parseModelLevel } from '#server/utils/model'
+import { ensureModelLoaded, parseModelLevel, pickBestContinuationWithDepth, MAX_DEPTH } from '#server/utils/model'
 import { BodyRequestSchema, parseBodyOrThrow } from '#server/utils/schema'
-import { findAllLegalContinuations, applyMove } from '~/helpers/move'
 import type { BoardPosition } from '~/types'
+import { z } from 'zod'
+
+const ContinuationBodySchema = BodyRequestSchema.extend({
+  depth: z.coerce.number().int().min(0).max(MAX_DEPTH).default(0),
+})
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -9,35 +13,9 @@ export default defineEventHandler(async (event) => {
 
   await ensureModelLoaded(modelLevel, config.modelsPath)
 
-  const { board, move: playerColor } = await parseBodyOrThrow(event, BodyRequestSchema)
-  const boardPosition = board as BoardPosition
+  const { board, move: playerColor, depth } = await parseBodyOrThrow(event, ContinuationBodySchema)
 
-  const continuations = findAllLegalContinuations(boardPosition, playerColor)
+  const continuation = await pickBestContinuationWithDepth(board as BoardPosition, playerColor, depth)
 
-  if (continuations.length === 0) {
-    return { continuation: [] }
-  }
-
-  const resultingBoards = continuations.map((continuationMoves) =>
-    continuationMoves.reduce(
-      (currentBoard, m) => applyMove(currentBoard, m).boardAfter,
-      [...boardPosition] as BoardPosition,
-    ),
-  )
-
-  const evaluations = await Promise.all(
-    resultingBoards.map((board) => evaluateBoardRaw(board, playerColor)),
-  )
-
-  const isMaximizing = playerColor === 'white'
-  const bestIndex = evaluations.reduce(
-    (bestIdx, evaluation, index) => {
-      if (isMaximizing && evaluation > evaluations[bestIdx]) return index
-      if (!isMaximizing && evaluation < evaluations[bestIdx]) return index
-      return bestIdx
-    },
-    0,
-  )
-
-  return { continuation: continuations[bestIndex] ?? [] }
+  return { continuation }
 })

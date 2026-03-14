@@ -20,6 +20,7 @@ export async function pickBestEngineContinuation(
   board: BoardPosition,
   player: Player,
   modelLevel: ModelLevel = DEFAULT_MODEL_LEVEL,
+  depth: number = 0,
 ): Promise<Move[]> {
   const baseUrl =
     useRuntimeConfig().public.engineApiUrl ??
@@ -31,7 +32,7 @@ export async function pickBestEngineContinuation(
 
   const data = await $fetch<ContinuationResponse>(url, {
     method: 'POST',
-    body: { board, move: player },
+    body: { board, move: player, depth },
   })
   return data.continuation ?? []
 }

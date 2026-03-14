@@ -49,7 +49,7 @@ function shouldSaveMove(moveNumber: number): boolean {
   return min + (max - min) * sigmoid > Math.random();
 }
 
-export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: number): Promise<GameData> {
+export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: number, depth: number = 0): Promise<GameData> {
   const config = useRuntimeConfig()
   if (modelLevel) {
     await loadModel(modelLevel, config.modelsPath)
@@ -73,7 +73,7 @@ export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: 
     if (!modelLevel || shouldRandomizeMove) {
       moves = pickRandomContinuation(board, currentPlayer)
     } else {
-      moves = await pickBestEngineContinuation(board, currentPlayer)
+      moves = await pickBestEngineContinuation(board, currentPlayer, undefined, depth)
     }
 
     if (moves.length === 0) {
@@ -103,7 +103,7 @@ export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: 
   return mapGameDataToJson(turns, 'draw')
 }
 
-export async function playGames(count: number, modelLevel: ScrapeModelLevel, randomCoefficient: number): Promise<string> {
+export async function playGames(count: number, modelLevel: ScrapeModelLevel, randomCoefficient: number, depth: number = 0): Promise<string> {
   const dataDir = join(process.cwd(), '../data')
   mkdirSync(dataDir, { recursive: true })
 
@@ -123,7 +123,7 @@ export async function playGames(count: number, modelLevel: ScrapeModelLevel, ran
       console.log(`[scrape] Playing game ${i + 1}/${count}${avgPerGame}...`)
 
       try {
-        const gameData = await playGame(modelLevel, randomCoefficient)
+        const gameData = await playGame(modelLevel, randomCoefficient, depth)
         const prefix = gamesWritten > 0 ? ',' : ''
         appendFileSync(outputFile, `${prefix}${JSON.stringify(gameData).slice(1, -1)}`, 'utf8')
         gamesWritten++
