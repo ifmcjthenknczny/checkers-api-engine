@@ -48,17 +48,15 @@ export async function minimaxScore(
   board: BoardPosition,
   currentPlayer: Player,
   depth: number,
-  rootPlayer: Player,
 ): Promise<number> {
   if (depth === 0) {
-    const rawEval = await evaluateBoardRaw(board, currentPlayer)
-    return rootPlayer === 'white' ? rawEval : -rawEval
+    return evaluateBoardRaw(board, currentPlayer)
   }
 
   const continuations = findAllLegalContinuations(board, currentPlayer)
 
   if (continuations.length === 0) {
-    return currentPlayer === rootPlayer ? -1 : 1
+    return currentPlayer === 'white' ? -1 : 1
   }
 
   const opponent: Player = currentPlayer === 'white' ? 'black' : 'white'
@@ -69,25 +67,28 @@ export async function minimaxScore(
         (b, m) => applyMove(b, m).boardAfter,
         [...board] as BoardPosition,
       )
-      return minimaxScore(resultBoard, opponent, depth - 1, rootPlayer)
+      return minimaxScore(resultBoard, opponent, depth - 1)
     }),
   )
 
-  return currentPlayer === rootPlayer ? Math.max(...scores) : Math.min(...scores)
+  return currentPlayer === 'white' ? Math.max(...scores) : Math.min(...scores)
 }
 
 export async function pickBestContinuationWithDepth(
   board: BoardPosition,
   player: Player,
-  depth: number,
+  depth: number = 0
 ): Promise<Move[]> {
   const continuations = findAllLegalContinuations(board, player)
 
   if (continuations.length === 0) {
     return []
   }
+  if (continuations.length === 1) {
+    return continuations[0]
+  }
 
-  const clampedDepth = Math.max(1, Math.min(depth, MAX_DEPTH))
+  const clampedDepth = Math.min(depth, MAX_DEPTH)
   const opponent: Player = player === 'white' ? 'black' : 'white'
   const isMaximizing = player === 'white'
 
@@ -100,12 +101,14 @@ export async function pickBestContinuationWithDepth(
       if (clampedDepth <= 1) {
         return evaluateBoardRaw(resultBoard, player)
       }
-      return minimaxScore(resultBoard, opponent, clampedDepth - 1, player)
+      return minimaxScore(resultBoard, opponent, clampedDepth - 1)
     }),
   )
 
   const bestIndex = scores.reduce((bestIdx, score, i) => {
-    if (isMaximizing) return score > scores[bestIdx] ? i : bestIdx
+    if (isMaximizing) {
+      return score > scores[bestIdx] ? i : bestIdx
+    }
     return score < scores[bestIdx] ? i : bestIdx
   }, 0)
 

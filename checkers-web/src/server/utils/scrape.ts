@@ -4,8 +4,8 @@ import type { BoardPosition, GameResult, Move, Player, ScrapeModelLevel } from '
 import { STARTING_BOARD_STATE, isQueen } from '~/helpers/board'
 import { applyMove } from '~/helpers/move'
 import { determineGameResult } from '~/helpers/gameOver'
-import { pickBestEngineContinuation, pickRandomContinuation } from '~/helpers/ai'
-import { loadModel, evaluateBoardRaw } from './model'
+import { pickRandomContinuation } from '~/helpers/ai'
+import { ensureModelLoaded, evaluateBoardRaw, pickBestContinuationWithDepth } from './model'
 
 type JsonGameResult = -1 | 0 | 1
 type JsonPlayerMove = 1 | -1
@@ -43,20 +43,20 @@ function shouldSaveMove(moveNumber: number): boolean {
   const turn = Math.floor(moveNumber / 2);
   const min = 0.1;
   const max = 1;
-  const midpoint = 12;
+  const midpoint = 10;
   const steepness = 0.3;
   const sigmoid = 1 / (1 + Math.exp(-steepness * (turn - midpoint)));
   return min + (max - min) * sigmoid > Math.random();
 }
 
 const shouldRandomizeMove = (randomCoefficient: number, moveNumber: number): boolean => {
-  const turnFlatpoint = 5;
+  const turnFlatpoint = 6;
   const turn = Math.floor(moveNumber / 2);
   if (turn > turnFlatpoint) {
     return randomCoefficient > Math.random();
   }
   const slope = (1 - randomCoefficient) / turnFlatpoint;
-  const probability = -slope * turn + 1;
+  const probability = 1 - slope * turn;
 
   return probability > Math.random();
 };
@@ -64,7 +64,7 @@ const shouldRandomizeMove = (randomCoefficient: number, moveNumber: number): boo
 export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: number, depth: number = 0): Promise<GameData> {
   const config = useRuntimeConfig()
   if (modelLevel) {
-    await loadModel(modelLevel, config.modelsPath)
+    await ensureModelLoaded(modelLevel, config.modelsPath)
   } else {
     randomCoefficient = 1
   }
@@ -84,7 +84,7 @@ export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: 
     if (!modelLevel || shouldRandomizeMove(randomCoefficient, moveNumber)) {
       moves = pickRandomContinuation(board, currentPlayer)
     } else {
-      moves = await pickBestEngineContinuation(board, currentPlayer, undefined, depth)
+      moves = await pickBestContinuationWithDepth(board, currentPlayer, depth)
     }
 
     if (moves.length === 0) {
