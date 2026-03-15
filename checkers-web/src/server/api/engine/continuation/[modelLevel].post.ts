@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
   const { board, move: playerColor, depth } = await parseBodyOrThrow(event, BodyRequestSchema)
 
-  const continuation = await pickBestContinuationWithDepth(board as BoardPosition, playerColor, depth)
+  const { moves } = await pickBestContinuationWithDepth(board as BoardPosition, playerColor, depth)
 
-  return { continuation }
+  return moves
 })

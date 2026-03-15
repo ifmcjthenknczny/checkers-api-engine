@@ -79,14 +79,11 @@ export async function pickBestContinuationWithDepth(
   board: BoardPosition,
   player: Player,
   depth: number
-): Promise<Move[]> {
+): Promise<{moves: Move[], score: number}> {
   const continuations = findAllLegalContinuations(board, player)
 
   if (continuations.length === 0) {
-    return []
-  }
-  if (continuations.length === 1) {
-    return continuations[0]
+    return { moves: [], score: player === 'white' ? -1 : 1 }
   }
 
   const clampedDepth = Math.min(depth, MAX_DEPTH)
@@ -99,7 +96,7 @@ export async function pickBestContinuationWithDepth(
         (boardPosition, move) => applyMove(boardPosition, move).boardAfter,
         [...board] as BoardPosition,
       )
-      if (clampedDepth <= 1) {
+      if (clampedDepth === 0) {
         return evaluateBoardRaw(resultBoard, player)
       }
       return minimaxScore(resultBoard, opponent, clampedDepth - 1)
@@ -113,7 +110,7 @@ export async function pickBestContinuationWithDepth(
     return score < scores[bestIdx] ? index : bestIdx
   }, 0)
 
-  return continuations[bestIndex] ?? []
+  return { moves: continuations[bestIndex] ?? [], score: scores[bestIndex] }
 }
 
 export const DEFAULT_MODEL_LEVEL: ModelLevel = MODEL_LEVELS.at(-1)!

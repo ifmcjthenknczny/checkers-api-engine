@@ -5,7 +5,7 @@ import { STARTING_BOARD_STATE, isQueen } from '~/helpers/board'
 import { applyMove } from '~/helpers/move'
 import { determineGameResult } from '~/helpers/gameOver'
 import { pickRandomContinuation } from '~/helpers/ai'
-import { ensureModelLoaded, evaluateBoardRaw, pickBestContinuationWithDepth } from './model'
+import { ensureModelLoaded, pickBestContinuationWithDepth } from './model'
 
 type JsonGameResult = -1 | 0 | 1
 type JsonPlayerMove = 1 | -1
@@ -80,18 +80,14 @@ export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: 
       return mapGameDataToJson(turns, gameResult)
     }
 
-    let moves: Move[]
-    if (!modelLevel || shouldRandomizeMove(randomCoefficient, moveNumber)) {
-      moves = pickRandomContinuation(board, currentPlayer)
-    } else {
-      moves = await pickBestContinuationWithDepth(board, currentPlayer, depth)
+    const continuation: { moves: Move[], score?: number } = (!modelLevel || shouldRandomizeMove(randomCoefficient, moveNumber)) ? { moves: pickRandomContinuation(board, currentPlayer) } : await pickBestContinuationWithDepth(board, currentPlayer, depth)
+
+    if (continuation.moves.length === 0) {
+      const winner = currentPlayer === 'white' ? 'black' : 'white'
+      return mapGameDataToJson(turns, winner)
     }
 
-    if (moves.length === 0) {
-      return mapGameDataToJson(turns, currentPlayer === 'white' ? 'black' : 'white')
-    }
-
-    for (const move of moves) {
+    for (const move of continuation.moves) {
       board = applyMove(board, move).boardAfter
       if (!move.isCapture && isQueen(board[move.toIndex])) {
         queenMovesWithoutCaptureStreak++
@@ -107,34 +103,33 @@ export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: 
       turns.push({
         board: [...board],
         move: currentPlayer === 'white' ? 1 : -1,
-        ...(modelLevel ? { eval: roundEval(await evaluateBoardRaw(board, currentPlayer)) } : {}),
+        ...(modelLevel ? { eval: roundEval(continuation.score ?? await minimaxScore(board, currentPlayer, depth)) } : {}),
       })
     }
   }
   return mapGameDataToJson(turns, 'draw')
 }
 
-function logProgress(
-  gameIndex: number,
-  count: number,
-  gamesWritten: number,
-  startTime: number,
-  lastLoggedPct: number,
-): number {
-  const pct = Math.floor(((gameIndex + 1) / count) * 100)
-  if (pct > lastLoggedPct) {
+const LOG_EVERY_GAMES = 100
+
+function logProgress(gameIndex: number, count: number, gamesWritten: number, startTime: number): void {
+  const completed = gameIndex + 1
+  if (completed === 1 || completed % LOG_EVERY_GAMES === 0 || completed === count) {
     const elapsedMs = Date.now() - startTime
     const avgPerGame =
       gamesWritten > 0 ? (elapsedMs / gamesWritten / 1000).toFixed(4) : '—'
     console.log(
-      `[scrape] ${pct}% — ${gameIndex + 1}/${count} games, ${gamesWritten} written, avg. ${avgPerGame} s/game`,
+      `[scrape] ${completed}/${count} games, ${gamesWritten} written, avg. ${avgPerGame} s/game`,
     )
-    return pct
   }
-  return lastLoggedPct
 }
 
-export async function playGames(count: number, modelLevel: ScrapeModelLevel, randomCoefficient: number, depth: number): Promise<string> {
+export async function playGames(
+  count: number,
+  modelLevel: ScrapeModelLevel,
+  randomCoefficient: number,
+  depth: number,
+): Promise<string> {
   const dataDir = join(process.cwd(), '../data')
   mkdirSync(dataDir, { recursive: true })
 
@@ -145,7 +140,6 @@ export async function playGames(count: number, modelLevel: ScrapeModelLevel, ran
 
   let gamesWritten = 0
   const startTime = Date.now()
-  let lastLoggedPct = -1
 
   try {
     for (let i = 0; i < count; i++) {
@@ -158,7 +152,7 @@ export async function playGames(count: number, modelLevel: ScrapeModelLevel, ran
         console.error(`[scrape] Game ${i + 1} failed:`, error)
       }
 
-      lastLoggedPct = logProgress(i, count, gamesWritten, startTime, lastLoggedPct)
+      logProgress(i, count, gamesWritten, startTime)
     }
   } finally {
     appendFileSync(outputFile, ']', 'utf8')
