@@ -56,13 +56,13 @@ const emit = defineEmits<{
 
   &--color {
     font-size: 1.6rem;
-    width: 200px;
-    height: 75px;
+    width: 30vw;
+    height: 45px;
 
     &.button--small {
-      font-size: 1.35rem;
-      width: 135px;
-      height: 52px;
+      width: 42vw;
+      height: 46px;
+      font-size: 1rem;
     }
   }
 
@@ -103,19 +103,23 @@ const emit = defineEmits<{
   }
 }
 
-@media (max-width: $breakpoint) {
+@media (min-width: $breakpoint) {
   .button {
     &--color {
-      width: 30vw;
-      height: 45px;
+      width: 200px;
+      height: 75px;
 
       &.button--small {
-        width: 42vw;
-        height: 46px;
-        font-size: 1rem;
+        font-size: 1.35rem;
+        width: 135px;
+        height: 52px;
       }
     }
-
+  }
+}
+    
+@media (max-width: $breakpoint) {
+  .button {
     &--white {
       background-color: white;
       font-weight: 900;

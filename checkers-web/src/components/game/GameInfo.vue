@@ -71,8 +71,8 @@ const gameResultParts = computed(() => {
     justify-content: end;
     text-transform: uppercase;
     font-weight: 550;
-    width: $boardSizeHorizontal;
-    font-size: 1rem;
+    width: $boardSizeVertical;
+    font-size: 1.4rem;
     align-items: center;
 
     &__turn-counter span {
@@ -81,7 +81,7 @@ const gameResultParts = computed(() => {
 
     &__who-to-move {
         margin-right: auto;
-        margin-left: $nameSquareSizeHorizontal;
+        margin-left: $nameSquareSizeVertical;
 
         span {
         font-weight: 700;
@@ -96,13 +96,13 @@ const gameResultParts = computed(() => {
     }
 }
 
-@media (max-width: $breakpoint) {
+@media (min-width: $breakpoint) {
     .game-info {
-      width: $boardSizeVertical;
-      font-size: 1.4rem;
+      width: $boardSizeHorizontal;
+      font-size: 1rem;
 
       &__who-to-move {
-        margin-left: $nameSquareSizeVertical;
+        margin-left: $nameSquareSizeHorizontal;
       }
     }
 }

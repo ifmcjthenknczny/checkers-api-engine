@@ -69,21 +69,4 @@ watch(
     width: 100%;
   }
 }
-
-@media (max-width: $breakpoint) {
-  .play-page__board-col {
-    .legal-move {
-      border-width: 1.2px;
-    }
-
-    .game-info {
-      width: $boardSizeVertical;
-      font-size: 1.4rem;
-
-      &__who-to-move {
-        margin-left: $nameSquareSizeVertical;
-      }
-    }
-  }
-}
 </style>

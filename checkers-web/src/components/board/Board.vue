@@ -216,8 +216,8 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
 .board {
   display: grid;
   grid-auto-flow: row;
-  width: $boardSizeHorizontal;
-  height: $boardSizeHorizontal;
+  width: $boardSizeVertical;
+  height: $boardSizeVertical;
   position: relative;
 
   &--with-overlay {
@@ -235,8 +235,8 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
 
   &__moving-piece {
     position: absolute;
-    width: calc($boardSizeHorizontal / 8.2);
-    height: calc($boardSizeHorizontal / 8.2);
+    width: calc($boardSizeVertical / 8.2);
+    height: calc($boardSizeVertical / 8.2);
     transform: translate(-50%, -50%);
     transition: left 0.45s ease-out, top 0.45s ease-out;
     display: flex;
@@ -263,15 +263,15 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   }
 }
 
-@media (max-width: $breakpoint) {
+@media (min-width: $breakpoint) {
   .board {
-    width: $boardSizeVertical;
-    height: $boardSizeVertical;
+    width: $boardSizeHorizontal;
+    height: $boardSizeHorizontal;
   }
 
   .board__moving-piece {
-    width: calc($boardSizeVertical / 8.2);
-    height: calc($boardSizeVertical / 8.2);
+    width: calc($boardSizeHorizontal / 8.2);
+    height: calc($boardSizeHorizontal / 8.2);
   }
 }
 </style>

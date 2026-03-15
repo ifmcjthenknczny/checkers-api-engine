@@ -84,7 +84,7 @@ watch(
         <div class="setup-panel">
           <div class="setup-panel__section">
             <span class="setup-panel__label">who starts</span>
-            <MoveInput />
+            <MoveInput :full-label="false" />
           </div>
           <div class="setup-panel__section">
             <span class="setup-panel__label">you play as</span>
@@ -152,6 +152,15 @@ watch(
   flex-shrink: 0;
   justify-content: center;
   order: 1;
+
+  :deep(.game-info) {
+    width: $boardSizeVertical;
+    font-size: 1.4rem;
+  }
+
+  :deep(.game-info__who-to-move) {
+    margin-left: $nameSquareSizeVertical;
+  }
 }
 
 .learn-page__toolbox-col {
@@ -250,19 +259,6 @@ watch(
   }
 }
 
-@media (max-width: $breakpoint) {
-  .learn-page__board-col {
-    :deep(.game-info) {
-      width: $boardSizeVertical;
-      font-size: 1.4rem;
-    }
-
-    :deep(.game-info__who-to-move) {
-      margin-left: $nameSquareSizeVertical;
-    }
-  }
-}
-
 @media (min-width: $breakpoint) {
   .learn-page {
     flex: 1;
@@ -276,6 +272,15 @@ watch(
     justify-content: center;
     min-width: 0;
     order: 1;
+
+    :deep(.game-info) {
+      width: $boardSizeHorizontal;
+      font-size: 1rem;
+    }
+
+    :deep(.game-info__who-to-move) {
+      margin-left: $nameSquareSizeHorizontal;
+    }
   }
 
   .learn-page__side {
