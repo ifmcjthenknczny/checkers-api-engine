@@ -36,17 +36,20 @@ The **frontend** (`checkers-web`) is an upgrade and a complete rewrite of the or
 - **Training:** MSE, Adam lr **0.002**, weight decay 1e−4, 90% training/10% validation split, early stopping patience **15** (min delta 1e−4), ReduceLROnPlateau (patience 5, factor 0.5), batch **4096**, **200** epochs max, gradient clipping 1.0. **Target:** fixed-weight blend of engine evaluation and game result — **0.3 × eval + 0.7 × result** (unlike iteration 2's learnable softmax weights). Run finished after **116 epochs**; final Train Loss **0.2791**→**0.2577**, Val Loss **0.2768**→**0.2578**.
 
 ## TODO
-* Frontend view optimization (shorter board on desktop, better mobile experience - drag&drop)
-* Input to choose `modelLevel` in `learn`
+* Frontend view improvements (shorter board on desktop, better mobile experience with drag&drop).
+* Add input to choose `modelLevel` in `learn`.
 
+* Captured pieces in `learn` module.
+* Move animation overlay into separate component.
+* Simplified components to reduce reliance on global state.
+
+* Train model level 4.
+* Alpha/beta tree move pruning algorithm for better performance. 
 * Data scraping optimization for multiple cores.
-* Graveyard in `learn` module
-* Animation overlay into separate component
-* Dumber components that don't reach global state that much
-* Tests
-* Model level 4
-* Websocket instead of API calls
-* Deploy
+
+* Switch from API calls to websocket communication.
+
+* Deployment to a service that will gladly handle this 375 MB serverless app.
 
 ## License
 
