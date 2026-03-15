@@ -10,6 +10,7 @@
                 {{ gameResultText.toLowerCase() }}
             </template>
         </section>
+        <Loader v-if="isThinking" />
         <section class="game-info__turn-counter">
             Turn: <span>{{ turn }}</span>
         </section>
@@ -18,12 +19,17 @@
 
 <script setup lang="ts">
 import { useGameStore } from '@/stores/gameStore'
+import { useComputerMoveStore } from '~/stores/computerMoveStore'
 import type { PieceColor } from '@/types'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
+import Loader from '@/components/ui/Loader.vue'
 
 const gameStore = useGameStore()
 const { currentPlayer, movesCount, gameResult } = storeToRefs(gameStore)
+
+const animationStore = useComputerMoveStore()
+const { isThinking } = storeToRefs(animationStore)
 
 const turn = computed(() => Math.floor(movesCount.value / 2) + 1)
 
@@ -67,6 +73,7 @@ const gameResultParts = computed(() => {
     font-weight: 550;
     width: $boardSizeHorizontal;
     font-size: 1rem;
+    align-items: center;
 
     &__turn-counter span {
         font-weight: 700;

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
-import { storeToRefs } from 'pinia'
+import { ref, watch, computed } from 'vue'
 import Board from '@/components/board/Board.vue'
 import GameBoardLayout from '@/components/board/GameBoardLayout.vue'
 import EngineEval from '@/components/analysis/EngineEval.vue'
@@ -8,26 +7,15 @@ import MoveInput from '@/components/analysis/MoveInput.vue'
 import PieceToolbox from '@/components/piece/PieceToolbox.vue'
 import Button from '@/components/ui/Button.vue'
 import ButtonGroup from '@/components/ui/ButtonGroup.vue'
-import { useBoardStore } from '@/stores/boardStore'
-import { useGameStore } from '@/stores/gameStore'
-import { useAnimationStore } from '@/stores/animationStore'
-import { useGameCallbacks } from '@/hooks/useGameCallbacks'
-import { computerTurn } from '@/helpers/turn'
+import { storeToRefs } from 'pinia'
+import { useComputerOpponent } from '@/hooks/useComputerOpponent'
 import { pickBestEngineContinuation } from '@/helpers/ai'
-import { determineGameResult } from '@/helpers/gameOver'
 import { indexToRowCol } from '@/helpers/board'
-import { sleep } from '@/helpers/utils'
 import type { Move, Player } from '@/types'
+import Loader from './ui/Loader.vue'
 
-const MOVE_ANIMATION_MS = 500
-
-const boardStore = useBoardStore()
+const { boardStore, gameStore, humanPlayerColor, currentPlayer, gamePhase } = useComputerOpponent()
 const { board } = storeToRefs(boardStore)
-const gameStore = useGameStore()
-const { setAnimating, setAnimatingMove } = useAnimationStore()
-const { moveCallback, turnOverCallback, gameOverCallback } = useGameCallbacks()
-const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak, gamePhase } =
-  storeToRefs(gameStore)
 
 const selectedPlayerColor = ref<Player>('white')
 const bestMoves = ref<Move[] | null>(null)
@@ -49,59 +37,6 @@ function startGame() {
   gameStore.setGamePhase('game')
 }
 
-onMounted(() => {
-  gameStore.resetToDefault()
-})
-
-watch(
-  [gamePhase, currentPlayer],
-  async () => {
-    if (
-      gamePhase.value === 'game' &&
-      humanPlayerColor.value !== null &&
-      humanPlayerColor.value !== currentPlayer.value
-    ) {
-      bestMoves.value = null
-      await sleep(100)
-      setAnimating(true)
-      try {
-        await computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
-          gameOverCallback,
-          moveCallback,
-          turnOverCallback,
-          movePickingStrategy: pickBestEngineContinuation,
-          beforeMoveCallback: async (move: Move) => {
-            setAnimatingMove(move)
-            await sleep(MOVE_ANIMATION_MS)
-          },
-          afterMoveCallback: () => {
-            setAnimatingMove(null)
-          },
-        })
-      } finally {
-        setAnimating(false)
-      }
-    }
-  },
-  { immediate: true },
-)
-
-watch(
-  [gamePhase, currentPlayer],
-  () => {
-    if (
-      gamePhase.value === 'game' &&
-      humanPlayerColor.value !== null &&
-      humanPlayerColor.value === currentPlayer.value
-    ) {
-      const result = determineGameResult(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value)
-      if (result) {
-        gameOverCallback(result)
-      }
-    }
-  },
-)
-
 watch(
   [gamePhase, currentPlayer, board],
   async () => {
@@ -113,7 +48,7 @@ watch(
       bestMoves.value = null
       isBestMoveLoading.value = true
       try {
-        bestMoves.value = await pickBestEngineContinuation(board.value, currentPlayer.value)
+        bestMoves.value = await pickBestEngineContinuation(board.value, currentPlayer.value, 4)
       } catch {
         bestMoves.value = null
       } finally {
@@ -185,7 +120,9 @@ watch(
           >
             <span class="best-move-hint__label">hint</span>
             <span class="best-move-hint__move">
-              {{ humanPlayerColor === currentPlayer ? (formattedBestMove ?? '...') : '...' }}
+              <Loader v-if="isBestMoveLoading" />
+              <span v-else-if="humanPlayerColor === currentPlayer && formattedBestMove">{{formattedBestMove}}</span>
+              <span v-else>...</span>
             </span>
           </div>
         </div>
@@ -289,6 +226,10 @@ watch(
   }
 
   &__move {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     font-family: monospace;
     font-size: 1.1rem;
     font-weight: bold;

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import type { H3Event } from 'h3'
 import { COLORS, ALLOWED_SQUARE_CONTENT } from '~/types'
-
+import { DEFAULT_DEPTH, MAX_DEPTH } from './model'
 
 export const BodyRequestSchema = z.object({
   board: z

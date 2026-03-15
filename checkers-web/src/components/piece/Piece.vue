@@ -5,7 +5,7 @@ import { getPieceColor, isQueen } from '@/helpers/board'
 import { useGameStore } from '@/stores/gameStore'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
-import { useAnimationStore } from '~/stores/animationStore'
+import { useComputerMoveStore } from '~/stores/computerMoveStore'
 
 interface Props {
   piece: SquareContent
@@ -19,7 +19,7 @@ const props = defineProps<Props>()
 const dragStore = useDragStore()
 const gameStore = useGameStore()
 const { humanPlayerColor } = storeToRefs(gameStore)
-const animationStore = useAnimationStore()
+const animationStore = useComputerMoveStore()
 const { isAnimating } = storeToRefs(animationStore)
 
 const drag = () => {

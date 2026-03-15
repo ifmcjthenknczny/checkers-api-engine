@@ -12,7 +12,7 @@ import { findLegalMovesOfPiece, playerHasCapturePossibility, findAllLegalMoves }
 import { computed, ref, watch, nextTick } from 'vue'
 import PossibleMoveMarker from './PossibleMoveMarker.vue'
 import { useGameStore } from '@/stores/gameStore'
-import { useAnimationStore } from '~/stores/animationStore'
+import { useComputerMoveStore } from '~/stores/computerMoveStore'
 
 const props = withDefaults(
   defineProps<{
@@ -46,7 +46,7 @@ const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
 const gameStore = useGameStore()
 const { currentPlayer, humanPlayerColor } = storeToRefs(gameStore)
-const animationStore = useAnimationStore()
+const animationStore = useComputerMoveStore()
 const { animatingMove, isAnimating } = storeToRefs(animationStore)
 
 const flashRedIndices = ref<Set<number>>(new Set())
