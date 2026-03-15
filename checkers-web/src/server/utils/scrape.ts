@@ -5,7 +5,7 @@ import { STARTING_BOARD_STATE, isQueen } from '~/helpers/board'
 import { applyMove } from '~/helpers/move'
 import { determineGameResult } from '~/helpers/gameOver'
 import { pickRandomContinuation } from '~/helpers/ai'
-import { ensureModelLoaded, pickBestContinuationWithDepth } from './model'
+import { ensureModelLoaded, evaluateBoardDeeply, pickBestContinuationWithDepth } from './model'
 
 type JsonGameResult = -1 | 0 | 1
 type JsonPlayerMove = 1 | -1
@@ -103,7 +103,7 @@ export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: 
       turns.push({
         board: [...board],
         move: currentPlayer === 'white' ? 1 : -1,
-        ...(modelLevel ? { eval: roundEval(continuation.score ?? await minimaxScore(board, currentPlayer, depth)) } : {}),
+        ...(modelLevel ? { eval: roundEval(continuation.score ?? await evaluateBoardDeeply(board, currentPlayer, depth)) } : {}),
       })
     }
   }
