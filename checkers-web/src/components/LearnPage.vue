@@ -115,7 +115,7 @@ watch(
 
       <template v-else>
         <div class="learn-page__eval-col">
-          <EngineEval :fetch-on-players="[humanPlayerColor]" />
+          <EngineEval :fetch-on-players="humanPlayerColor ? [humanPlayerColor] : undefined" />
           <div
             v-if="gamePhase === 'game'"
             class="best-move-hint"

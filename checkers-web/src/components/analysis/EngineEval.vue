@@ -9,7 +9,7 @@ import type { Player } from '~/types'
 
 const props = withDefaults(
   defineProps<{
-    fetchOnPlayers: Player[]
+    fetchOnPlayers?: Player[] | null
   }>(),
   {
     fetchOnPlayers: () => ['black', 'white']

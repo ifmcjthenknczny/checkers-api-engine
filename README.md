@@ -36,12 +36,11 @@ The **frontend** (`checkers-web`) is an upgrade and a complete rewrite of the or
 ## TODO
 * Data scraping optimization for multiple cores.
 * Frontend view optimization (shorter board on desktop, better mobile experience - drag&drop)
-* Flip board in `analysis`
 * Graveyard in `learn` module
 * Input to choose `modelLevel` in `learn`
 * Animation overlay to separate component
 * Remove unused css and refactor to use mobile first approach
-* Dumber components
+* Dumber components that don't reach global state that much
 * Tests
 * Model level 4
 * Websocket instead of API calls

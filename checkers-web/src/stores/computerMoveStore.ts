@@ -2,7 +2,6 @@ import type { Move } from '@/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-// TODO: rename to thinkingStore or computerMoveStore?
 export const useComputerMoveStore = defineStore('animation', () => {
     // TODO: refine logic so that isAnimating can be derived from animatingMove
     const isAnimating = ref<boolean>(false)

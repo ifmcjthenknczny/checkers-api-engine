@@ -3,10 +3,12 @@ import { useGameStore } from '@/stores/gameStore'
 import Board from './Board.vue'
 import GameInfo from '@/components/game/GameInfo.vue'
 import CapturedPieces from '@/components/piece/CapturedPieces.vue'
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 import { useDragStore } from '@/stores/dragStore'
+import { useBoardStore } from '@/stores/boardStore'
 import Button from '@/components/ui/Button.vue'
 import ButtonGroup from '@/components/ui/ButtonGroup.vue'
+import FlipBoardButton from '@/components/ui/FlipBoardButton.vue'
 import { storeToRefs } from 'pinia'
 import type { BoardContext } from '@/types'
 
@@ -19,24 +21,20 @@ withDefaults(
   { restartButtonLabel: 'restart', showCapturedPieces: true }
 )
 
-const isBoardFlipped = ref<boolean>(false)
-
 const gameStore = useGameStore()
+const boardStore = useBoardStore()
 const { humanPlayerColor } = storeToRefs(gameStore)
+const { isBoardFlipped } = storeToRefs(boardStore)
 const dropStore = useDragStore()
 
-function flipBoard() {
-    isBoardFlipped.value = !isBoardFlipped.value
-}
-
 watch(() => humanPlayerColor.value, (currentValue) => {
-    isBoardFlipped.value = currentValue === 'black'
+  boardStore.setBoardFlipped(currentValue === 'black')
 }, { immediate: true })
 
 function resetGame() {
-    gameStore.resetToDefault()
-    isBoardFlipped.value = false
-    dropStore.stopDrag()
+  gameStore.resetToDefault()
+  boardStore.setBoardFlipped(false)
+  dropStore.stopDrag()
 }
 </script>
 
@@ -45,7 +43,7 @@ function resetGame() {
 
     <CapturedPieces v-if="showCapturedPieces" class="graveyard-top" :pieceColor="isBoardFlipped ? 'black' : 'white'" />
 
-    <Board :is-board-flipped="isBoardFlipped" :context="context" />
+    <Board :context="context" />
 
     <CapturedPieces v-if="showCapturedPieces" :pieceColor="isBoardFlipped ? 'white' : 'black'" />
 
@@ -58,12 +56,7 @@ function resetGame() {
         >
         {{ restartButtonLabel }}
         </Button>
-        <Button
-        buttonType="game"
-        @click="flipBoard"
-        >
-        flip board
-        </Button>
+        <FlipBoardButton />
     </ButtonGroup>
 </template>
 

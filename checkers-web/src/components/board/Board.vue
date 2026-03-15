@@ -14,23 +14,20 @@ import PossibleMoveMarker from './PossibleMoveMarker.vue'
 import { useGameStore } from '@/stores/gameStore'
 import { useComputerMoveStore } from '~/stores/computerMoveStore'
 
-const props = withDefaults(
-  defineProps<{
-    isBoardFlipped?: boolean
-    context: BoardContext
-  }>(),
-  {
-    isBoardFlipped: false,
-  }
-)
+const props = defineProps<{
+  context: BoardContext
+}>()
 
-const cols = computed(() => props.isBoardFlipped ? rangeChar(BOARD_SIZE, 'a').toReversed() : rangeChar(BOARD_SIZE, 'a'))
+const boardStore = useBoardStore()
+const { board, isBoardFlipped } = storeToRefs(boardStore)
 
-const rows = computed(() => props.isBoardFlipped ? range(BOARD_SIZE, 1) : range(BOARD_SIZE, 1).toReversed())
+const cols = computed(() => isBoardFlipped.value ? rangeChar(BOARD_SIZE, 'a').toReversed() : rangeChar(BOARD_SIZE, 'a'))
+
+const rows = computed(() => isBoardFlipped.value ? range(BOARD_SIZE, 1) : range(BOARD_SIZE, 1).toReversed())
 
 const getDisplaySquareIndex = (rowIndex: number, colIndex: number) => {
-  const boardRow = props.isBoardFlipped ? BOARD_SIZE - 1 - rowIndex : rowIndex
-  const boardCol = props.isBoardFlipped ? BOARD_SIZE - 1 - colIndex : colIndex
+  const boardRow = isBoardFlipped.value ? BOARD_SIZE - 1 - rowIndex : rowIndex
+  const boardCol = isBoardFlipped.value ? BOARD_SIZE - 1 - colIndex : colIndex
   return getSquareIndex(boardRow, boardCol)
 }
 
@@ -40,8 +37,6 @@ const gridStyles = {
   gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr) 0.2fr`,
 }
 
-const boardStore = useBoardStore()
-const { board } = storeToRefs(boardStore)
 const dragStore = useDragStore()
 const { draggedIndex, dragContext } = storeToRefs(dragStore)
 const gameStore = useGameStore()
@@ -71,8 +66,8 @@ watch(animatingMove, (move) => {
 
 function indexToDisplayRowCol(index: number) {
   const { row: boardRow, col: boardCol } = indexToRowCol(index)
-  const displayRow = props.isBoardFlipped ? BOARD_SIZE - 1 - boardRow : boardRow
-  const displayCol = props.isBoardFlipped ? BOARD_SIZE - 1 - boardCol : boardCol
+  const displayRow = isBoardFlipped.value ? BOARD_SIZE - 1 - boardRow : boardRow
+  const displayCol = isBoardFlipped.value ? BOARD_SIZE - 1 - boardCol : boardCol
   return { displayRow, displayCol }
 }
 
