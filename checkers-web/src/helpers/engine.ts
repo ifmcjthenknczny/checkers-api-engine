@@ -1,4 +1,5 @@
 import type { BoardPosition, ModelLevel, Player } from '@/types'
+import { DEFAULT_MODEL_LEVEL } from '~/config'
 
 type EvaluationResponse = {
   status: 'success'
@@ -8,7 +9,7 @@ type EvaluationResponse = {
 export const evaluateBoard = async (
   board: BoardPosition,
   playerToMove: Player,
-  modelLevel: ModelLevel = 2
+  modelLevel: ModelLevel = DEFAULT_MODEL_LEVEL
 ): Promise<number> => {
   const baseUrl =
   useRuntimeConfig().public.engineApiUrl ??
