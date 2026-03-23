@@ -112,8 +112,9 @@ const emit = defineEmits<{
 
       &.button--small {
         font-size: 1.35rem;
-        width: 135px;
-        height: 52px;
+        width: 104px;
+        height: 40px;
+        font-size: 1.2rem;
       }
     }
   }
