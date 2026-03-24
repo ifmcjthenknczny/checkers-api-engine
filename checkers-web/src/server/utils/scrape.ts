@@ -5,8 +5,9 @@ import { STARTING_BOARD_STATE, isQueen } from '~/helpers/board'
 import { applyMove } from '~/helpers/move'
 import { determineGameResult } from '~/helpers/gameOver'
 import { pickRandomContinuation } from '~/helpers/ai'
-import { ensureModelLoaded, evaluateBoardDeeply,pickBestContinuationWithDepth } from './model'
-import { SCRAPE_LOG_EVERY_GAMES } from '~/config'
+import { evaluateBoardDeeply, pickBestContinuationWithDepth } from './eval'
+import { ensureModelLoaded } from './model'
+import { SCRAPE_CONFIG } from '~/config'
 
 type JsonGameResult = -1 | 0 | 1
 type JsonPlayerMove = 1 | -1
@@ -113,7 +114,7 @@ export async function playGame(modelLevel: ScrapeModelLevel, randomCoefficient: 
 
 function logProgress(gameIndex: number, count: number, gamesWritten: number, startTime: number): void {
   const completed = gameIndex + 1
-  if (completed === 1 || completed % SCRAPE_LOG_EVERY_GAMES === 0 || completed === count) {
+  if (completed === 1 || completed % SCRAPE_CONFIG.logEvery === 0 || completed === count) {
     const elapsedMs = Date.now() - startTime
     const avgPerGame =
       gamesWritten > 0 ? (elapsedMs / gamesWritten / 1000).toFixed(4) : '—'

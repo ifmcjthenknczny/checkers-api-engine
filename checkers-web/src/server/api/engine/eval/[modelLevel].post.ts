@@ -1,6 +1,7 @@
-import { evaluateBoardDeeply, ensureModelLoaded, parseModelLevel } from '#server/utils/model'
+import { ensureModelLoaded, parseModelLevel } from '#server/utils/model'
 import { BodyRequestSchema, parseBodyOrThrow } from '#server/utils/schema'
 import type { BoardPosition } from '~/types'
+import { evaluateBoardDeeply } from '~/server/utils/eval'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
