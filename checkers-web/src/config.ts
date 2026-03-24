@@ -14,9 +14,13 @@ export const DEPTH_CONFIG = {
     max: 20
 }
 
-export const DEFAULT_MODEL_LEVEL: ModelLevel = MODEL_LEVELS.at(-1)!
-
 export const PRUNE_CONFIG = {
     delta: 0.4,
     maxBestContinuations: 6
   }
+
+export const MODEL_CONFIG: Record<string, ModelLevel> = {
+    default: MODEL_LEVELS.at(-1)!,
+    analysis: MODEL_LEVELS.at(-1)!,
+    opponent: MODEL_LEVELS.at(-1)!,
+}

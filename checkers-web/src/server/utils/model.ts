@@ -2,7 +2,7 @@ import * as ort from 'onnxruntime-node'
 import { z } from 'zod'
 import path from 'node:path'
 import { type ModelLevel, MODEL_LEVELS } from '~/types'
-import { DEFAULT_MODEL_LEVEL } from '~/config'
+import { MODEL_CONFIG } from '~/config'
 
 export let session: ort.InferenceSession | null = null
 
@@ -32,5 +32,5 @@ export async function ensureModelLoaded(modelLevel: ModelLevel, modelsPath: stri
 }
 
 export function parseModelLevel(param: string | undefined): ModelLevel {
-  return ModelLevelSchema.safeParse(param).data ? +param! as ModelLevel : DEFAULT_MODEL_LEVEL
+  return ModelLevelSchema.safeParse(param).data ? +param! as ModelLevel : MODEL_CONFIG.default
 }

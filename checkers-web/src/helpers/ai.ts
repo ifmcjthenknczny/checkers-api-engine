@@ -2,7 +2,7 @@ import { type BoardPosition, type ModelLevel, type Move, type Player } from '../
 
 import { findAllLegalContinuations } from './move'
 import { chooseRandomly } from './utils'
-import { DEFAULT_MODEL_LEVEL, DEPTH_CONFIG } from '~/config'
+import { DEPTH_CONFIG } from '~/config'
 
 export function pickRandomContinuation(
   board: BoardPosition,
@@ -20,7 +20,7 @@ export async function pickBestEngineContinuation(
   board: BoardPosition,
   player: Player,
   depth: number = DEPTH_CONFIG.opponentDefault,
-  modelLevel: ModelLevel = DEFAULT_MODEL_LEVEL,
+  modelLevel: ModelLevel,
 ): Promise<Move[]> {
   const baseUrl =
     useRuntimeConfig().public.engineApiUrl ??
