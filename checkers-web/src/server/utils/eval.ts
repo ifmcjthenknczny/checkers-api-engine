@@ -32,7 +32,7 @@ export async function evaluateBoardShallow(board: BoardPosition, move: Player): 
 }
 
 // TODO: simplify logic of this function insides
-async function evaluateBoardDeeplyWithBounds(
+export async function evaluateBoardDeeply(
   board: BoardPosition,
   currentPlayer: Player,
   depth: number,
@@ -91,7 +91,7 @@ async function evaluateBoardDeeplyWithBounds(
   let best = isMaximizing ? -Infinity : Infinity
   if (candidates) {
     for (const candidate of candidates) {
-      const score = await evaluateBoardDeeplyWithBounds(candidate.resultBoard, opponent, depth - 1, bounds)
+      const score = await evaluateBoardDeeply(candidate.resultBoard, opponent, depth - 1, bounds)
       if (isMaximizing) {
         best = Math.max(best, score)
         if (bounds.useAlphaBeta) {
@@ -113,7 +113,7 @@ async function evaluateBoardDeeplyWithBounds(
   } else {
     for (const moves of continuations) {
       const resultBoard = applyMovesToBoard(board, moves)
-      const score = await evaluateBoardDeeplyWithBounds(resultBoard, opponent, depth - 1, bounds)
+      const score = await evaluateBoardDeeply(resultBoard, opponent, depth - 1, bounds)
       if (isMaximizing) {
         best = Math.max(best, score)
         if (bounds.useAlphaBeta) {
@@ -135,15 +135,6 @@ async function evaluateBoardDeeplyWithBounds(
   }
 
   return best
-}
-
-export async function evaluateBoardDeeply(
-  board: BoardPosition,
-  currentPlayer: Player,
-  depth: number,
-  bounds: AlphaBetaOptions = { useAlphaBeta: true, alpha: -Infinity, beta: Infinity },
-): Promise<number> {
-  return evaluateBoardDeeplyWithBounds(board, currentPlayer, depth, bounds)
 }
 
 export async function pickBestContinuationWithDepth(
@@ -180,7 +171,7 @@ export async function pickBestContinuationWithDepth(
   let bestScore = isMaximizing ? -Infinity : Infinity
 
   for (const candidate of candidates) {
-    const score = await evaluateBoardDeeplyWithBounds(candidate.resultBoard, opponent, depth - 1, {useAlphaBeta, alpha, beta})
+    const score = await evaluateBoardDeeply(candidate.resultBoard, opponent, depth - 1, {useAlphaBeta, alpha, beta})
 
     if (isMaximizing) {
       if (score > bestScore) {

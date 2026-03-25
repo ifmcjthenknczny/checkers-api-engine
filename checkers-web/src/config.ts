@@ -20,7 +20,6 @@ export const PRUNE_CONFIG = {
   }
 
 export const MODEL_CONFIG: Record<string, ModelLevel> = {
-    default: MODEL_LEVELS.at(-1)!,
     analysis: MODEL_LEVELS.at(-1)!,
     opponent: MODEL_LEVELS.at(-1)!,
 }
