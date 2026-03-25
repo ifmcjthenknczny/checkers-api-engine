@@ -11,7 +11,7 @@ export const SCRAPE_CONFIG = {
 export const DEPTH_CONFIG = {
     analysisDefault: 4,
     opponentDefault: 4,
-    max: 20
+    max: 20,
 }
 
 export const PRUNE_CONFIG = {
@@ -23,3 +23,5 @@ export const MODEL_CONFIG: Record<string, ModelLevel> = {
     analysis: MODEL_LEVELS.at(-1)!,
     opponent: MODEL_LEVELS.at(-1)!,
 }
+
+export const USE_ALPHA_BETA = true
