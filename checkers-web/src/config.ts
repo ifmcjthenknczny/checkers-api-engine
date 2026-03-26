@@ -1,4 +1,4 @@
-import { MODEL_LEVELS, type ModelLevel } from "./types"
+import { MODEL_LEVELS, type ModelLevel, type Player } from "./types"
 
 export const BOARD_SIZE = 8
 
@@ -23,5 +23,10 @@ export const MODEL_CONFIG: Record<string, ModelLevel> = {
     analysis: MODEL_LEVELS.at(-1)!,
     opponent: MODEL_LEVELS.at(-1)!,
 }
+
+export const BEST_EVAL: Record<Player, number> = {
+    white: 1,
+    black: -1
+} 
 
 export const USE_ALPHA_BETA = true
