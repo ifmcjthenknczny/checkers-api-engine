@@ -9,9 +9,9 @@ export default defineEventHandler(async (event) => {
 
   await ensureModelLoaded(modelLevel, config.modelsPath)
 
-  const { board, move: playerColor, depth } = await parseBodyOrThrow(event, BodyRequestSchema)
+  const { board, move: playerColor, depth, useNonDeterministic } = await parseBodyOrThrow(event, BodyRequestSchema)
 
-  const { moves } = await pickBestContinuationWithDepth(board as BoardPosition, playerColor, depth)
+  const { moves } = await pickBestContinuationWithDepth(board as BoardPosition, playerColor, depth, useNonDeterministic)
 
   return {continuation: moves}
 })

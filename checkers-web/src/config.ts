@@ -28,4 +28,8 @@ export const MODEL_CONFIG: Record<string, ModelLevel> = {
 export const BEST_EVAL: Record<Player, number> = {
     white: 1,
     black: -1
-} 
+}
+
+export const NON_DETERMINISTIC_CONFIG = {
+    scoreDelta: 0.02,
+}

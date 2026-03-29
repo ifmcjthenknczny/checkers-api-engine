@@ -1,7 +1,7 @@
 import * as ort from 'onnxruntime-node'
 import { type Player, type BoardPosition, type Move } from '~/types'
 import { findAllLegalContinuations, applyMovesToBoard } from '~/helpers/move'
-import { BEST_EVAL, PRUNE_CONFIG } from '~/config'
+import { BEST_EVAL, PRUNE_CONFIG, NON_DETERMINISTIC_CONFIG } from '~/config'
 import { session } from './model'
 import { type ShallowCandidate, buildSortedShallowCandidates, filterCandidatesByDelta } from './prune'
 import { otherPlayer } from '~/helpers/turn'
@@ -58,6 +58,39 @@ function applyAlphaBetaScoreNoPrune(
   const bestScore = Math.min(state.bestScore, score)
   const nextState = { bestScore, alpha: state.alpha, beta: state.beta }
   return { state: nextState, shouldBreak: false }
+}
+
+function pickNonDeterministic(
+  candidates: Array<{ moves: Move[]; score: number }>,
+  isMaximizing: boolean,
+): { moves: Move[]; score: number } {
+  const { scoreDelta } = NON_DETERMINISTIC_CONFIG
+
+  const bestScore = isMaximizing
+    ? Math.max(...candidates.map((c) => c.score))
+    : Math.min(...candidates.map((c) => c.score))
+
+  const eligible = candidates.filter((c) =>
+    isMaximizing ? c.score >= bestScore - scoreDelta : c.score <= bestScore + scoreDelta,
+  )
+
+  const weights = eligible.map((c) =>
+    isMaximizing ? c.score - (bestScore - scoreDelta) : (bestScore + scoreDelta) - c.score,
+  )
+
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0)
+
+  if (totalWeight === 0) {
+    return eligible[Math.floor(Math.random() * eligible.length)]
+  }
+
+  const rand = Math.random() * totalWeight
+  let cumulative = 0
+  const picked = eligible.find((_, i) => {
+    cumulative += weights[i]
+    return rand <= cumulative
+  })
+  return picked ?? eligible[eligible.length - 1]
 }
 
 async function buildPrunedCandidatesIfWorthIt(
@@ -182,26 +215,26 @@ async function evaluateBoardDeeplyWithoutAlphaBeta(
 
   if (depth === 1) {
     const candidates = await buildCandidatesForRootSearch(board, continuations, opponent, isMaximizing, false)
-    let bestScore = isMaximizing ? -Infinity : Infinity
-    for (const candidate of candidates) {
-      bestScore = isMaximizing ? Math.max(bestScore, candidate.shallowScore) : Math.min(bestScore, candidate.shallowScore)
-    }
-    return bestScore
+    return candidates.reduce(
+      (best, c) => isMaximizing ? Math.max(best, c.shallowScore) : Math.min(best, c.shallowScore),
+      isMaximizing ? -Infinity : Infinity,
+    )
   }
 
-  let bestScore = isMaximizing ? -Infinity : Infinity
-  for (const moves of continuations) {
-    const resultBoard = applyMovesToBoard(board, moves)
-    const score = await evaluateBoardDeeply(resultBoard, opponent, depth - 1)
-    bestScore = isMaximizing ? Math.max(bestScore, score) : Math.min(bestScore, score)
-  }
-  return bestScore
+  const scores = await Promise.all(
+    continuations.map(async (moves) => {
+      const resultBoard = applyMovesToBoard(board, moves)
+      return evaluateBoardDeeply(resultBoard, opponent, depth - 1)
+    }),
+  )
+  return isMaximizing ? Math.max(...scores) : Math.min(...scores)
 }
 
 export async function pickBestContinuationWithDepth(
   board: BoardPosition,
   player: Player,
   depth: number,
+  useNonDeterministic: boolean = false,
 ): Promise<{moves: Move[], score: number}> {
   const continuations = findAllLegalContinuations(board, player)
   if (continuations.length === 0) {
@@ -211,36 +244,26 @@ export async function pickBestContinuationWithDepth(
   const opponent = otherPlayer(player)
   const isMaximizing = player === 'white'
   const useVariantPruning = PRUNE_CONFIG.enabled
-
-  let candidates = await buildSortedShallowCandidates(board, continuations, opponent)
-
   const shouldPrune = shouldPruneByDelta(useVariantPruning, continuations.length)
 
-  if (shouldPrune) {
-    candidates = filterCandidatesByDelta(candidates, isMaximizing, PRUNE_CONFIG.delta).slice(0, PRUNE_CONFIG.maxBestContinuations)
-  }
+  const allCandidates = await buildSortedShallowCandidates(board, continuations, opponent)
+  const candidates = shouldPrune
+    ? filterCandidatesByDelta(allCandidates, isMaximizing, PRUNE_CONFIG.delta).slice(0, PRUNE_CONFIG.maxBestContinuations)
+    : allCandidates.slice(0, PRUNE_CONFIG.maxBestContinuations)
 
-  const bestCandidate = candidates[0]
   if (depth <= 1) {
-    return { moves: bestCandidate.moves, score: bestCandidate.shallowScore }
+    const scored = candidates.map((c) => ({ moves: c.moves, score: c.shallowScore }))
+    return useNonDeterministic ? pickNonDeterministic(scored, isMaximizing) : scored[0]
   }
 
-  let bestMoves: Move[] = bestCandidate.moves
+  const applyScore = useVariantPruning ? applyAlphaBetaScore : applyAlphaBetaScoreNoPrune
 
+  const scoredCandidates: Array<{ moves: Move[]; score: number }> = []
   let state = initAlphaBetaState(isMaximizing)
-  const applyScore = useVariantPruning  ? applyAlphaBetaScore : applyAlphaBetaScoreNoPrune
 
   for (const candidate of candidates) {
-    const score = await evaluateBoardDeeply(
-      candidate.resultBoard,
-      opponent,
-      depth - 1,
-    )
-
-    if (isMaximizing ? score > state.bestScore : score < state.bestScore) {
-      bestMoves = candidate.moves
-    }
-
+    const score = await evaluateBoardDeeply(candidate.resultBoard, opponent, depth - 1)
+    scoredCandidates.push({ moves: candidate.moves, score })
     const { state: nextState, shouldBreak } = applyScore(state, score, isMaximizing)
     state = nextState
     if (shouldBreak) {
@@ -248,5 +271,12 @@ export async function pickBestContinuationWithDepth(
     }
   }
 
-  return { moves: bestMoves, score: state.bestScore }
+  if (useNonDeterministic) {
+    return pickNonDeterministic(scoredCandidates, isMaximizing)
+  }
+
+  return {
+    moves: scoredCandidates.find((c) => isMaximizing ? c.score >= state.bestScore : c.score <= state.bestScore)!.moves,
+    score: state.bestScore,
+  }
 }
