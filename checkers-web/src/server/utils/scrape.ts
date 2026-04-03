@@ -165,7 +165,7 @@ export async function playGames(
       if (onGameComplete) {
         onGameComplete(written)
       } else if (shouldLog) {
-        logTotalProgress({
+        await logTotalProgress({
           completed: i + 1,
           total: count,
           startTime,

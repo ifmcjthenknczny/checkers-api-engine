@@ -14,13 +14,20 @@ type Payload = {
 
 const BAR_WIDTH = 24
 
-function createProgressTracker(total: number, cores: number) {
+function splitGamesAcrossCores(totalGames: number, cores: number): number[] {
+  const c = Math.max(1, cores)
+  const base = Math.floor(totalGames / c)
+  const remainder = totalGames % c
+  return Array.from({ length: c }, (__, i) => (i < remainder ? base + 1 : base))
+}
+
+async function createProgressTracker(total: number, cores: number) {
   let completed = 0
   let written = 0
   const startTime = Date.now()
 
   return {
-    onGameComplete(wasWritten: boolean) {
+    async onGameComplete(wasWritten: boolean) {
       completed++
       if (wasWritten) {
         written++
@@ -31,7 +38,7 @@ function createProgressTracker(total: number, cores: number) {
         completed === total
       )
       if (shouldLogProgress) {
-        logTotalProgress({
+        await logTotalProgress({
           completed,
           total,
           startTime,
@@ -65,12 +72,12 @@ export default defineTask({
     const folder = join(process.cwd(), '..', 'data', folderName)
     mkdirSync(folder, { recursive: true })
 
-    const gamesPerWorker = Math.ceil(games / cores)
-    const tracker = createProgressTracker(cores * gamesPerWorker, cores)
+    const gamesPerCore = splitGamesAcrossCores(games, cores)
+    const tracker = await createProgressTracker(games, cores)
 
     const files = await Promise.all(
-      Array.from({ length: cores }, (_, i) =>
-        playGames(gamesPerWorker, modelLevel, random, depth, join(folder, `${i + 1}.json`), tracker.onGameComplete),
+      gamesPerCore.map((count, i) =>
+        playGames(count, modelLevel, random, depth, join(folder, `${i + 1}.json`), tracker.onGameComplete),
       ),
     )
 

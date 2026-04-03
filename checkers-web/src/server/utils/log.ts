@@ -1,3 +1,5 @@
+import { v4 as uuid } from 'uuid'
+
 const pad2 = (n: number): string => String(n).padStart(2, '0')
 
 export function formatDuration(ms: number): string {
@@ -15,7 +17,6 @@ export function formatEtaSeconds(etaMs: number): string {
 }
 
 export function formatEtaDateStr(etaMs: number, now = Date.now()): string {
-  // Keep log readable: `YYYY-MM-DD HH:mm:ss`
   const d = new Date(now + etaMs)
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(
     d.getMinutes(),
@@ -24,13 +25,16 @@ export function formatEtaDateStr(etaMs: number, now = Date.now()): string {
 
 type LogTotalProgressMode = 'bar' | 'line'
 
-export function logTotalProgress(options: {
+const shouldUseProgressBarPage = process.env.PROGRESS_BAR_API_KEY !== undefined && process.env.PROGRESS_BAR_API_URL !== undefined
+const scrapeRunUuid = uuid()
+
+export async function logTotalProgress(options: {
   completed: number
   total: number
   startTime: number
   mode: LogTotalProgressMode
   barWidth?: number
-}): void {
+}): Promise<void> {
   const { completed, total, startTime, mode } = options
   const barWidth = options.barWidth ?? 24
 
@@ -41,6 +45,23 @@ export function logTotalProgress(options: {
 
   const etaDateStr = etaMs > 0 ? formatEtaDateStr(etaMs) : '—'
 
+  if (shouldUseProgressBarPage) {
+    const remoteProgressBarUrl = `${process.env.PROGRESS_BAR_API_URL}/${scrapeRunUuid}`
+    const body = JSON.stringify({
+      completed,
+      total,
+      startTime
+    })
+    await fetch(remoteProgressBarUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.PROGRESS_BAR_API_KEY!,
+      },
+      body,
+    })
+  }
+
   if (mode === 'bar') {
     const filled = Math.round((completed / total) * barWidth)
     const bar = '█'.repeat(filled) + '░'.repeat(barWidth - filled)
@@ -50,7 +71,9 @@ export function logTotalProgress(options: {
     process.stdout.write(
       `\r[scrape] [${bar}] ${completed}/${total} | avg: ${avgToken}/game | ETA: ${etaStr} (at ${etaDateStr})   `,
     )
-    if (completed === total) process.stdout.write('\n')
+    if (completed === total) {
+      process.stdout.write('\n')
+    }
     return
   }
 
