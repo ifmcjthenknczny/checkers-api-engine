@@ -162,12 +162,14 @@ Generated data is written as JSON files to `../data/games_<timestamp>/` relative
 ## TODO
 * Frontend view improvements (shorter board on desktop, better mobile experience with drag&drop).
 * Add input to choose `modelLevel` in `learn`.
+* Add a tab describing the rules of this checkers variant.
 
-* Captured pieces in `learn` module.
+* Add captured pieces in `learn` module.
 * Move animation overlay into separate component.
 * Simplified components to reduce reliance on global state.
 
-* Train model level 4 using previous model with huge depth and alpha/beta algorithm that is getting rid of pointless paths.
+* Train model level 4 using previous model with some depth and alpha/beta algorithm that is getting rid of pointless paths.
+* Persist position hashes when scraping so duplicate positions are not written to the dataset.
 
 * Switch from API calls to websocket communication.
 
