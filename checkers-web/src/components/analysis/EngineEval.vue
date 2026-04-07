@@ -12,8 +12,8 @@ const props = withDefaults(
     fetchOnPlayers?: Player[] | null
   }>(),
   {
-    fetchOnPlayers: () => ['black', 'white']
-  }
+    fetchOnPlayers: () => ['black', 'white'],
+  },
 )
 
 const boardStore = useBoardStore()
@@ -27,10 +27,7 @@ const isLoading = ref(false)
 const fetchEvaluation = async () => {
   isLoading.value = true
   try {
-    evaluation.value = await evaluateBoard(
-      board.value,
-      currentPlayer.value,
-    )
+    evaluation.value = await evaluateBoard(board.value, currentPlayer.value)
   } catch (error) {
     console.error('Engine error:', error)
   } finally {
@@ -38,11 +35,15 @@ const fetchEvaluation = async () => {
   }
 }
 
-useDebouncedWatch([board, currentPlayer], () => {
-  if (props.fetchOnPlayers.includes(currentPlayer.value)) {
-    fetchEvaluation()
-  }
-}, 200)
+useDebouncedWatch(
+  [board, currentPlayer],
+  () => {
+    if (props.fetchOnPlayers.includes(currentPlayer.value)) {
+      fetchEvaluation()
+    }
+  },
+  200,
+)
 fetchEvaluation()
 
 const formatEvaluation = (val: number | null) => {
@@ -55,19 +56,19 @@ const formatEvaluation = (val: number | null) => {
 
 const barStyles = computed(() => {
   if (evaluation.value === null) {
-    return { height: 50, width: 50 };
+    return { height: 50, width: 50 }
   }
 
-  const val = evaluation.value;
+  const val = evaluation.value
 
-  const rawHeight = 50 - val * 50;
-  const rawWidth = 50 + val * 50;
+  const rawHeight = 50 - val * 50
+  const rawWidth = 50 + val * 50
 
   return {
     height: Math.max(0, Math.min(100, rawHeight)),
-    width: Math.max(0, Math.min(100, rawWidth))
-  };
-});
+    width: Math.max(0, Math.min(100, rawWidth)),
+  }
+})
 </script>
 
 <template>

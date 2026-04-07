@@ -23,7 +23,8 @@ export function formatEtaDateStr(etaMs: number, now = Date.now()): string {
 
 type LogTotalProgressMode = 'bar' | 'line'
 
-const shouldUseProgressBarPage = process.env.PROGRESS_BAR_API_KEY !== undefined && process.env.PROGRESS_BAR_API_URL !== undefined
+const shouldUseProgressBarPage =
+  process.env.PROGRESS_BAR_API_KEY !== undefined && process.env.PROGRESS_BAR_API_URL !== undefined
 
 export async function logTotalProgress(options: {
   completed: number
@@ -48,7 +49,7 @@ export async function logTotalProgress(options: {
     const body = JSON.stringify({
       completed,
       total,
-      startTime
+      startTime,
     })
     await fetch(remoteProgressBarUrl, {
       method: 'POST',
@@ -79,6 +80,7 @@ export async function logTotalProgress(options: {
   const avgTokenSec = avgMs > 0 ? (avgMs / 1000).toFixed(4) : '—'
   const etaStr = etaMs > 0 ? formatEtaSeconds(etaMs) : '—'
 
-  console.log(`[scrape] ${completed}/${total} games, avg. ${avgTokenSec} s/game | ETA: ${etaStr} (at ${etaDateStr})`)
+  console.log(
+    `[scrape] ${completed}/${total} games, avg. ${avgTokenSec} s/game | ETA: ${etaStr} (at ${etaDateStr})`,
+  )
 }
-

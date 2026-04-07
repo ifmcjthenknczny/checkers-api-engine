@@ -8,7 +8,11 @@ import { isWhiteSquare, getSquareIndex, getPieceColor, indexToRowCol } from '@/h
 import type { BoardContext, Move, SquareContent } from '@/types'
 import { useDragStore } from '@/stores/dragStore'
 import { storeToRefs } from 'pinia'
-import { findLegalMovesOfPiece, playerHasCapturePossibility, findAllLegalMoves } from '@/helpers/move'
+import {
+  findLegalMovesOfPiece,
+  playerHasCapturePossibility,
+  findAllLegalMoves,
+} from '@/helpers/move'
 import { computed, ref, watch, nextTick } from 'vue'
 import PossibleMoveMarker from './PossibleMoveMarker.vue'
 import { useGameStore } from '@/stores/gameStore'
@@ -21,9 +25,13 @@ const props = defineProps<{
 const boardStore = useBoardStore()
 const { board, isBoardFlipped } = storeToRefs(boardStore)
 
-const cols = computed(() => isBoardFlipped.value ? rangeChar(BOARD_SIZE, 'a').toReversed() : rangeChar(BOARD_SIZE, 'a'))
+const cols = computed(() =>
+  isBoardFlipped.value ? rangeChar(BOARD_SIZE, 'a').toReversed() : rangeChar(BOARD_SIZE, 'a'),
+)
 
-const rows = computed(() => isBoardFlipped.value ? range(BOARD_SIZE, 1) : range(BOARD_SIZE, 1).toReversed())
+const rows = computed(() =>
+  isBoardFlipped.value ? range(BOARD_SIZE, 1) : range(BOARD_SIZE, 1).toReversed(),
+)
 
 const getDisplaySquareIndex = (rowIndex: number, colIndex: number) => {
   const boardRow = isBoardFlipped.value ? BOARD_SIZE - 1 - rowIndex : rowIndex
@@ -76,10 +84,10 @@ const movingPieceStyle = computed(() => {
   if (!move) return {}
   const from = indexToDisplayRowCol(move.fromIndex)
   const to = indexToDisplayRowCol(move.toIndex)
-  const fromLeft = (0.2 + from.displayCol + 0.5) / 8.2 * 100
-  const fromTop = (from.displayRow + 0.5) / 8.2 * 100
-  const toLeft = (0.2 + to.displayCol + 0.5) / 8.2 * 100
-  const toTop = (to.displayRow + 0.5) / 8.2 * 100
+  const fromLeft = ((0.2 + from.displayCol + 0.5) / 8.2) * 100
+  const fromTop = ((from.displayRow + 0.5) / 8.2) * 100
+  const toLeft = ((0.2 + to.displayCol + 0.5) / 8.2) * 100
+  const toTop = ((to.displayRow + 0.5) / 8.2) * 100
   const isTo = movingPiecePhase.value === 'to'
   return {
     '--from-left': `${fromLeft}%`,
@@ -92,18 +100,29 @@ const movingPieceStyle = computed(() => {
 })
 
 const possibleMovesForDraggedPieceMap = computed(() => {
-  if (props.context === 'analysis' || draggedIndex.value === null || dragContext.value !== 'board') {
+  if (
+    props.context === 'analysis' ||
+    draggedIndex.value === null ||
+    dragContext.value !== 'board'
+  ) {
     return []
   }
   const draggedPieceColor = getPieceColor(board.value[draggedIndex.value])
   if (!draggedPieceColor) {
     return []
   }
-  const legalMovesOfPiece = findLegalMovesOfPiece(board.value, draggedIndex.value, playerHasCapturePossibility(board.value, draggedPieceColor))
-  return legalMovesOfPiece.reduce((acc, move) => {
-    acc[move.toIndex] = move
-    return acc
-  }, {} as Record<number, Move>)
+  const legalMovesOfPiece = findLegalMovesOfPiece(
+    board.value,
+    draggedIndex.value,
+    playerHasCapturePossibility(board.value, draggedPieceColor),
+  )
+  return legalMovesOfPiece.reduce(
+    (acc, move) => {
+      acc[move.toIndex] = move
+      return acc
+    },
+    {} as Record<number, Move>,
+  )
 })
 
 const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
@@ -131,8 +150,12 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
         ) {
           if (flashRedTimeout) clearTimeout(flashRedTimeout)
           const color = getPieceColor(board.value[fromIndex])!
-          flashRedIndices.value = new Set(findAllLegalMoves(board.value, color).map(m => m.fromIndex))
-          flashRedTimeout = setTimeout(() => { flashRedIndices.value = new Set() }, 600)
+          flashRedIndices.value = new Set(
+            findAllLegalMoves(board.value, color).map((m) => m.fromIndex),
+          )
+          flashRedTimeout = setTimeout(() => {
+            flashRedIndices.value = new Set()
+          }, 600)
         }
         return
       }
@@ -147,7 +170,9 @@ const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
 
 function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   const displaySquareIndex = getDisplaySquareIndex(rowIndex, colIndex)
-  const belongsToDraggedPiece = Object.keys(possibleMovesForDraggedPieceMap.value).some(toIndex => +toIndex === displaySquareIndex)
+  const belongsToDraggedPiece = Object.keys(possibleMovesForDraggedPieceMap.value).some(
+    (toIndex) => +toIndex === displaySquareIndex,
+  )
   const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
   const isPlayersTurn = currentPlayer.value === humanPlayerColor.value
   const isPlayersPiece =
@@ -177,13 +202,25 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
         :context="context"
       >
         <Piece
-          v-if="!isWhiteSquare(rowIndex, colIndex) && !(animatingMove && getDisplaySquareIndex(rowIndex, colIndex) === animatingMove.fromIndex)"
+          v-if="
+            !isWhiteSquare(rowIndex, colIndex) &&
+            !(
+              animatingMove && getDisplaySquareIndex(rowIndex, colIndex) === animatingMove.fromIndex
+            )
+          "
           :piece="board[getDisplaySquareIndex(rowIndex, colIndex)]!"
           :index="getDisplaySquareIndex(rowIndex, colIndex)"
-          :flash-red="flashRedIndices.has(getDisplaySquareIndex(rowIndex, colIndex)) && humanPlayerColor !== null && getPieceColor(board[getDisplaySquareIndex(rowIndex, colIndex)]) === humanPlayerColor"
+          :flash-red="
+            flashRedIndices.has(getDisplaySquareIndex(rowIndex, colIndex)) &&
+            humanPlayerColor !== null &&
+            getPieceColor(board[getDisplaySquareIndex(rowIndex, colIndex)]) === humanPlayerColor
+          "
           context="board"
         />
-        <PossibleMoveMarker v-if="shouldShowPossibleMoveMarker(rowIndex, colIndex)" :key="getDisplaySquareIndex(rowIndex, colIndex)" />
+        <PossibleMoveMarker
+          v-if="shouldShowPossibleMoveMarker(rowIndex, colIndex)"
+          :key="getDisplaySquareIndex(rowIndex, colIndex)"
+        />
       </Square>
     </template>
 
@@ -198,15 +235,8 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
     </div>
 
     <div v-if="animatingMove && movingPieceContent" class="board__move-overlay" aria-hidden="true">
-      <div
-        ref="movingPieceRef"
-        class="board__moving-piece"
-        :style="movingPieceStyle"
-      >
-        <Piece
-          :piece="movingPieceContent"
-          context="board"
-        />
+      <div ref="movingPieceRef" class="board__moving-piece" :style="movingPieceStyle">
+        <Piece :piece="movingPieceContent" context="board" />
       </div>
     </div>
   </section>
@@ -238,7 +268,9 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
     width: calc($boardSizeVertical / 8.2);
     height: calc($boardSizeVertical / 8.2);
     transform: translate(-50%, -50%);
-    transition: left 0.45s ease-out, top 0.45s ease-out;
+    transition:
+      left 0.45s ease-out,
+      top 0.45s ease-out;
     display: flex;
     align-items: center;
     justify-content: center;

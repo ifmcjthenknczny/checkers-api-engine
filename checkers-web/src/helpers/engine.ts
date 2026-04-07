@@ -9,13 +9,15 @@ type EvaluationResponse = {
 export const evaluateBoard = async (
   board: BoardPosition,
   playerToMove: Player,
-  modelLevel: ModelLevel = MODEL_CONFIG.analysis
+  modelLevel: ModelLevel = MODEL_CONFIG.analysis,
 ): Promise<number> => {
   const baseUrl =
-  useRuntimeConfig().public.engineApiUrl ??
+    useRuntimeConfig().public.engineApiUrl ??
     (typeof import.meta !== 'undefined' && import.meta.env?.NUXT_PUBLIC_ENGINE_API_URL) ??
     ''
-  const url = baseUrl ? `${baseUrl.replace(/\/$/, '')}/engine/eval/${modelLevel}` : `/api/engine/eval/${modelLevel}`
+  const url = baseUrl
+    ? `${baseUrl.replace(/\/$/, '')}/engine/eval/${modelLevel}`
+    : `/api/engine/eval/${modelLevel}`
 
   const response = await fetch(url, {
     method: 'POST',

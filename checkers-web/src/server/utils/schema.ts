@@ -7,9 +7,15 @@ export const BodyRequestSchema = z.object({
   board: z
     .array(z.number().int())
     .length(32, 'Array must have exactly 32 elements')
-    .refine((arr) => arr.every((val) => ALLOWED_SQUARE_CONTENT.includes(val as typeof ALLOWED_SQUARE_CONTENT[number])), {
-      message: 'Allowed values are: 0 (empty), 1/-1 (pawns), 3/-3 (queens)',
-    }),
+    .refine(
+      (arr) =>
+        arr.every((val) =>
+          ALLOWED_SQUARE_CONTENT.includes(val as (typeof ALLOWED_SQUARE_CONTENT)[number]),
+        ),
+      {
+        message: 'Allowed values are: 0 (empty), 1/-1 (pawns), 3/-3 (queens)',
+      },
+    ),
   move: z.enum(COLORS),
   depth: z.coerce.number().int().min(0).max(DEPTH_CONFIG.max).default(DEPTH_CONFIG.opponentDefault),
   useNonDeterministic: z.boolean().default(false),

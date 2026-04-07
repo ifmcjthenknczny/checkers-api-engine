@@ -37,21 +37,31 @@ export function useComputerOpponent() {
         await sleep(100)
         setIsAnimating(true)
         try {
-          await computerTurn(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
-            gameOverCallback,
-            moveCallback,
-            turnOverCallback,
-            movePickingStrategy: (board, playerColor) => pickBestEngineContinuation(board, playerColor, DEPTH_CONFIG
-              .opponentDefault, MODEL_CONFIG.opponent),
-            beforeMoveCallback: async (move: Move) => {
-              setIsThinking(false)
-              setAnimatingMove(move)
-              await sleep(MOVE_ANIMATION_MS)
+          await computerTurn(
+            boardStore.board,
+            currentPlayer.value,
+            queenMovesWithoutCaptureStreak.value,
+            {
+              gameOverCallback,
+              moveCallback,
+              turnOverCallback,
+              movePickingStrategy: (board, playerColor) =>
+                pickBestEngineContinuation(
+                  board,
+                  playerColor,
+                  DEPTH_CONFIG.opponentDefault,
+                  MODEL_CONFIG.opponent,
+                ),
+              beforeMoveCallback: async (move: Move) => {
+                setIsThinking(false)
+                setAnimatingMove(move)
+                await sleep(MOVE_ANIMATION_MS)
+              },
+              afterMoveCallback: () => {
+                setAnimatingMove(null)
+              },
             },
-            afterMoveCallback: () => {
-              setAnimatingMove(null)
-            },
-          })
+          )
         } finally {
           setIsAnimating(false)
         }
@@ -60,21 +70,22 @@ export function useComputerOpponent() {
     { immediate: true },
   )
 
-  watch(
-    [gamePhase, currentPlayer],
-    () => {
-      if (
-        gamePhase.value === 'game' &&
-        humanPlayerColor.value !== null &&
-        humanPlayerColor.value === currentPlayer.value
-      ) {
-        const result = determineGameResult(boardStore.board, currentPlayer.value, queenMovesWithoutCaptureStreak.value)
-        if (result) {
-          gameOverCallback(result)
-        }
+  watch([gamePhase, currentPlayer], () => {
+    if (
+      gamePhase.value === 'game' &&
+      humanPlayerColor.value !== null &&
+      humanPlayerColor.value === currentPlayer.value
+    ) {
+      const result = determineGameResult(
+        boardStore.board,
+        currentPlayer.value,
+        queenMovesWithoutCaptureStreak.value,
+      )
+      if (result) {
+        gameOverCallback(result)
       }
-    },
-  )
+    }
+  })
 
   return {
     boardStore,

@@ -1,34 +1,34 @@
-import { MODEL_LEVELS, type ModelLevel, type Player } from "./types"
+import { MODEL_LEVELS, type ModelLevel, type Player } from './types'
 
 export const BOARD_SIZE = 8
 
 export const SCRAPE_CONFIG = {
-    progressLogEveryCompletedGames: 50,
-    gameSaveBatchSize: 2_000,
+  progressLogEveryCompletedGames: 50,
+  gameSaveBatchSize: 2_000,
 }
 
 export const DEPTH_CONFIG = {
-    analysisDefault: 4,
-    opponentDefault: 4,
-    max: 20,
+  analysisDefault: 4,
+  opponentDefault: 4,
+  max: 20,
 }
 
 export const PRUNE_CONFIG = {
-    enabled: true,
-    delta: 0.2,
-    maxBestContinuations: 4
-  }
+  enabled: true,
+  delta: 0.2,
+  maxBestContinuations: 4,
+}
 
 export const MODEL_CONFIG: Record<string, ModelLevel> = {
-    analysis: MODEL_LEVELS.at(-1)!,
-    opponent: MODEL_LEVELS.at(-1)!,
+  analysis: MODEL_LEVELS.at(-1)!,
+  opponent: MODEL_LEVELS.at(-1)!,
 }
 
 export const BEST_EVAL: Record<Player, number> = {
-    white: 1,
-    black: -1
+  white: 1,
+  black: -1,
 }
 
 export const NON_DETERMINISTIC_CONFIG = {
-    scoreDelta: 0.02,
+  scoreDelta: 0.02,
 }

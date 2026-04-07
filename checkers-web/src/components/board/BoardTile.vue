@@ -9,7 +9,7 @@ const props = defineProps<Props>()
 
 provide(
   'tileColor',
-  computed(() => props.color)
+  computed(() => props.color),
 )
 </script>
 <template>

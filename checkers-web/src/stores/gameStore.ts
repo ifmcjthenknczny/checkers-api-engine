@@ -3,13 +3,13 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 const DEFAULT_STATE = {
-    gamePhase: 'color' as GamePhase,
-    currentPlayer: 'white' as Player,
-    humanPlayerColor: null,
-    movesCount: 0,
-    promotionsCount: { white: 0, black: 0 },
-    queenMovesWithoutCaptureStreak: 0,
-    gameResult: null,
+  gamePhase: 'color' as GamePhase,
+  currentPlayer: 'white' as Player,
+  humanPlayerColor: null,
+  movesCount: 0,
+  promotionsCount: { white: 0, black: 0 },
+  queenMovesWithoutCaptureStreak: 0,
+  gameResult: null,
 }
 
 export const useGameStore = defineStore('game', () => {

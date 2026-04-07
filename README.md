@@ -182,8 +182,6 @@ Yes, I know checkers is a solved game. This project is not about "solving" it ag
 
 * Deployment to a service that will gladly handle this 375 MB serverless app (ONNX package weighs this much) or change approach.
 
-* Format whole project.
-
 ## License
 
 This work is licensed under a [Creative Commons Attribution-NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/).

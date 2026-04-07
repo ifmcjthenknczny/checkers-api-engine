@@ -18,7 +18,7 @@ withDefaults(
     restartButtonLabel?: string
     showCapturedPieces?: boolean
   }>(),
-  { restartButtonLabel: 'restart', showCapturedPieces: true }
+  { restartButtonLabel: 'restart', showCapturedPieces: true },
 )
 
 const gameStore = useGameStore()
@@ -27,9 +27,13 @@ const { humanPlayerColor } = storeToRefs(gameStore)
 const { isBoardFlipped } = storeToRefs(boardStore)
 const dropStore = useDragStore()
 
-watch(() => humanPlayerColor.value, (currentValue) => {
-  boardStore.setBoardFlipped(currentValue === 'black')
-}, { immediate: true })
+watch(
+  () => humanPlayerColor.value,
+  (currentValue) => {
+    boardStore.setBoardFlipped(currentValue === 'black')
+  },
+  { immediate: true },
+)
 
 function resetGame() {
   gameStore.resetToDefault()
@@ -39,25 +43,24 @@ function resetGame() {
 </script>
 
 <template>
-    <GameInfo />
+  <GameInfo />
 
-    <CapturedPieces v-if="showCapturedPieces" class="graveyard-top" :pieceColor="isBoardFlipped ? 'black' : 'white'" />
+  <CapturedPieces
+    v-if="showCapturedPieces"
+    class="graveyard-top"
+    :pieceColor="isBoardFlipped ? 'black' : 'white'"
+  />
 
-    <Board :context="context" />
+  <Board :context="context" />
 
-    <CapturedPieces v-if="showCapturedPieces" :pieceColor="isBoardFlipped ? 'white' : 'black'" />
+  <CapturedPieces v-if="showCapturedPieces" :pieceColor="isBoardFlipped ? 'white' : 'black'" />
 
-    <ButtonGroup
-        type="game"
-    >
-        <Button
-        buttonType="game"
-        @click="resetGame"
-        >
-        {{ restartButtonLabel }}
-        </Button>
-        <FlipBoardButton />
-    </ButtonGroup>
+  <ButtonGroup type="game">
+    <Button buttonType="game" @click="resetGame">
+      {{ restartButtonLabel }}
+    </Button>
+    <FlipBoardButton />
+  </ButtonGroup>
 </template>
 
 <style lang="scss" scoped>

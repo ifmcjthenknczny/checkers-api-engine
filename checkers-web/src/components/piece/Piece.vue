@@ -50,7 +50,12 @@ const canBeDragged = computed(() => {
 </script>
 
 <template>
-  <div v-if="piece !== 0" :class="[toClassNameList(piece), { 'piece--flash-red': flashRed }]" :draggable="canBeDragged" @dragstart="drag">
+  <div
+    v-if="piece !== 0"
+    :class="[toClassNameList(piece), { 'piece--flash-red': flashRed }]"
+    :draggable="canBeDragged"
+    @dragstart="drag"
+  >
     <div v-if="isQueen(piece)" :class="toDecorationClassNameList(piece)" />
   </div>
 </template>
@@ -152,8 +157,14 @@ const canBeDragged = computed(() => {
 }
 
 @keyframes flash-red {
-  0%, 100% { box-shadow: inset 0 0 0 0 rgba(200, 0, 0, 0); }
-  30%, 70% { box-shadow: inset 0 0 0 100px rgba(180, 0, 0, 0.82); }
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 0 rgba(200, 0, 0, 0);
+  }
+  30%,
+  70% {
+    box-shadow: inset 0 0 0 100px rgba(180, 0, 0, 0.82);
+  }
 }
 
 .piece--flash-red {

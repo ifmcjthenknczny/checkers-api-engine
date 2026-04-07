@@ -10,26 +10,30 @@ const props = withDefaults(
   defineProps<{
     fullLabel?: boolean
   }>(),
-  { fullLabel: true }
+  { fullLabel: true },
 )
 
-const label = computed(() => (currentPlayer.value === 'white' ? `${props.fullLabel ? 'White to move' : 'White'}` : `${props.fullLabel ? 'Black to move' : 'Black'}`))
+const label = computed(() =>
+  currentPlayer.value === 'white'
+    ? `${props.fullLabel ? 'White to move' : 'White'}`
+    : `${props.fullLabel ? 'Black to move' : 'Black'}`,
+)
 </script>
 
 <template>
-    <div class="move-input move-input__who-to-move">
-      <button
-        class="toggle-button"
-        :class="{ 'is-black': currentPlayer === 'black' }"
-        @click="gameStore.switchPlayer"
-        type="button"
-      >
-        <span :class="currentPlayer">{{ label }}</span>
-        <div class="toggle-track">
-          <div class="toggle-thumb"></div>
-        </div>
-      </button>
-    </div>
+  <div class="move-input move-input__who-to-move">
+    <button
+      class="toggle-button"
+      :class="{ 'is-black': currentPlayer === 'black' }"
+      @click="gameStore.switchPlayer"
+      type="button"
+    >
+      <span :class="currentPlayer">{{ label }}</span>
+      <div class="toggle-track">
+        <div class="toggle-thumb"></div>
+      </div>
+    </button>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -50,7 +54,9 @@ const label = computed(() => (currentPlayer.value === 'white' ? `${props.fullLab
     span {
       font-weight: 700;
       color: black;
-      transition: color 0.3s ease, text-shadow 0.3s ease;
+      transition:
+        color 0.3s ease,
+        text-shadow 0.3s ease;
       display: inline-block;
       min-width: 5.5em;
       text-align: left;

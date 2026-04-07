@@ -3,13 +3,12 @@ import { useGameStore } from '@/stores/gameStore'
 import { getPieceColor, isQueen } from '@/helpers/board'
 import type { GameResult, Move } from '@/types'
 
-
 export function useGameCallbacks() {
   const boardStore = useBoardStore()
   const gameStore = useGameStore()
 
   function moveCallback(move: Move) {
-    const {boardAfter: newBoard, hasTurnEnded} = boardStore.applyMove(move)
+    const { boardAfter: newBoard, hasTurnEnded } = boardStore.applyMove(move)
     const shouldPromotePiece = move.isPotentialPromotion && hasTurnEnded
     if (shouldPromotePiece) {
       const color = getPieceColor(newBoard[move.toIndex])
@@ -30,9 +29,7 @@ export function useGameCallbacks() {
   }
 
   function gameOverCallback(gameResult: GameResult) {
-    gameStore.setGameResult(
-      gameResult
-    )
+    gameStore.setGameResult(gameResult)
     gameStore.setGamePhase('gameOver')
   }
 
