@@ -27,6 +27,9 @@ type LogTotalProgressMode = 'bar' | 'line'
 
 const shouldUseProgressBarPage = process.env.PROGRESS_BAR_API_KEY !== undefined && process.env.PROGRESS_BAR_API_URL !== undefined
 const scrapeRunUuid = uuid()
+if (shouldUseProgressBarPage) {
+  console.log('Using progress bar page with scrapeRunUuid:', scrapeRunUuid)
+}
 
 export async function logTotalProgress(options: {
   completed: number

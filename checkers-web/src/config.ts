@@ -2,10 +2,9 @@ import { MODEL_LEVELS, type ModelLevel, type Player } from "./types"
 
 export const BOARD_SIZE = 8
 
-
 export const SCRAPE_CONFIG = {
-    progressLogEveryCompletedGames: 10,
-    gameSaveBatchSize: 1_000,
+    progressLogEveryCompletedGames: 50,
+    gameSaveBatchSize: 2_000,
 }
 
 export const DEPTH_CONFIG = {

@@ -141,6 +141,8 @@ Generated data is written as JSON files to `../data/games_<timestamp>/` relative
 
 ## Model training — iterations
 
+Yes, I know checkers is a solved game. This project is not about "solving" it again, but about building and testing a full self-play data pipeline, training loop, and engine integration end to end.
+
 ### Iteration 1
 
 - **Dataset:** 100,000 games played with **random moves** against itself — at each position a random legal move is chosen according to standard checkers rules (diagonal moves and jumps, mandatory captures, queens). **Result distribution** (4 937 021 samples): −1 (black wins) 51.09%, 0 (draw) 0.07%, 1 (white wins) 48.84%.
@@ -153,27 +155,34 @@ Generated data is written as JSON files to `../data/games_<timestamp>/` relative
 - **Model:** MLP with **33 inputs**: 32 board squares + side to move. Layout: 256→128→64→1, BatchNorm, LeakyReLU(0.1), Dropout(0.1) after first layer, Tanh. Exported as `engine_2.onnx`.
 - **Training:** MSE, Adam lr **0.002**, weight decay 1e−4, 90/10 split, early stopping patience 20, ReduceLROnPlateau (patience 5, factor 0.5), batch **4096**, **200** epochs max, gradient clipping 1.0. **Target:** blend of engine evaluation and game result — learnable softmax weights `w` combine `eval` and `result` into the regression target; the network finds optimal weighting (which turned out to be `0.946`/`0.054`). Run finished after **200 epochs**; final Train Loss **0.0633**→**0.0386**, Val Loss **0.0536**→**0.0360**.
 
-### Iteration 3 (current model)
+### Iteration 3
 
 - **Dataset:** Generated like iteration 2 (self-play in Nuxt, `playGame()` in `checkers-web/src/server/utils/scrape.ts`), with parameters **100,000 games**, **modelLevel 2** (engine_2), **random 0.2**, **depth 3**. **Random move probability** varies: early in the game the probability of a random move is higher (starts at 1) and decreases linearly to the `random` value and from turn 6 onwards a constant `randomCoefficient` is used. **Minimax depth** move choice uses `pickBestEngineContinuation(..., depth)`, with introduced minimax algorithm, that basically checks what's the move to do now that leads to the best position after 3 next moves. Position and evaluation recording as in iteration 2 (including turn filtering via `shouldSaveMove` - the higher the turn, the higher probability to save position to the dataset). **Result distribution** (4 019 772 samples): −1 (black wins) 46.16%, 0 (draw) 6.60%, 1 (white wins) 47.24%.
 - **Model:** MLP with **33 inputs**: 32 board squares + side to move. Layout: 512→256→128→64→1, BatchNorm and LeakyReLU(0.1) after every layer, Dropout(0.1) after the first layer, Tanh at the end. Larger capacity than iteration 2 (added 512-unit layer at the front). Exported as `engine_3.onnx`.
 - **Training:** MSE, Adam lr **0.002**, weight decay 1e−4, 90% training/10% validation split, early stopping patience **15** (min delta 1e−4), ReduceLROnPlateau (patience 5, factor 0.5), batch **4096**, **200** epochs max, gradient clipping 1.0. **Target:** fixed-weight blend of engine evaluation and game result — **0.3 × eval + 0.7 × result** (unlike iteration 2's learnable softmax weights). Run finished after **116 epochs**; final Train Loss **0.2791**→**0.2577**, Val Loss **0.2768**→**0.2578**.
 
+### Iteration 4 (current model)
+
+- **Dataset:** Self-play generation as before (`playGame()` in `checkers-web/src/server/utils/scrape.ts`), with parameters **50,000 games**, **modelLevel 3** (engine_3), **random 0.35**, **depth 4**. Since engine_3 is already reasonably strong and the evaluation landscape is fairly dense, `depth` was bumped to 4, which also leverages the newly introduced **alpha-beta pruning** to discard branches that cannot improve the current best score (configured via `PRUNE_CONFIG`), and not always choose the strongest move if the second best is almost equally strong (`NON_DETERMINISTIC_CONFIG`). The higher `random` coefficient (0.35 vs 0.2) compensates for the stronger model to keep enough exploration diversity. Position and evaluation recording unchanged from iteration 3 (including `shouldSaveMove` turn filtering). **Result distribution** (1 855 810 samples): −1 (black wins) 49.16%, 0 (draw) 1.57%, 1 (white wins) 49.27%. **Eval distribution:** [−1.0, −0.8] 19.88%, [−0.8, −0.6] 7.08%, [−0.6, −0.4] 6.92%, [−0.4, −0.2] 6.89%, [−0.2, +0.0] 8.63%, [+0.0, +0.2] 9.49%, [+0.2, +0.4] 6.97%, [+0.4, +0.6] 6.81%, [+0.6, +0.8] 6.97%, [+0.8, +1.0] 20.33%.
+- **Model:** Same architecture as iteration 3 — MLP with **33 inputs**: 32 board squares + side to move. Layout: 512→256→128→64→1, BatchNorm and LeakyReLU(0.1) after every layer, Dropout(0.1) after the first layer, Tanh at the end. Exported as `engine_4.onnx`.
+- **Training:** MSE, Adam lr **0.002**, weight decay 1e−4, 90/10 split, early stopping patience **15** (min delta 1e−4), ReduceLROnPlateau (patience 5, factor 0.5), batch **4096**, **200** epochs max, gradient clipping 1.0. **Target:** fixed-weight blend **0.7 × eval + 0.3 × result** — weights flipped compared to iteration 3, since engine_3's evaluations are already reliable enough to be the primary training signal. Run finished after **85 epochs**; final Train Loss **0.0884**→**0.0642**, Val Loss **0.0812**→**0.0642**.
+
 ## TODO
 * Frontend view improvements (shorter board on desktop, better mobile experience with drag&drop).
 * Add input to choose `modelLevel` in `learn`.
 * Add a tab describing the rules of this checkers variant.
-
 * Add captured pieces in `learn` module.
 * Move animation overlay into separate component.
 * Simplified components to reduce reliance on global state.
 
-* Train model level 4 using previous model with some depth and alpha/beta algorithm that is getting rid of pointless paths.
-* Persist position hashes when scraping so duplicate positions are not written to the dataset.
+* Persist position hashes when scraping, so that duplicate positions are not written to the dataset.
+* `shouldSaveMove` function should get rid of obvious (near -1 or 1) evals, and not save them in json dataset as much. 
 
 * Switch from API calls to websocket communication.
 
 * Deployment to a service that will gladly handle this 375 MB serverless app (ONNX package weighs this much) or change approach.
+
+* Format whole project.
 
 ## License
 

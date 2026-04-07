@@ -1,4 +1,5 @@
 import json
+import sys
 from pathlib import Path
 
 
@@ -19,10 +20,8 @@ def merge_data(directory: str) -> str:
 
 
 if __name__ == "__main__":
-    import sys
-
     if len(sys.argv) != 2:
-        print("Usage: python merge_data.py <directory>")
+        print("Usage: uv run merge_data.py <directory>")
         sys.exit(1)
 
     merge_data(sys.argv[1])
