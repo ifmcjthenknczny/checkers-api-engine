@@ -17,10 +17,7 @@ export const getSquareIndex = (rowIndex: number, colIndex: number): number =>
 
 export const indexToRowCol = (index: number): SquareCoords => {
   const row = Math.floor(index / (BOARD_SIZE / 2))
-  const col =
-    row % 2 === 0
-      ? 1 + (index % (BOARD_SIZE / 2)) * 2
-      : (index % (BOARD_SIZE / 2)) * 2
+  const col = row % 2 === 0 ? 1 + (index % (BOARD_SIZE / 2)) * 2 : (index % (BOARD_SIZE / 2)) * 2
   return { row, col }
 }
 
@@ -34,9 +31,7 @@ export const isQueen = (piece?: SquareContent): piece is -3 | 3 => {
 export function getPieceColor(piece: 0 | null | undefined): null
 export function getPieceColor(piece: Piece): PieceColor
 export function getPieceColor(piece?: SquareContent | null): PieceColor | null
-export function getPieceColor(
-  piece?: SquareContent | null,
-): PieceColor | null {
+export function getPieceColor(piece?: SquareContent | null): PieceColor | null {
   if (!piece) {
     return null
   }
@@ -47,10 +42,7 @@ export function isSameColor(a: SquareContent, b: SquareContent): boolean {
   return (a > 0 && b > 0) || (a < 0 && b < 0)
 }
 
-export function diagonalDeltas(
-  colIncrease: boolean,
-  rowIncrease: boolean,
-): [number, number] {
+export function diagonalDeltas(colIncrease: boolean, rowIncrease: boolean): [number, number] {
   return [colIncrease ? 1 : -1, rowIncrease ? 1 : -1]
 }
 
@@ -62,11 +54,14 @@ export function isPlayableSquare(row: number, col: number): boolean {
   return (row + col) % 2 === 1
 }
 
-export function getPiecesOfColor(board: BoardPosition, color: PieceColor): {index: number, piece: Piece}[] {
+export function getPiecesOfColor(
+  board: BoardPosition,
+  color: PieceColor,
+): { index: number; piece: Piece }[] {
   return board
-  .map((p, i) => ({ index: i, piece: p }))
-  .filter(
-    (p): p is { index: number; piece: Piece } =>
-      p.piece !== 0 && (p.piece > 0) === (color === 'white'),
-  )
+    .map((p, i) => ({ index: i, piece: p }))
+    .filter(
+      (p): p is { index: number; piece: Piece } =>
+        p.piece !== 0 && p.piece > 0 === (color === 'white'),
+    )
 }

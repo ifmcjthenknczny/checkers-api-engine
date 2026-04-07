@@ -6,7 +6,5 @@ const boardStore = useBoardStore()
 </script>
 
 <template>
-  <Button button-type="game" @click="boardStore.toggleBoardFlipped()">
-    flip board
-  </Button>
+  <Button button-type="game" @click="boardStore.toggleBoardFlipped()"> flip board </Button>
 </template>

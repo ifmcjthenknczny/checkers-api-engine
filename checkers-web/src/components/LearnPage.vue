@@ -31,7 +31,7 @@ const formattedBestMove = computed<string | null>(() => {
   if (!bestMoves.value || bestMoves.value.length === 0) {
     return null
   }
-  const squares = [bestMoves.value[0].fromIndex, ...bestMoves.value.map(move => move.toIndex)]
+  const squares = [bestMoves.value[0].fromIndex, ...bestMoves.value.map((move) => move.toIndex)]
   return squares.map(indexToAlgebraic).join('->')
 })
 
@@ -40,28 +40,30 @@ function startGame() {
   gameStore.setGamePhase('game')
 }
 
-watch(
-  [gamePhase, currentPlayer, board],
-  async () => {
-    if (
-      gamePhase.value === 'game' &&
-      humanPlayerColor.value !== null &&
-      humanPlayerColor.value === currentPlayer.value
-    ) {
+watch([gamePhase, currentPlayer, board], async () => {
+  if (
+    gamePhase.value === 'game' &&
+    humanPlayerColor.value !== null &&
+    humanPlayerColor.value === currentPlayer.value
+  ) {
+    bestMoves.value = null
+    isBestMoveLoading.value = true
+    try {
+      bestMoves.value = await pickBestEngineContinuation(
+        board.value,
+        currentPlayer.value,
+        DEPTH_CONFIG.analysisDefault,
+        MODEL_CONFIG.analysis,
+      )
+    } catch {
       bestMoves.value = null
-      isBestMoveLoading.value = true
-      try {
-        bestMoves.value = await pickBestEngineContinuation(board.value, currentPlayer.value, DEPTH_CONFIG.analysisDefault, MODEL_CONFIG.analysis)
-      } catch {
-        bestMoves.value = null
-      } finally {
-        isBestMoveLoading.value = false
-      }
-    } else {
-      bestMoves.value = null
+    } finally {
+      isBestMoveLoading.value = false
     }
-  },
-)
+  } else {
+    bestMoves.value = null
+  }
+})
 </script>
 
 <template>
@@ -119,12 +121,16 @@ watch(
           <div
             v-if="gamePhase === 'game'"
             class="best-move-hint"
-            :class="{ 'best-move-hint--loading': humanPlayerColor === currentPlayer && isBestMoveLoading }"
+            :class="{
+              'best-move-hint--loading': humanPlayerColor === currentPlayer && isBestMoveLoading,
+            }"
           >
             <span class="best-move-hint__label">hint</span>
             <span class="best-move-hint__move">
               <Loader v-if="isBestMoveLoading" />
-              <span v-else-if="humanPlayerColor === currentPlayer && formattedBestMove">{{formattedBestMove}}</span>
+              <span v-else-if="humanPlayerColor === currentPlayer && formattedBestMove">{{
+                formattedBestMove
+              }}</span>
               <span v-else>...</span>
             </span>
           </div>

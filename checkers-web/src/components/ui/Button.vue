@@ -14,13 +14,15 @@ const emit = defineEmits<{
 <template>
   <button
     type="button"
-    :class="[
-      'button',
-      colorVariant && `button--${colorVariant}`,
-      buttonType && `button--${buttonType}`,
-      sizeVariant && `button--${sizeVariant}`,
-      selected && 'button--selected',
-    ].filter(Boolean)"
+    :class="
+      [
+        'button',
+        colorVariant && `button--${colorVariant}`,
+        buttonType && `button--${buttonType}`,
+        sizeVariant && `button--${sizeVariant}`,
+        selected && 'button--selected',
+      ].filter(Boolean)
+    "
     @click="emit('click')"
   >
     <slot />
@@ -119,7 +121,7 @@ const emit = defineEmits<{
     }
   }
 }
-    
+
 @media (max-width: $breakpoint) {
   .button {
     &--white {

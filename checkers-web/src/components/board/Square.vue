@@ -33,17 +33,21 @@ const { humanPlayerColor, currentPlayer, queenMovesWithoutCaptureStreak } = stor
 const animationStore = useComputerMoveStore()
 const { isAnimating } = storeToRefs(animationStore)
 
-
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 
 const allowDrop = (e: DragEvent) => {
   if (isAnimating.value) return
-  const isPlayersPiece = activePiece.value && getPieceColor(activePiece.value) === humanPlayerColor.value
+  const isPlayersPiece =
+    activePiece.value && getPieceColor(activePiece.value) === humanPlayerColor.value
   const isDifferentSquare = draggedIndex.value !== squareIndex
   const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
   const isPlayerTurn = currentPlayer.value === humanPlayerColor.value
 
-  if (isPlayableSquare && isDifferentSquare && ((props.context === 'game' && isPlayersPiece && isPlayerTurn) || props.context === 'analysis')) {
+  if (
+    isPlayableSquare &&
+    isDifferentSquare &&
+    ((props.context === 'game' && isPlayersPiece && isPlayerTurn) || props.context === 'analysis')
+  ) {
     e.preventDefault()
   }
 }
@@ -58,9 +62,16 @@ const drop = (e: DragEvent) => {
     return
   }
   if (props.context === 'game') {
-    const move = getLegalMove(board.value, { fromIndex: draggedIndex.value ?? undefined, toIndex: squareIndex })
+    const move = getLegalMove(board.value, {
+      fromIndex: draggedIndex.value ?? undefined,
+      toIndex: squareIndex,
+    })
     if (move) {
-      playerMove(move, board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {moveCallback, turnOverCallback, gameOverCallback})
+      playerMove(move, board.value, currentPlayer.value, queenMovesWithoutCaptureStreak.value, {
+        moveCallback,
+        turnOverCallback,
+        gameOverCallback,
+      })
     }
   }
   if (dragContext.value) {

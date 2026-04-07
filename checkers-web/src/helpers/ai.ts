@@ -4,10 +4,7 @@ import { findAllLegalContinuations } from './move'
 import { chooseRandomly } from './utils'
 import { DEPTH_CONFIG } from '~/config'
 
-export function pickRandomContinuation(
-  board: BoardPosition,
-  player: Player,
-): Move[] {
+export function pickRandomContinuation(board: BoardPosition, player: Player): Move[] {
   const continuations = findAllLegalContinuations(board, player)
   return chooseRandomly(continuations)
 }
@@ -27,7 +24,7 @@ export async function pickBestEngineContinuation(
     ? `${baseUrl.replace(/\/$/, '')}/engine/continuation/${modelLevel}`
     : `/api/engine/continuation/${modelLevel}`
 
-  const {continuation} = await $fetch<ContinuationResponse>(url, {
+  const { continuation } = await $fetch<ContinuationResponse>(url, {
     method: 'POST',
     body: { board, move: player, depth },
   })

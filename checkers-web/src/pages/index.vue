@@ -3,5 +3,5 @@ useHead({ title: 'WARCABY - Strona główna' })
 </script>
 
 <template>
-    <slot />
+  <slot />
 </template>

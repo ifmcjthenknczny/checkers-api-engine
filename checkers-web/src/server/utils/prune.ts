@@ -4,15 +4,15 @@ import { applyMovesToBoard } from '~/helpers/move'
 export type ShallowCandidate = { moves: Move[]; resultBoard: BoardPosition; shallowScore: number }
 
 function shouldPruneVariant(args: {
-    isMaximizing: boolean
-    bestShallowScore: number
-    candidateShallowScore: number
-    delta: number
-  }): boolean {
-    if (args.isMaximizing) {
-      return args.bestShallowScore - args.candidateShallowScore >= args.delta
-    }
-    return args.candidateShallowScore - args.bestShallowScore >= args.delta
+  isMaximizing: boolean
+  bestShallowScore: number
+  candidateShallowScore: number
+  delta: number
+}): boolean {
+  if (args.isMaximizing) {
+    return args.bestShallowScore - args.candidateShallowScore >= args.delta
+  }
+  return args.candidateShallowScore - args.bestShallowScore >= args.delta
 }
 
 export async function buildSortedShallowCandidates(
@@ -28,18 +28,27 @@ export async function buildSortedShallowCandidates(
     }),
   )
   const isMaximizing = evaluationPlayer === 'black'
-  return candidates.toSorted((a, b) => (isMaximizing ? b.shallowScore - a.shallowScore : a.shallowScore - b.shallowScore))
+  return candidates.toSorted((a, b) =>
+    isMaximizing ? b.shallowScore - a.shallowScore : a.shallowScore - b.shallowScore,
+  )
 }
 
-export function filterCandidatesByDelta(candidates: ShallowCandidate[], isMaximizing: boolean, delta: number): ShallowCandidate[] {
+export function filterCandidatesByDelta(
+  candidates: ShallowCandidate[],
+  isMaximizing: boolean,
+  delta: number,
+): ShallowCandidate[] {
   if (candidates.length === 0) {
-      return candidates
+    return candidates
   }
   const bestShallowScore = candidates[0].shallowScore
-  return candidates.filter((c) => !shouldPruneVariant({
-    isMaximizing,
-    bestShallowScore,
-    candidateShallowScore: c.shallowScore,
-    delta,
-  }))
+  return candidates.filter(
+    (c) =>
+      !shouldPruneVariant({
+        isMaximizing,
+        bestShallowScore,
+        candidateShallowScore: c.shallowScore,
+        delta,
+      }),
+  )
 }

@@ -17,9 +17,12 @@ export async function loadModel(level: ModelLevel, modelsPath: string): Promise<
   }
 }
 
-export const ModelLevelSchema = z.enum(MODEL_LEVELS.map(level => level.toString()), {
-  message: `Model level is invalid. Must be one of: ${MODEL_LEVELS.join(', ')}`,
-})
+export const ModelLevelSchema = z.enum(
+  MODEL_LEVELS.map((level) => level.toString()),
+  {
+    message: `Model level is invalid. Must be one of: ${MODEL_LEVELS.join(', ')}`,
+  },
+)
 
 let modelLevelLoaded: ModelLevel | null = null
 

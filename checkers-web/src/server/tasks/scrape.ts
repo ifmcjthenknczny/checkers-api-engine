@@ -33,11 +33,10 @@ async function createProgressTracker(total: number, cores: number, scrapeRunUuid
       if (wasWritten) {
         written++
       }
-      const shouldLogProgress = (
+      const shouldLogProgress =
         completed === 1 ||
         completed % SCRAPE_CONFIG.progressLogEveryCompletedGames === 0 ||
         completed === total
-      )
       if (shouldLogProgress) {
         await logTotalProgress({
           completed,
@@ -51,7 +50,9 @@ async function createProgressTracker(total: number, cores: number, scrapeRunUuid
     },
     summarize() {
       const totalSec = ((Date.now() - startTime) / 1000).toFixed(1)
-      console.log(`[scrape] Done: ${written}/${total} games written in ${totalSec}s across ${cores} core(s).`)
+      console.log(
+        `[scrape] Done: ${written}/${total} games written in ${totalSec}s across ${cores} core(s).`,
+      )
     },
   }
 }
@@ -81,7 +82,15 @@ export default defineTask({
 
     const files = await Promise.all(
       gamesPerCore.map((count, i) =>
-        playGames(count, modelLevel, random, depth, join(folder, `${i + 1}.json`), scrapeRunUuid, tracker.onGameComplete),
+        playGames(
+          count,
+          modelLevel,
+          random,
+          depth,
+          join(folder, `${i + 1}.json`),
+          scrapeRunUuid,
+          tracker.onGameComplete,
+        ),
       ),
     )
 

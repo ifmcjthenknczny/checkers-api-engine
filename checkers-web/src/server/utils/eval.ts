@@ -3,7 +3,11 @@ import { type Player, type BoardPosition, type Move } from '~/types'
 import { findAllLegalContinuations, applyMovesToBoard } from '~/helpers/move'
 import { BEST_EVAL, PRUNE_CONFIG, NON_DETERMINISTIC_CONFIG } from '~/config'
 import { session } from './model'
-import { type ShallowCandidate, buildSortedShallowCandidates, filterCandidatesByDelta } from './prune'
+import {
+  type ShallowCandidate,
+  buildSortedShallowCandidates,
+  filterCandidatesByDelta,
+} from './prune'
 import { otherPlayer } from '~/helpers/turn'
 
 type JsonPlayerToMove = -1 | 1
@@ -75,7 +79,7 @@ function pickNonDeterministic(
   )
 
   const weights = eligible.map((c) =>
-    isMaximizing ? c.score - (bestScore - scoreDelta) : (bestScore + scoreDelta) - c.score,
+    isMaximizing ? c.score - (bestScore - scoreDelta) : bestScore + scoreDelta - c.score,
   )
 
   const totalWeight = weights.reduce((sum, w) => sum + w, 0)
@@ -99,9 +103,11 @@ async function buildPrunedCandidatesIfWorthIt(
   evaluationPlayer: Player,
   isMaximizing: boolean,
 ): Promise<ShallowCandidate[] | null> {
-
   const candidates = await buildSortedShallowCandidates(board, continuations, evaluationPlayer)
-  return filterCandidatesByDelta(candidates, isMaximizing, PRUNE_CONFIG.delta).slice(0, PRUNE_CONFIG.maxBestContinuations)
+  return filterCandidatesByDelta(candidates, isMaximizing, PRUNE_CONFIG.delta).slice(
+    0,
+    PRUNE_CONFIG.maxBestContinuations,
+  )
 }
 
 async function buildCandidatesForRootSearch(
@@ -152,7 +158,7 @@ async function evaluateBoardDeeplyWithVariantPruning(
   depth: number,
 ): Promise<number> {
   if (depth === 0) {
-      return evaluateBoardShallow(board, currentPlayer)
+    return evaluateBoardShallow(board, currentPlayer)
   }
 
   const continuations = findAllLegalContinuations(board, currentPlayer)
@@ -168,9 +174,19 @@ async function evaluateBoardDeeplyWithVariantPruning(
   const applyScore = useVariantPruning ? applyAlphaBetaScore : applyAlphaBetaScoreNoPrune
 
   if (depth === 1) {
-    const candidates = await buildCandidatesForRootSearch(board, continuations, opponent, isMaximizing, shouldPrune)
+    const candidates = await buildCandidatesForRootSearch(
+      board,
+      continuations,
+      opponent,
+      isMaximizing,
+      shouldPrune,
+    )
     for (const candidate of candidates) {
-      const {state: newState, shouldBreak} = applyScore(state, candidate.shallowScore, isMaximizing)
+      const { state: newState, shouldBreak } = applyScore(
+        state,
+        candidate.shallowScore,
+        isMaximizing,
+      )
       state = newState
       if (shouldBreak) {
         break
@@ -179,14 +195,16 @@ async function evaluateBoardDeeplyWithVariantPruning(
     return state.bestScore
   }
 
-  const candidates = shouldPrune ? await buildPrunedCandidatesIfWorthIt(board, continuations, opponent, isMaximizing) : null
+  const candidates = shouldPrune
+    ? await buildPrunedCandidatesIfWorthIt(board, continuations, opponent, isMaximizing)
+    : null
   const resultBoards = candidates
     ? candidates.map((c) => c.resultBoard)
     : continuations.map((moves) => applyMovesToBoard(board, moves))
 
   for (const resultBoard of resultBoards) {
     const score = await evaluateBoardDeeply(resultBoard, opponent, depth - 1)
-    const {state: nextState, shouldBreak} = applyScore(state, score, isMaximizing)
+    const { state: nextState, shouldBreak } = applyScore(state, score, isMaximizing)
     state = nextState
     if (shouldBreak) {
       break
@@ -214,9 +232,15 @@ async function evaluateBoardDeeplyWithoutAlphaBeta(
   const isMaximizing = currentPlayer === 'white'
 
   if (depth === 1) {
-    const candidates = await buildCandidatesForRootSearch(board, continuations, opponent, isMaximizing, false)
+    const candidates = await buildCandidatesForRootSearch(
+      board,
+      continuations,
+      opponent,
+      isMaximizing,
+      false,
+    )
     return candidates.reduce(
-      (best, c) => isMaximizing ? Math.max(best, c.shallowScore) : Math.min(best, c.shallowScore),
+      (best, c) => (isMaximizing ? Math.max(best, c.shallowScore) : Math.min(best, c.shallowScore)),
       isMaximizing ? -Infinity : Infinity,
     )
   }
@@ -235,7 +259,7 @@ export async function pickBestContinuationWithDepth(
   player: Player,
   depth: number,
   useNonDeterministic: boolean = false,
-): Promise<{moves: Move[], score: number}> {
+): Promise<{ moves: Move[]; score: number }> {
   const continuations = findAllLegalContinuations(board, player)
   if (continuations.length === 0) {
     return { moves: [], score: player === 'white' ? BEST_EVAL.black : BEST_EVAL.white }
@@ -248,7 +272,10 @@ export async function pickBestContinuationWithDepth(
 
   const allCandidates = await buildSortedShallowCandidates(board, continuations, opponent)
   const candidates = shouldPrune
-    ? filterCandidatesByDelta(allCandidates, isMaximizing, PRUNE_CONFIG.delta).slice(0, PRUNE_CONFIG.maxBestContinuations)
+    ? filterCandidatesByDelta(allCandidates, isMaximizing, PRUNE_CONFIG.delta).slice(
+        0,
+        PRUNE_CONFIG.maxBestContinuations,
+      )
     : allCandidates.slice(0, PRUNE_CONFIG.maxBestContinuations)
 
   if (depth <= 1) {
@@ -276,7 +303,9 @@ export async function pickBestContinuationWithDepth(
   }
 
   return {
-    moves: scoredCandidates.find((c) => isMaximizing ? c.score >= state.bestScore : c.score <= state.bestScore)!.moves,
+    moves: scoredCandidates.find((c) =>
+      isMaximizing ? c.score >= state.bestScore : c.score <= state.bestScore,
+    )!.moves,
     score: state.bestScore,
   }
 }
