@@ -1,5 +1,3 @@
-import { v4 as uuid } from 'uuid'
-
 const pad2 = (n: number): string => String(n).padStart(2, '0')
 
 export function formatDuration(ms: number): string {
@@ -26,19 +24,16 @@ export function formatEtaDateStr(etaMs: number, now = Date.now()): string {
 type LogTotalProgressMode = 'bar' | 'line'
 
 const shouldUseProgressBarPage = process.env.PROGRESS_BAR_API_KEY !== undefined && process.env.PROGRESS_BAR_API_URL !== undefined
-const scrapeRunUuid = uuid()
-if (shouldUseProgressBarPage) {
-  console.log('Using progress bar page with scrapeRunUuid:', scrapeRunUuid)
-}
 
 export async function logTotalProgress(options: {
   completed: number
   total: number
   startTime: number
   mode: LogTotalProgressMode
+  scrapeRunUuid?: string
   barWidth?: number
 }): Promise<void> {
-  const { completed, total, startTime, mode } = options
+  const { completed, total, startTime, mode, scrapeRunUuid } = options
   const barWidth = options.barWidth ?? 24
 
   const elapsedMs = Date.now() - startTime
@@ -48,7 +43,7 @@ export async function logTotalProgress(options: {
 
   const etaDateStr = etaMs > 0 ? formatEtaDateStr(etaMs) : '—'
 
-  if (shouldUseProgressBarPage) {
+  if (shouldUseProgressBarPage && scrapeRunUuid) {
     const remoteProgressBarUrl = `${process.env.PROGRESS_BAR_API_URL}/${scrapeRunUuid}`
     const body = JSON.stringify({
       completed,

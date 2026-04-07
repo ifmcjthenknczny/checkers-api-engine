@@ -1,5 +1,6 @@
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { v4 as uuid } from 'uuid'
 import type { ScrapeModelLevel } from '~/types'
 import { playGames } from '#server/utils/scrape'
 import { logTotalProgress } from '#server/utils/log'
@@ -21,7 +22,7 @@ function splitGamesAcrossCores(totalGames: number, cores: number): number[] {
   return Array.from({ length: c }, (__, i) => (i < remainder ? base + 1 : base))
 }
 
-async function createProgressTracker(total: number, cores: number) {
+async function createProgressTracker(total: number, cores: number, scrapeRunUuid: string) {
   let completed = 0
   let written = 0
   const startTime = Date.now()
@@ -43,6 +44,7 @@ async function createProgressTracker(total: number, cores: number) {
           total,
           startTime,
           mode: 'bar',
+          scrapeRunUuid,
           barWidth: BAR_WIDTH,
         })
       }
@@ -65,6 +67,8 @@ export default defineTask({
     }
 
     const { games, modelLevel, random, depth } = payload as Payload
+    const scrapeRunUuid = uuid()
+    console.log('Progress scrapeRunUuid:', scrapeRunUuid)
     const cores = Math.max(1, +(process.env.CORES ?? 1))
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
@@ -73,11 +77,11 @@ export default defineTask({
     mkdirSync(folder, { recursive: true })
 
     const gamesPerCore = splitGamesAcrossCores(games, cores)
-    const tracker = await createProgressTracker(games, cores)
+    const tracker = await createProgressTracker(games, cores, scrapeRunUuid)
 
     const files = await Promise.all(
       gamesPerCore.map((count, i) =>
-        playGames(count, modelLevel, random, depth, join(folder, `${i + 1}.json`), tracker.onGameComplete),
+        playGames(count, modelLevel, random, depth, join(folder, `${i + 1}.json`), scrapeRunUuid, tracker.onGameComplete),
       ),
     )
 

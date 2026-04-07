@@ -118,6 +118,7 @@ export async function playGames(
   randomCoefficient: number,
   depth: number,
   outputPath: string,
+  scrapeRunUuid?: string,
   onGameComplete?: (written: boolean) => void,
 ): Promise<string> {
   mkdirSync(dirname(outputPath), { recursive: true })
@@ -170,6 +171,7 @@ export async function playGames(
           total: count,
           startTime,
           mode: 'line',
+          scrapeRunUuid,
         })
       }
     }
