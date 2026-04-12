@@ -170,17 +170,15 @@ Yes, I know checkers is a solved game. This project is not about "solving" it ag
 ## TODO
 * Frontend view improvements (shorter board on desktop, better mobile experience with drag&drop).
 * Add input to choose `modelLevel` in `learn`.
-* Add a tab describing the rules of this checkers variant.
 * Add captured pieces in `learn` module.
 * Move animation overlay into separate component.
 * Simplified components to reduce reliance on global state.
 
 * Persist position hashes when scraping, so that duplicate positions are not written to the dataset.
 * `shouldSaveMove` function should get rid of obvious (near -1 or 1) evals, and not save them in json dataset as much. 
+* Clean code responsible for scraping a bit.
 
 * Switch from API calls to websocket communication.
-
-* Deployment to a service that will gladly handle this 375 MB serverless app (ONNX package weighs this much) or change approach.
 
 ## License
 
