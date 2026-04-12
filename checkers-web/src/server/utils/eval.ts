@@ -1,4 +1,4 @@
-import * as ort from 'onnxruntime-node'
+import {Tensor} from 'onnxruntime-node'
 import { type Player, type BoardPosition, type Move } from '~/types'
 import { findAllLegalContinuations, applyMovesToBoard } from '~/helpers/move'
 import { BEST_EVAL, PRUNE_CONFIG, NON_DETERMINISTIC_CONFIG } from '~/config'
@@ -130,10 +130,10 @@ export async function evaluateBoardShallow(board: BoardPosition, move: Player): 
     const combinedData = new Float32Array(33)
     combinedData.set(board)
     combinedData[32] = toJsonPlayerToMove(move)
-    const tensor = new ort.Tensor('float32', combinedData, [1, 33])
+    const tensor = new Tensor('float32', combinedData, [1, 33])
     const feeds = { [session.inputNames[0]]: tensor }
     const results = await session.run(feeds)
-    return (results[session.outputNames[0]] as ort.Tensor).data[0] as number
+    return (results[session.outputNames[0]]).data[0] as number
   } catch (error) {
     console.error('Evaluation failed:', error)
     throw error

@@ -1,16 +1,15 @@
-import * as ort from 'onnxruntime-node'
+import {InferenceSession} from 'onnxruntime-node'
 import { z } from 'zod'
 import path from 'node:path'
 import { type ModelLevel, MODEL_LEVELS } from '~/types'
-
-export let session: ort.InferenceSession | null = null
+export let session: InferenceSession | null = null
 
 export async function loadModel(level: ModelLevel, modelsPath: string): Promise<void> {
   try {
     const modelPath = path.isAbsolute(modelsPath)
       ? path.join(modelsPath, `engine_${level}.onnx`)
       : path.join(process.cwd(), modelsPath, `engine_${level}.onnx`)
-    session = await ort.InferenceSession.create(modelPath)
+    session = await InferenceSession.create(modelPath)
   } catch (e) {
     console.error(`[ERROR] Loading model ${level} was unsuccessful:`, e)
     throw e

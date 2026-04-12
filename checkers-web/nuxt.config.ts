@@ -53,5 +53,8 @@ export default defineNuxtConfig({
     experimental: {
       tasks: true,
     },
+    externals: {
+      include: ['onnxruntime-node']
+    }
   },
 })
