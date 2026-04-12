@@ -7,16 +7,16 @@
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
-    "build-slim": "yarn remove-non-linux-binaries && yarn build",
+    "build-slim": "yarn remove-unused-binaries && yarn build",
     "buildAndStart": "nuxt build && nuxt preview",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare && yarn remove-non-linux-binaries",
+    "postinstall": "nuxt prepare && ( [ \"$VERCEL\" = 1 ] && yarn remove-unused-binaries || true )",
     "test:unit": "vitest",
     "type-check": "nuxt typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "remove-non-linux-binaries": "rm -rf node_modules/onnxruntime-node/bin/napi-v3/darwin node_modules/onnxruntime-node/bin/napi-v3/win32"
+    "remove-unused-binaries": "rm -rf node_modules/onnxruntime-node/bin/napi-v3/darwin node_modules/onnxruntime-node/bin/napi-v3/win32 node_modules/onnxruntime-node/bin/napi-v3/linux/arm64"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.5",
