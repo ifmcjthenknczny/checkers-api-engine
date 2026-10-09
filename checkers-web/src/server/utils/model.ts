@@ -9,7 +9,10 @@ const weightsCache = new Map<ModelLevel, ModelWeights>()
 
 export let currentWeights: ModelWeights | null = null
 
-export async function loadModelWeights(level: ModelLevel, modelsPath: string): Promise<ModelWeights> {
+export async function loadModelWeights(
+  level: ModelLevel,
+  modelsPath: string,
+): Promise<ModelWeights> {
   if (weightsCache.has(level)) {
     return weightsCache.get(level)!
   }
@@ -40,7 +43,10 @@ export const ModelLevelSchema = z.enum(
 
 let modelLevelLoaded: ModelLevel | null = null
 
-export async function ensureModelLoaded(modelLevel: ModelLevel, modelsPath: string): Promise<ModelWeights> {
+export async function ensureModelLoaded(
+  modelLevel: ModelLevel,
+  modelsPath: string,
+): Promise<ModelWeights> {
   if (modelLevelLoaded !== modelLevel || !currentWeights) {
     currentWeights = await loadModelWeights(modelLevel, modelsPath)
     modelLevelLoaded = modelLevel

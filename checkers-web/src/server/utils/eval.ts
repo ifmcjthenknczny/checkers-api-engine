@@ -127,12 +127,12 @@ export async function evaluateBoardShallow(board: BoardPosition, move: Player): 
     if (!currentWeights) {
       throw new Error('Currently no weights are loaded')
     }
-    const boardAndMove = [...board, toJsonPlayerToMove(move)];
+    const boardAndMove = [...board, toJsonPlayerToMove(move)]
 
-    return evaluateBoardUsingWeights(boardAndMove, currentWeights);
+    return evaluateBoardUsingWeights(boardAndMove, currentWeights)
   } catch (error) {
-    console.error('Evaluation failed:', error);
-    throw error;
+    console.error('Evaluation failed:', error)
+    throw error
   }
 }
 
