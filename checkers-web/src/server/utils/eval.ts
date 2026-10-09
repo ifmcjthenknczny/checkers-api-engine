@@ -1,14 +1,14 @@
-import * as ort from 'onnxruntime-node'
-import { type Player, type BoardPosition, type Move } from '~/types'
+import type { Player, BoardPosition, Move } from '~/types'
 import { findAllLegalContinuations, applyMovesToBoard } from '~/helpers/move'
 import { BEST_EVAL, PRUNE_CONFIG, NON_DETERMINISTIC_CONFIG } from '~/config'
-import { session } from './model'
 import {
   type ShallowCandidate,
   buildSortedShallowCandidates,
   filterCandidatesByDelta,
 } from './prune'
 import { otherPlayer } from '~/helpers/turn'
+import { evaluateBoardUsingWeights } from './weights'
+import { currentWeights } from './model'
 
 type JsonPlayerToMove = -1 | 1
 
@@ -124,19 +124,11 @@ async function buildCandidatesForRootSearch(
 
 export async function evaluateBoardShallow(board: BoardPosition, move: Player): Promise<number> {
   try {
-    if (!session) {
-      throw new Error('ONNX Session not initialized')
-    }
-    const combinedData = new Float32Array(33)
-    combinedData.set(board)
-    combinedData[32] = toJsonPlayerToMove(move)
-    const tensor = new ort.Tensor('float32', combinedData, [1, 33])
-    const feeds = { [session.inputNames[0]]: tensor }
-    const results = await session.run(feeds)
-    return (results[session.outputNames[0]] as ort.Tensor).data[0] as number
+    const boardAndMove = [...board, toJsonPlayerToMove(move)];
+    return evaluateBoardUsingWeights(boardAndMove, currentWeights);
   } catch (error) {
-    console.error('Evaluation failed:', error)
-    throw error
+    console.error('Evaluation failed:', error);
+    throw error;
   }
 }
 

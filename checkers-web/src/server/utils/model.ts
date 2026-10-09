@@ -1,18 +1,32 @@
-import * as ort from 'onnxruntime-node'
 import { z } from 'zod'
 import path from 'node:path'
+import fs from 'node:fs/promises'
 import { type ModelLevel, MODEL_LEVELS } from '~/types'
 
-export let session: ort.InferenceSession | null = null
+export type ModelWeights = Record<string, number[] | number[][]>
 
-export async function loadModel(level: ModelLevel, modelsPath: string): Promise<void> {
+const weightsCache = new Map<ModelLevel, ModelWeights>()
+
+export let currentWeights: ModelWeights | null = null
+
+export async function loadModelWeights(level: ModelLevel, modelsPath: string): Promise<ModelWeights> {
+  if (weightsCache.has(level)) {
+    return weightsCache.get(level)!
+  }
+
   try {
-    const modelPath = path.isAbsolute(modelsPath)
-      ? path.join(modelsPath, `engine_${level}.onnx`)
-      : path.join(process.cwd(), modelsPath, `engine_${level}.onnx`)
-    session = await ort.InferenceSession.create(modelPath)
+    const fileName = `engine_${level}.json`
+    const filePath = path.isAbsolute(modelsPath)
+      ? path.join(modelsPath, fileName)
+      : path.join(process.cwd(), modelsPath, fileName)
+
+    const fileContent = await fs.readFile(filePath, 'utf-8')
+    const weights = JSON.parse(fileContent)
+
+    weightsCache.set(level, weights)
+    return weights
   } catch (e) {
-    console.error(`[ERROR] Loading model ${level} was unsuccessful:`, e)
+    console.error(`[ERROR] Loading model weights for level ${level} was unsuccessful:`, e)
     throw e
   }
 }
@@ -26,16 +40,18 @@ export const ModelLevelSchema = z.enum(
 
 let modelLevelLoaded: ModelLevel | null = null
 
-export async function ensureModelLoaded(modelLevel: ModelLevel, modelsPath: string): Promise<void> {
-  if (modelLevelLoaded !== modelLevel) {
-    await loadModel(modelLevel, modelsPath)
+export async function ensureModelLoaded(modelLevel: ModelLevel, modelsPath: string): Promise<ModelWeights> {
+  if (modelLevelLoaded !== modelLevel || !currentWeights) {
+    currentWeights = await loadModelWeights(modelLevel, modelsPath)
     modelLevelLoaded = modelLevel
   }
+  return currentWeights
 }
 
 export function parseModelLevel(param: string | undefined): ModelLevel {
-  if (!ModelLevelSchema.safeParse(param).data) {
+  const result = ModelLevelSchema.safeParse(param)
+  if (!result.success) {
     throw new Error('Invalid model level value provided')
   }
-  return +param! as ModelLevel
+  return Number(result.data) as ModelLevel
 }

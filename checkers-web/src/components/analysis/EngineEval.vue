@@ -38,7 +38,7 @@ const fetchEvaluation = async () => {
 useDebouncedWatch(
   [board, currentPlayer],
   () => {
-    if (props.fetchOnPlayers.includes(currentPlayer.value)) {
+    if (props.fetchOnPlayers && props.fetchOnPlayers.includes(currentPlayer.value)) {
       fetchEvaluation()
     }
   },

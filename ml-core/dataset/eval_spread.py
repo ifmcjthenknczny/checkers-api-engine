@@ -1,7 +1,6 @@
 import json
 import sys
 
-
 BUCKET_SIZE = 0.2
 
 

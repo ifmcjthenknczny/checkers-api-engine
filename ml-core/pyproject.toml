@@ -18,3 +18,8 @@ explicit = true
 
 [tool.uv.sources]
 torch = { index = "pytorch-cu124" }
+
+[dependency-groups]
+dev = [
+    "black>=26.3.0",
+]
