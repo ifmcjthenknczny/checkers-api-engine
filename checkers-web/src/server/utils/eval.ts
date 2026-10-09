@@ -124,7 +124,11 @@ async function buildCandidatesForRootSearch(
 
 export async function evaluateBoardShallow(board: BoardPosition, move: Player): Promise<number> {
   try {
+    if (!currentWeights) {
+      throw new Error('Currently no weights are loaded')
+    }
     const boardAndMove = [...board, toJsonPlayerToMove(move)];
+
     return evaluateBoardUsingWeights(boardAndMove, currentWeights);
   } catch (error) {
     console.error('Evaluation failed:', error);

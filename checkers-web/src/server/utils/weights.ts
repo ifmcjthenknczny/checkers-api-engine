@@ -1,4 +1,4 @@
-import { currentWeights, type ModelWeights } from "./model";
+import { type ModelWeights } from "./model";
 
 interface LinearWithBNArgs {
   input: number[];
@@ -47,10 +47,6 @@ function leakyRelu(arr: number[], negativeSlope = 0.1): number[] {
 }
 
 export function evaluateBoardUsingWeights(boardAndMove: number[], customWeights: ModelWeights): number {
-  if (!currentWeights) {
-    throw new Error('Currently no weights are loaded')
-  }
-
   let x = linearWithBN({
     input: boardAndMove,
     weight: customWeights['network.0.weight'] as number[][],
