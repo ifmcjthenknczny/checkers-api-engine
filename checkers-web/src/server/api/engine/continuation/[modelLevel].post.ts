@@ -4,10 +4,9 @@ import type { BoardPosition } from '~/types'
 import { pickBestContinuationWithDepth } from '~/server/utils/eval'
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
   const modelLevel = parseModelLevel(getRouterParam(event, 'modelLevel'))
 
-  await ensureModelLoaded(modelLevel, config.modelsPath)
+  await ensureModelLoaded(modelLevel)
 
   const {
     board,

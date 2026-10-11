@@ -72,9 +72,8 @@ export async function playGame(
   randomCoefficient: number,
   depth: number = 0,
 ): Promise<GameData> {
-  const config = useRuntimeConfig()
   if (modelLevel) {
-    await ensureModelLoaded(modelLevel, config.modelsPath)
+    await ensureModelLoaded(modelLevel)
   } else {
     randomCoefficient = 1
   }

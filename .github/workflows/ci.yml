@@ -30,7 +30,7 @@ jobs:
       - name: Check formatting
         run: npm run format:check
       - name: Check types
-        run: npm run type-check
+        run: npm run typecheck
       - name: Build code
         run: npm run build
 
