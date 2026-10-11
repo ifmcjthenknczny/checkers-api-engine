@@ -268,6 +268,7 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   width: $boardSizeVertical;
   height: $boardSizeVertical;
   position: relative;
+  margin-bottom: 8px;
 
   &--with-overlay {
     isolation: isolate;
@@ -318,6 +319,7 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
   .board {
     width: $boardSizeHorizontal;
     height: $boardSizeHorizontal;
+    margin-bottom: 0;
   }
 
   .board__moving-piece {
