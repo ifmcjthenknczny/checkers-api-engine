@@ -208,7 +208,7 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
               animatingMove && getDisplaySquareIndex(rowIndex, colIndex) === animatingMove.fromIndex
             )
           "
-          :piece="board[getDisplaySquareIndex(rowIndex, colIndex)]!"
+          :type="board[getDisplaySquareIndex(rowIndex, colIndex)]!"
           :index="getDisplaySquareIndex(rowIndex, colIndex)"
           :flash-red="
             flashRedIndices.has(getDisplaySquareIndex(rowIndex, colIndex)) &&
@@ -236,7 +236,7 @@ function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {
 
     <div v-if="animatingMove && movingPieceContent" class="board__move-overlay" aria-hidden="true">
       <div ref="movingPieceRef" class="board__moving-piece" :style="movingPieceStyle">
-        <Piece :piece="movingPieceContent" context="board" />
+        <Piece :type="movingPieceContent" context="board" />
       </div>
     </div>
   </section>

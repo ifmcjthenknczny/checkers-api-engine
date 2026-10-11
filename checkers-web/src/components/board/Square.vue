@@ -87,6 +87,7 @@ const drop = (e: DragEvent) => {
     :id="colName + rowName"
     @dragover="allowDrop"
     @drop="drop"
+    @click="drop"
   >
     <slot />
   </BoardTile>

@@ -8,7 +8,7 @@ import { computed } from 'vue'
 import { useComputerMoveStore } from '~/stores/computerMoveStore'
 
 interface Props {
-  piece: SquareContent
+  type: SquareContent
   index?: number
   context: DragContext
   flashRed?: boolean
@@ -23,7 +23,7 @@ const animationStore = useComputerMoveStore()
 const { isAnimating } = storeToRefs(animationStore)
 
 const drag = () => {
-  dragStore.startDrag(props.context, props.piece, props.index)
+  dragStore.startDrag(props.context, props.type, props.index)
 }
 
 const toClassNameList = (piece?: SquareContent) => {
@@ -45,20 +45,22 @@ const canBeDragged = computed(() => {
   if (props.context === 'spawn') {
     return true
   }
-  return !humanPlayerColor.value || humanPlayerColor.value === getPieceColor(props.piece)
+  return !humanPlayerColor.value || humanPlayerColor.value === getPieceColor(props.type)
 })
 </script>
 
 <template>
   <div
-    v-if="piece !== 0"
-    :class="[toClassNameList(piece), { 'piece--flash-red': flashRed }]"
+    v-if="type !== 0"
+    :class="[toClassNameList(type), { 'piece--flash-red': flashRed }]"
     :draggable="canBeDragged"
     @dragstart="drag"
+    @click="drag"
   >
-    <div v-if="isQueen(piece)" :class="toDecorationClassNameList(piece)" />
+    <div v-if="isQueen(type)" :class="toDecorationClassNameList(type)" />
   </div>
 </template>
+
 <style lang="scss" scoped>
 @use 'sass:color';
 

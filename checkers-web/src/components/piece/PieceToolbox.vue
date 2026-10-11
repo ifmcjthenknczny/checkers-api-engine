@@ -27,7 +27,7 @@ const TOOLBOX_PIECES: SquareContent[] = [-3, 3, -1, 1]
     </div>
     <div class="piece-spawner__row piece-spawner__row--bottom">
       <BoardTile :key="piece" v-for="piece in TOOLBOX_PIECES" :color="getPieceColor(piece)!">
-        <Piece :piece="piece" context="spawn" />
+        <Piece :type="piece" context="spawn" />
       </BoardTile>
     </div>
   </div>

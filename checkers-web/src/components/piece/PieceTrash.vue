@@ -23,6 +23,7 @@ const drop = () => {
     class="trash"
     @dragover="allow"
     @drop="drop"
+    @click="drop"
     title="Drop piece here to remove it from the board"
   >
     <svg
