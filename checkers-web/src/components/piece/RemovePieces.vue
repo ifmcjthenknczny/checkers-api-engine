@@ -13,7 +13,7 @@ const handleArmageddon = () => {
 <template>
   <button
     class="armageddon-btn"
-    :class="tileColor ? `armageddon-btn--${tileColor.value}` : ''"
+    :class="tileColor ? `armageddon-btn--${tileColor}` : ''"
     @click="handleArmageddon"
     title="Remove all pieces"
   >

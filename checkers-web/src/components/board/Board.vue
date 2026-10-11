@@ -125,47 +125,66 @@ const possibleMovesForDraggedPieceMap = computed(() => {
   )
 })
 
+const flashLegalMovesRed = (fromIndex: number) => {
+  if (flashRedTimeout) {
+    clearTimeout(flashRedTimeout)
+  }
+
+  const color = getPieceColor(board.value[fromIndex])!
+  flashRedIndices.value = new Set(findAllLegalMoves(board.value, color).map((m) => m.fromIndex))
+  flashRedTimeout = setTimeout(() => {
+    flashRedIndices.value = new Set()
+  }, 600)
+}
+
+const shouldFlashRed = () =>
+  Object.keys(possibleMovesForDraggedPieceMap.value).length === 0 &&
+  humanPlayerColor.value !== null &&
+  currentPlayer.value === humanPlayerColor.value
+
+const dropInGame = (fromIndex: number, toIndex: number) => {
+  const move = possibleMovesForDraggedPieceMap.value[toIndex]
+  if (!move) {
+    if (shouldFlashRed()) {
+      flashLegalMovesRed(fromIndex)
+    }
+    return
+  }
+  boardStore.applyMove(move)
+}
+
+const dropFromBoard = (toIndex: number) => {
+  if (isAnimating.value) return
+
+  const fromIndex = draggedIndex.value
+  if (fromIndex === null || fromIndex === toIndex) return
+
+  if (props.context === 'game') {
+    dropInGame(fromIndex, toIndex)
+    return
+  }
+
+  boardStore.movePiece(fromIndex, toIndex)
+  dragStore.stopDrag()
+}
+
+const dropFromSpawn = (toIndex: number, piece?: SquareContent) => {
+  if (props.context !== 'analysis' || !piece) {
+    return
+  }
+  boardStore.addPiece(piece, toIndex)
+  dragStore.stopDrag()
+}
+
 const drop = ([col, row, piece]: [number, number, SquareContent?]) => {
   const toIndex = getDisplaySquareIndex(row, col)
 
-  if (dragContext.value === 'spawn' && props.context === 'analysis') {
-    if (!piece) {
-      return
-    }
-    boardStore.addPiece(piece, toIndex)
+  if (dragContext.value === 'spawn') {
+    return dropFromSpawn(toIndex, piece)
   }
-
   if (dragContext.value === 'board') {
-    if (isAnimating.value) return
-    const fromIndex = draggedIndex.value
-    if (fromIndex === null) {
-      return
-    }
-    if (props.context === 'game') {
-      if (!possibleMovesForDraggedPieceMap.value[toIndex]) {
-        if (
-          Object.keys(possibleMovesForDraggedPieceMap.value).length === 0 &&
-          humanPlayerColor.value !== null &&
-          currentPlayer.value === humanPlayerColor.value
-        ) {
-          if (flashRedTimeout) clearTimeout(flashRedTimeout)
-          const color = getPieceColor(board.value[fromIndex])!
-          flashRedIndices.value = new Set(
-            findAllLegalMoves(board.value, color).map((m) => m.fromIndex),
-          )
-          flashRedTimeout = setTimeout(() => {
-            flashRedIndices.value = new Set()
-          }, 600)
-        }
-        return
-      }
-      boardStore.applyMove(possibleMovesForDraggedPieceMap.value[toIndex])
-      return
-    }
-    boardStore.movePiece(fromIndex, toIndex)
+    return dropFromBoard(toIndex)
   }
-
-  dragStore.stopDrag()
 }
 
 function shouldShowPossibleMoveMarker(rowIndex: number, colIndex: number) {

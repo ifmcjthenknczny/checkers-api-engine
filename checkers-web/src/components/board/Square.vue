@@ -36,8 +36,10 @@ const { isAnimating } = storeToRefs(animationStore)
 const emit = defineEmits<{ dropPiece: [[number, number, SquareContent?]] }>()
 
 const allowDrop = (e: DragEvent) => {
-  if (isAnimating.value) return
-  const isPlayersPiece =
+  if (isAnimating.value) {
+    return
+  }
+  const isPlayerPiece =
     activePiece.value && getPieceColor(activePiece.value) === humanPlayerColor.value
   const isDifferentSquare = draggedIndex.value !== squareIndex
   const isPlayableSquare = !isWhiteSquare(rowIndex, colIndex)
@@ -46,7 +48,7 @@ const allowDrop = (e: DragEvent) => {
   if (
     isPlayableSquare &&
     isDifferentSquare &&
-    ((props.context === 'game' && isPlayersPiece && isPlayerTurn) || props.context === 'analysis')
+    ((props.context === 'game' && isPlayerPiece && isPlayerTurn) || props.context === 'analysis')
   ) {
     e.preventDefault()
   }
@@ -57,8 +59,7 @@ const { moveCallback, turnOverCallback, gameOverCallback } = useGameCallbacks()
 
 const drop = (e: DragEvent) => {
   e.preventDefault()
-  if (isAnimating.value) return
-  if (!activePiece.value) {
+  if (isAnimating.value || !activePiece.value) {
     return
   }
   if (props.context === 'game') {
