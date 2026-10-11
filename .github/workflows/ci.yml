@@ -22,18 +22,17 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Install deps
-        run: yarn install --immutable
-
+        run: npm ci
       - name: Lint code
-        run: yarn lint
+        run: npm run lint
 
+      - name: Check formatting
+        run: npm run format:check
+      - name: Check types
+        run: npm run type-check
       - name: Build code
-        run: yarn build
+        run: npm run build
 
   ml-core:
     runs-on: ubuntu-latest
