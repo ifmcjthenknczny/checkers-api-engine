@@ -4,25 +4,30 @@ import EvaluationPanel from '@/components/analysis/EvaluationPanel.vue'
 import PieceToolbox from '@/components/piece/PieceToolbox.vue'
 import ButtonGroup from '@/components/ui/ButtonGroup.vue'
 import FlipBoardButton from '@/components/ui/FlipBoardButton.vue'
+import PageLayout from '@/layouts/default.vue'
 </script>
 
 <template>
-  <div class="analysis-page">
-    <div class="analysis-page__board-col">
-      <Board context="analysis" />
-      <ButtonGroup type="game">
-        <FlipBoardButton />
-      </ButtonGroup>
+  <PageLayout>
+    <div class="analysis-page">
+      <div class="analysis-page__board-col">
+        <Board context="analysis" />
+        <ButtonGroup type="game">
+          <FlipBoardButton />
+        </ButtonGroup>
+      </div>
     </div>
-    <aside class="analysis-page__side">
-      <div class="analysis-page__analysis-col">
-        <EvaluationPanel />
-      </div>
-      <div class="analysis-page__toolbox-col">
-        <PieceToolbox />
-      </div>
-    </aside>
-  </div>
+    <template #sidebar>
+      <aside class="analysis-page__side">
+        <div class="analysis-page__analysis-col">
+          <EvaluationPanel />
+        </div>
+        <div class="analysis-page__toolbox-col">
+          <PieceToolbox />
+        </div>
+      </aside>
+    </template>
+  </PageLayout>
 </template>
 
 <style lang="scss" scoped>
@@ -69,6 +74,7 @@ import FlipBoardButton from '@/components/ui/FlipBoardButton.vue'
     flex-shrink: 0;
     flex-direction: row;
     align-items: flex-start;
+    justify-content: flex-end;
     gap: 1.5rem;
     width: auto;
   }
@@ -85,6 +91,7 @@ import FlipBoardButton from '@/components/ui/FlipBoardButton.vue'
     flex-shrink: 0;
     flex-direction: column;
     align-items: flex-start;
+    margin-left: 1rem;
   }
 }
 </style>

@@ -5,10 +5,17 @@ import MainNav from '@/components/layout/MainNav.vue'
 
 <template>
   <div class="page-layout">
-    <header class="page-layout__header">
-      <AppLogo />
-      <MainNav />
-    </header>
+    <div class="page-layout__left-column">
+      <header class="page-layout__header">
+        <AppLogo />
+        <MainNav />
+      </header>
+
+      <aside v-if="$slots.sidebar" class="page-layout__sidebar">
+        <slot name="sidebar" />
+      </aside>
+    </div>
+
     <main class="page-layout__main">
       <div class="page-layout__content">
         <slot />
@@ -36,6 +43,12 @@ import MainNav from '@/components/layout/MainNav.vue'
   padding: 1rem 1.5rem;
   flex-shrink: 0;
   width: 100%;
+  box-sizing: border-box;
+}
+
+.page-layout__sidebar {
+  width: 100%;
+  padding: 0 1.5rem 1.5rem 1.5rem;
   box-sizing: border-box;
 }
 
@@ -68,6 +81,14 @@ import MainNav from '@/components/layout/MainNav.vue'
     align-items: flex-start;
   }
 
+  .page-layout__left-column {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: auto;
+    min-width: auto;
+  }
+
   .page-layout__header {
     flex-direction: column;
     justify-content: flex-start;
@@ -75,16 +96,25 @@ import MainNav from '@/components/layout/MainNav.vue'
     width: auto;
     min-width: auto;
     padding: 1.5rem;
+    order: 1;
+  }
+
+  .page-layout__sidebar {
+    order: 3;
+    width: auto;
+    flex-shrink: 0;
+    padding: 1.5rem 1.5rem 1.5rem 0;
   }
 
   .page-layout__main {
+    order: 2;
     flex: 1;
     align-items: stretch;
     justify-content: flex-start;
   }
 
   .page-layout__content {
-    flex-direction: row;
+    flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
     gap: 2rem;

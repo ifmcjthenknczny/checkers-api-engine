@@ -14,6 +14,7 @@ import { indexToRowCol } from '@/helpers/board'
 import type { Move, Player } from '@/types'
 import Loader from './ui/Loader.vue'
 import { DEPTH_CONFIG, MODEL_CONFIG } from '~/config'
+import PageLayout from '~/layouts/default.vue'
 
 const { boardStore, gameStore, humanPlayerColor, currentPlayer, gamePhase } = useComputerOpponent()
 const { board } = storeToRefs(boardStore)
@@ -67,77 +68,84 @@ watch([gamePhase, currentPlayer, board], async () => {
 </script>
 
 <template>
-  <div class="learn-page">
-    <div class="learn-page__board-col">
-      <template v-if="gamePhase === 'color'">
-        <Board context="analysis" />
-      </template>
-      <template v-else>
-        <GameBoardLayout :show-captured-pieces="false" context="game" restart-button-label="stop" />
-      </template>
+  <PageLayout>
+    <div class="learn-page">
+      <div class="learn-page__board-col">
+        <template v-if="gamePhase === 'color'">
+          <Board context="analysis" />
+        </template>
+        <template v-else>
+          <GameBoardLayout
+            :show-captured-pieces="false"
+            context="game"
+            restart-button-label="stop"
+          />
+        </template>
+      </div>
     </div>
 
-    <div v-if="gamePhase === 'color'" class="learn-page__toolbox-col">
-      <PieceToolbox />
-    </div>
+    <template #sidebar>
+      <aside class="learn-page__side">
+        <template v-if="gamePhase === 'color'">
+          <div class="learn-page__toolbox-col">
+            <PieceToolbox />
+          </div>
+          <div class="setup-panel">
+            <div class="setup-panel__section">
+              <span class="setup-panel__label">who starts</span>
+              <MoveInput :full-label="false" />
+            </div>
+            <div class="setup-panel__section">
+              <span class="setup-panel__label">you play as</span>
+              <ButtonGroup type="question">
+                <Button
+                  color-variant="white"
+                  button-type="color"
+                  size-variant="small"
+                  :selected="selectedPlayerColor === 'white'"
+                  @click="selectedPlayerColor = 'white'"
+                >
+                  white
+                </Button>
+                <Button
+                  color-variant="black"
+                  button-type="color"
+                  size-variant="small"
+                  :selected="selectedPlayerColor === 'black'"
+                  @click="selectedPlayerColor = 'black'"
+                >
+                  black
+                </Button>
+              </ButtonGroup>
+            </div>
+            <Button button-type="game" @click="startGame">start</Button>
+          </div>
+        </template>
 
-    <aside class="learn-page__side">
-      <template v-if="gamePhase === 'color'">
-        <div class="setup-panel">
-          <div class="setup-panel__section">
-            <span class="setup-panel__label">who starts</span>
-            <MoveInput :full-label="false" />
+        <template v-else>
+          <div class="learn-page__eval-col">
+            <EngineEval :fetch-on-players="humanPlayerColor ? [humanPlayerColor] : undefined" />
+            <div
+              v-if="gamePhase === 'game'"
+              class="best-move-hint"
+              :class="{
+                'best-move-hint--loading': humanPlayerColor === currentPlayer && isBestMoveLoading,
+              }"
+            >
+              <span class="best-move-hint__label">hint</span>
+              <span class="best-move-hint__move">
+                <Loader v-if="isBestMoveLoading" />
+                <span v-else-if="humanPlayerColor === currentPlayer && formattedBestMove">{{
+                  formattedBestMove
+                }}</span>
+                <span v-else>...</span>
+              </span>
+            </div>
           </div>
-          <div class="setup-panel__section">
-            <span class="setup-panel__label">you play as</span>
-            <ButtonGroup type="question">
-              <Button
-                color-variant="white"
-                button-type="color"
-                size-variant="small"
-                :selected="selectedPlayerColor === 'white'"
-                @click="selectedPlayerColor = 'white'"
-              >
-                white
-              </Button>
-              <Button
-                color-variant="black"
-                button-type="color"
-                size-variant="small"
-                :selected="selectedPlayerColor === 'black'"
-                @click="selectedPlayerColor = 'black'"
-              >
-                black
-              </Button>
-            </ButtonGroup>
-          </div>
-          <Button button-type="game" @click="startGame">start</Button>
-        </div>
-      </template>
-
-      <template v-else>
-        <div class="learn-page__eval-col">
-          <EngineEval :fetch-on-players="humanPlayerColor ? [humanPlayerColor] : undefined" />
-          <div
-            v-if="gamePhase === 'game'"
-            class="best-move-hint"
-            :class="{
-              'best-move-hint--loading': humanPlayerColor === currentPlayer && isBestMoveLoading,
-            }"
-          >
-            <span class="best-move-hint__label">hint</span>
-            <span class="best-move-hint__move">
-              <Loader v-if="isBestMoveLoading" />
-              <span v-else-if="humanPlayerColor === currentPlayer && formattedBestMove">{{
-                formattedBestMove
-              }}</span>
-              <span v-else>...</span>
-            </span>
-          </div>
-        </div>
-      </template>
-    </aside>
-  </div>
+        </template>
+      </aside>
+    </template>
+  </PageLayout>
 </template>
 
 <style lang="scss" scoped>
@@ -291,8 +299,9 @@ watch([gamePhase, currentPlayer, board], async () => {
 
   .learn-page__side {
     flex-shrink: 0;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
+    justify-content: flex-end;
     gap: 1.5rem;
     width: auto;
     order: 2;
@@ -301,7 +310,6 @@ watch([gamePhase, currentPlayer, board], async () => {
   .learn-page__toolbox-col {
     align-items: flex-start;
     order: 3;
-    margin-left: 2rem;
   }
 
   .learn-page__eval-col {
