@@ -320,6 +320,7 @@ watch([gamePhase, currentPlayer, board], async () => {
   .setup-panel {
     align-items: flex-start;
     max-width: 280px;
+    padding-left: 48px;
 
     &__section {
       align-items: flex-start;
