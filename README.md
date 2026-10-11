@@ -12,7 +12,7 @@ The **frontend** (`checkers-web`) is an upgrade and a complete rewrite of the or
 
 ## Running the project
 
-- **Frontend:** In `checkers-web`: `yarn install`, `yarn dev`. Should be available at `localhost:3000`.
+- **Frontend:** In `checkers-web`: `npm run install`, `npm run dev`. Should be available at `localhost:3000`.
 - **Training:** In `ml-core`: `uv sync`, then `uv run train.py` (data from `../data/`, model written to `../models/`)
 
 ## API reference

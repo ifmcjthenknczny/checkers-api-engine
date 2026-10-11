@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppLogo from '@/components/layout/AppLogo.vue'
 import MainNav from '@/components/layout/MainNav.vue'
+import Footer from '~/components/layout/Footer.vue'
 </script>
 
 <template>
@@ -22,6 +23,7 @@ import MainNav from '@/components/layout/MainNav.vue'
       </div>
     </main>
   </div>
+  <Footer />
 </template>
 
 <style lang="scss" scoped>
