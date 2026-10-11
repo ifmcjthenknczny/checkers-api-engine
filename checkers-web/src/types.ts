@@ -3,7 +3,6 @@ type Tuple<T, N extends number, R extends T[] = []> = R['length'] extends N
   : Tuple<T, N, [T, ...R]>
 
 // TODO: make it human readable (white pawn, black pawn, white queen, black queen)
-
 export const ALLOWED_SQUARE_CONTENT = [0, 1, -1, 3, -3] as const
 
 export type SquareContent = (typeof ALLOWED_SQUARE_CONTENT)[number]

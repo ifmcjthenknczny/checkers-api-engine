@@ -2,6 +2,7 @@
 import { fileURLToPath } from 'node:url'
 
 const srcDir = fileURLToPath(new URL('./src', import.meta.url))
+const weightsDir = fileURLToPath(new URL('../models/weights', import.meta.url))
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
@@ -50,6 +51,7 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: process.env.NODE_ENV === 'production' ? 'vercel' : 'node-server',
+    serverAssets: [{ baseName: 'models', dir: weightsDir }],
     experimental: {
       tasks: true,
     },

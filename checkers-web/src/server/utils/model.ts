@@ -1,6 +1,4 @@
 import { z } from 'zod'
-import path from 'node:path'
-import fs from 'node:fs/promises'
 import { type ModelLevel, MODEL_LEVELS } from '~/types'
 
 export type ModelWeights = Record<string, number[] | number[][]>
@@ -9,29 +7,19 @@ const weightsCache = new Map<ModelLevel, ModelWeights>()
 
 export let currentWeights: ModelWeights | null = null
 
-export async function loadModelWeights(
-  level: ModelLevel,
-  modelsPath: string,
-): Promise<ModelWeights> {
-  if (weightsCache.has(level)) {
-    return weightsCache.get(level)!
+export async function loadModelWeights(level: ModelLevel): Promise<ModelWeights> {
+  if (weightsCache.has(level)) return weightsCache.get(level)!
+
+  const raw = await useStorage('assets:models').getItem<ModelWeights | string>(
+    `engine_${level}.json`,
+  )
+  if (!raw) {
+    throw new Error(`Model weights for level ${level} not found`)
   }
 
-  try {
-    const fileName = `engine_${level}.json`
-    const filePath = path.isAbsolute(modelsPath)
-      ? path.join(modelsPath, fileName)
-      : path.join(process.cwd(), modelsPath, fileName)
-
-    const fileContent = await fs.readFile(filePath, 'utf-8')
-    const weights = JSON.parse(fileContent)
-
-    weightsCache.set(level, weights)
-    return weights
-  } catch (e) {
-    console.error(`[ERROR] Loading model weights for level ${level} was unsuccessful:`, e)
-    throw e
-  }
+  const weights = typeof raw === 'string' ? JSON.parse(raw) : raw
+  weightsCache.set(level, weights)
+  return weights
 }
 
 export const ModelLevelSchema = z.enum(
@@ -43,12 +31,9 @@ export const ModelLevelSchema = z.enum(
 
 let modelLevelLoaded: ModelLevel | null = null
 
-export async function ensureModelLoaded(
-  modelLevel: ModelLevel,
-  modelsPath: string,
-): Promise<ModelWeights> {
+export async function ensureModelLoaded(modelLevel: ModelLevel): Promise<ModelWeights> {
   if (modelLevelLoaded !== modelLevel || !currentWeights) {
-    currentWeights = await loadModelWeights(modelLevel, modelsPath)
+    currentWeights = await loadModelWeights(modelLevel)
     modelLevelLoaded = modelLevel
   }
   return currentWeights
