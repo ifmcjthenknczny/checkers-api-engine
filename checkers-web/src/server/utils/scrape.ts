@@ -24,7 +24,7 @@ export type GameData = (TurnRecord & { result: JsonGameResult })[]
 const MAX_TURNS = 300
 const EVAL_DECIMALS = 6
 
-function roundEval(value: number): number {
+const roundEval = (value: number): number => {
   return Math.round(value * 10 ** EVAL_DECIMALS) / 10 ** EVAL_DECIMALS
 }
 
