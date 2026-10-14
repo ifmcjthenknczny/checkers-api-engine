@@ -6,7 +6,7 @@ export const useSessionId = () => {
   })
 
   const getSessionId = () => {
-    return sessionId.value
+    return sessionId.value || undefined
   }
 
   const generateSessionId = () => {
@@ -15,7 +15,7 @@ export const useSessionId = () => {
   }
 
   const clearSessionId = () => {
-    sessionId.value = null
+    sessionId.value = undefined
   }
 
   return {

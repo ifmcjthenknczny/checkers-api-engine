@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
 
   if (sessionId) {
     console.log({
+      event: 'computer_move',
       human: playerColor === 'black' ? 'white' : 'black',
       eval: roundEval(score),
       id: sessionId,
