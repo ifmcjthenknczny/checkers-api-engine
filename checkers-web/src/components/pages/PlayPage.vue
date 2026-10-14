@@ -3,17 +3,22 @@ import GameBoardLayout from '@/components/board/GameBoardLayout.vue'
 import PlayerColorChoice from '@/components/game/PlayerColorChoice.vue'
 import { watch } from 'vue'
 import { useComputerOpponent } from '@/hooks/useComputerOpponent'
+import { useSessionId } from '~/hooks/useSessionId'
 
 const { boardStore, gameStore, humanPlayerColor, gamePhase } = useComputerOpponent()
+
+const session = useSessionId()
 
 function startGame() {
   boardStore.resetToDefault()
   gameStore.setGamePhase('game')
+  session.generateSessionId()
 }
 
 function resetGame() {
   boardStore.resetToDefault()
   gameStore.resetToDefault()
+  session.generateSessionId()
 }
 
 watch(

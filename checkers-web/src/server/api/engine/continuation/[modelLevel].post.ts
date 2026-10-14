@@ -5,6 +5,7 @@ import { pickBestContinuationWithDepth } from '~/server/utils/eval'
 
 export default defineEventHandler(async (event) => {
   const modelLevel = parseModelLevel(getRouterParam(event, 'modelLevel'))
+  const sessionId = getHeader(event, 'x-session-id')
 
   await ensureModelLoaded(modelLevel)
 
@@ -15,12 +16,16 @@ export default defineEventHandler(async (event) => {
     useNonDeterministic,
   } = await parseBodyOrThrow(event, BodyRequestSchema)
 
-  const { moves } = await pickBestContinuationWithDepth(
+  const { moves, score } = await pickBestContinuationWithDepth(
     board as BoardPosition,
     playerColor,
     depth,
     useNonDeterministic,
   )
+
+  if (sessionId) {
+    console.log({ human: playerColor === 'black' ? 'white' : 'black', eval: score, sessionId })
+  }
 
   return { continuation: moves }
 })

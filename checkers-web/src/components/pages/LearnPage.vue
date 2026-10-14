@@ -12,7 +12,7 @@ import { useComputerOpponent } from '@/hooks/useComputerOpponent'
 import { pickBestEngineContinuation } from '@/helpers/ai'
 import { indexToRowCol } from '@/helpers/board'
 import type { Move, Player } from '@/types'
-import Loader from './ui/Loader.vue'
+import Loader from '../ui/Loader.vue'
 import { DEPTH_CONFIG, MODEL_CONFIG } from '~/config'
 import PageLayout from '~/layouts/default.vue'
 
